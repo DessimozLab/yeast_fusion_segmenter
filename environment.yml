@@ -1,0 +1,43 @@
+name: yeast_fusion_segmenter
+channels:
+  - conda-forge
+  - pytorch
+  - nvidia
+  - defaults
+dependencies:
+  - python=3.9
+  - pip=23.1.2
+  - numpy=1.24.3
+  - matplotlib=3.7.1
+  - pillow=9.5.0
+  - h5py=3.8.0
+  - scikit-image=0.20.0
+  - opencv=4.7.0
+  - pandas=2.0.1
+  - scipy=1.10.1
+  - tqdm=4.65.0
+  - pytorch=2.0.0
+  - torchvision=0.15.0
+  - pytorch-cuda=11.7  # Specify CUDA version compatible with PyTorch 2.0
+  - cudatoolkit=11.7   # CUDA toolkit
+  - cudnn=8.5.0        # CUDA Deep Neural Network library
+  - scikit-learn=1.2.2
+  - ipykernel=6.23.0
+  - jupyterlab=3.6.3
+  - jupyterlab_widgets=3.0.7
+  - jupyter_client=8.2.0
+  - jupyter_core=5.3.0
+  - jupyter_server=2.5.0
+  - ipywidgets=8.0.6
+  - nbconvert=7.3.1
+  - nbformat=5.8.0
+  - notebook=6.5.4
+  - widgetsnbextension=4.0.7
+  - pip:
+    - ultralytics==8.0.120
+    - czifile==2019.7.2
+    - pyimagej==1.4.1
+    - shutil-which==3.1.0
+    - jupyterlab-pygments==0.2.2
+    - jupyterlab-widgets==3.0.7
+  

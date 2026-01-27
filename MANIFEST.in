@@ -1,0 +1,30 @@
+include README.MD
+include LICENSE
+include pyproject.toml
+include environment.yml
+include dataset.yaml
+include sample_hyperparameters.yaml
+include *.pt
+recursive-include yeast_fusion_segmenter *.py
+recursive-include yeast_fusion_segmenter *.yaml
+recursive-include yeast_fusion_segmenter *.yml
+recursive-include yeast_fusion_segmenter *.pt
+exclude tests/*
+exclude validation/*
+exclude augmented/*
+exclude datasets/*
+exclude images_CNN/*
+exclude images_CNN_clean/*
+exclude new_images/*
+exclude example/*
+exclude yeaz/*
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude .git*
+global-exclude *.tif
+global-exclude *.TIF
+global-exclude *.h5
+global-exclude *.czi
+global-exclude *.png
+global-exclude *.jpg
+global-exclude *.jpeg

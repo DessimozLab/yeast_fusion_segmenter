@@ -1,0 +1,58 @@
+# Configuration file for annotate_images.py
+# Using yolov8s-seg_yfusion.pt model for yeast cell segmentation
+
+# Model Configuration
+model: yolov8s-seg_yfusion.pt  # Path to trained YOLO model
+
+# Input/Output Configuration
+input: images_CNN_clean/  # Input directory containing images
+output: annotation_results.csv  # Output CSV file with results
+
+# Image Format
+format: auto  # Auto-detect format or specify: 'tiff', 'czi', 'single'
+
+# Detection Parameters
+confidence: 0.5  # Confidence threshold for detections (0.0-1.0)
+imgsz: 1024  # Image size for inference
+crop: 1024  # Crop size for input images
+
+# Zoom Mode Settings (for high-resolution images)
+zoom: false  # Enable overlapping crop predictions
+zoom_factor: 0.667  # Zoom factor (40/60 = 0.667)
+
+# Output Options
+verbose: false  # Enable verbose output for debugging
+
+# Notes:
+# - 'auto' format detects TIFF stacks (BF/GFP/RFP), CZI files, or single images
+# - Confidence threshold filters out low-confidence detections
+# - Zoom mode creates overlapping crops for detailed analysis
+# - Results include per-cell statistics for BF, RFP, and GFP channels
+# - TIFF stack processing expects matching BF, GFP, and RFP files
+
+# Example Directory Structures:
+#
+# TIFF Stack:
+#   input/
+#     ├── BF01_Position001.tif
+#     ├── GFP01_Position001.tif
+#     └── RFP01_Position001.tif
+#
+# CZI Files:
+#   input/
+#     ├── sample1.czi
+#     └── sample2.czi
+#
+# Single Images:
+#   input/
+#     ├── image1.png
+#     └── image2.jpg
+
+# Usage:
+# python annotate_images.py --config annotate_images_config.yaml
+#
+# Override specific parameters from command line:
+# python annotate_images.py --config annotate_images_config.yaml --confidence 0.7 --zoom true
+#
+# Process with verbose output:
+# python annotate_images.py --config annotate_images_config.yaml --verbose

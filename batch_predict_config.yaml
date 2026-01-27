@@ -1,0 +1,29 @@
+# Configuration file for batch_predict.py
+# Using yolov8s-seg_yfusion.pt model for yeast cell segmentation
+
+# Model Configuration
+model: yolov8s-seg_yfusion.pt  # Path to trained YOLO model
+
+# Input/Output Configuration
+input_dir: datasets/test/images  # Directory containing input images
+output_csv: batch_predictions.csv  # Output CSV file with results
+format: png  # Image format: 'png', 'tif', or 'czi'
+
+# Image Processing Parameters
+crop: 1024  # Crop size for processing (default: 1024)
+
+# Zoom Mode Settings (for high-resolution images)
+zoom: false  # Enable overlapping crop predictions
+zoom_factor: 0.667  # Zoom factor (40/60 = 0.667, smaller = more crops)
+
+# Notes:
+# - Set zoom: true for processing large high-resolution images
+# - Adjust zoom_factor to control crop size (0.5 = half image per crop)
+# - Results include bounding boxes, confidence scores, and channel statistics
+# - For CZI format support, install: pip install pyimagej
+
+# Usage:
+# python batch_predict.py --config batch_predict_config.yaml
+#
+# Override specific parameters from command line:
+# python batch_predict.py --config batch_predict_config.yaml --zoom true --crop 512

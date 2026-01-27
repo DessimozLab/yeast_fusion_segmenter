@@ -1,0 +1,2 @@
+frames	framee	cuttop	cutbttm	cutleft	cutrght
+0	6	1	1040	1	1392

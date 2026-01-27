@@ -1,0 +1,35 @@
+# YOLO training hyperparameters
+
+# Learning rate settings
+lr0: 0.001              # initial learning rate
+lrf: 0.0001             # final learning rate (lr0 * lrf)
+momentum: 0.5           # SGD momentum/Adam beta1
+weight_decay: 0.0001    # optimizer weight decay
+
+# Warmup settings
+warmup_epochs: 3.0      # warmup epochs
+warmup_momentum: 0.8    # warmup initial momentum
+warmup_bias_lr: 0.01    # warmup initial bias lr
+
+# Loss function weights
+box: 10                 # box loss gain
+cls: 5                  # cls loss gain
+dfl: 0.5                # dfl loss gain
+
+# Training settings
+label_smoothing: 0.0    # label smoothing
+nbs: 64                 # nominal batch size
+
+# Augmentation settings
+hsv_h: 0.01             # image HSV-Hue augmentation
+hsv_s: 0.01             # image HSV-Saturation augmentation
+hsv_v: 0.01             # image HSV-Value augmentation
+degrees: 180.0          # image rotation (+/- deg)
+translate: 0.1          # image translation (+/- fraction)
+scale: 0.1              # image scale (+/- gain)
+shear: 0.1              # image shear (+/- deg)
+perspective: 0.0        # image perspective (+/- fraction)
+flipud: 0.5             # image flip up-down (probability)
+fliplr: 0.5             # image flip left-right (probability)
+mosaic: 0.2             # image mosaic (probability)
+mixup: 0.0              # image mixup (probability)
