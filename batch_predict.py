@@ -368,10 +368,10 @@ Note:
             crops, png_paths, coordinates = zoom_img(arr, args.zoom_factor, args.crop, base_filepath=imgfile)
             print(f"  Created {len(crops)} zoomed crops with {len(png_paths)} PNG files")
             
-            for crop_idx, (crop, png_path, coord) in enumerate(zip(crops, png_paths, coordinates)):
+            for crop_idx, (crop, crop_png_path, coord) in enumerate(zip(crops, png_paths, coordinates)):
                 # Use the saved PNG path directly
-                df = predict_and_collect(model, png_path,
-                                       png_path.replace('.png', '.csv'),
+                df = predict_and_collect(model, crop_png_path,
+                                       crop_png_path.replace('.png', '.csv'),
                                        crop=args.crop, crop_id=crop_idx)
                 if df is not None:
                     # Add coordinate information
@@ -380,7 +380,9 @@ Note:
                     df['crop_x2'] = coord[2]
                     df['crop_y2'] = coord[3]
                     all_dfs.append(df)
-                os.remove(temp_path)
+                # Clean up the crop PNG file
+                if os.path.exists(crop_png_path):
+                    os.remove(crop_png_path)
         else:
             # Normal prediction on full image
             # Use PNG path directly for CZI files, create temp for others
