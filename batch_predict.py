@@ -230,6 +230,18 @@ def predict_and_collect(model, imgfile, outcsv, crop=1024, crop_id=None):
             x1, y1, x2, y2 = xywh[i]
             c = int(c)
             
+            # Initialize result dictionary for this detection
+            resdict[rescount] = {
+                'file': os.path.basename(imgfile),
+                'crop_id': crop_id if crop_id is not None else 0,
+                'class': c,
+                'proba': proba[i],
+                'x1': x1,
+                'y1': y1,
+                'x2': x2,
+                'y2': y2
+            }
+            
             # Process mask if available
             if masks is not None:
                 # Get mask polygon coordinates
@@ -270,22 +282,31 @@ def predict_and_collect(model, imgfile, outcsv, crop=1024, crop_id=None):
                     'gfp_max': gfp_stats.minmax[1],
                     'gfp_skew': gfp_stats.skewness
                 }
-                
-                # Store results
-                resdict[rescount] = {
-                    'file': os.path.basename(imgfile),
-                    'crop_id': crop_id if crop_id is not None else 0,
-                    'class': c,
-                    'proba': proba[i],
-                    'x1': x1,
-                    'y1': y1,
-                    'x2': x2,
-                    'y2': y2
-                }
+
                 resdict[rescount].update(bf_stats_dict)
                 resdict[rescount].update(rfp_stats_dict)
                 resdict[rescount].update(gfp_stats_dict)
-                rescount += 1
+            else:
+                # If no mask, set statistics to NaN
+                resdict[rescount].update({
+                    'bf_mean': np.nan,
+                    'bf_std': np.nan,
+                    'bf_min': np.nan,
+                    'bf_max': np.nan,
+                    'bf_skew': np.nan,
+                    'rfp_mean': np.nan,
+                    'rfp_std': np.nan,
+                    'rfp_min': np.nan,
+                    'rfp_max': np.nan,
+                    'rfp_skew': np.nan,
+                    'gfp_mean': np.nan,
+                    'gfp_std': np.nan,
+                    'gfp_min': np.nan,
+                    'gfp_max': np.nan,
+                    'gfp_skew': np.nan
+                })
+            
+            rescount += 1
 
     if resdict:
         df = pd.DataFrame.from_dict(resdict, orient='index')
