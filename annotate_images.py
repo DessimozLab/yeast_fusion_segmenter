@@ -155,7 +155,7 @@ def process_tiff_stack(bf_path, gfp_path, rfp_path, crop=1024, verbose=False):
     return stacked_images
 
 
-def zoom_img(img, zoom_factor, target_size=1024):
+def zoom_img(img, zoom_factor, target_size=1024, base_filepath=None):
     """
     Create overlapping crops from a large image for zoomed predictions.
     
@@ -172,31 +172,36 @@ def zoom_img(img, zoom_factor, target_size=1024):
                            E.g., 0.667 means each crop covers 2/3 of image dimension.
                            Smaller values create more crops with better detail.
         target_size (int): Size to resize each crop to (default: 1024)
+        base_filepath (str): Base filepath for saving PNG crops (optional)
         
     Returns:
-        tuple: Contains two lists:
-            - stack (list): List of cropped and resized image arrays (uint8)
+        tuple: Contains three lists:
+            - crops (list): List of cropped and resized image arrays
+            - png_paths (list): List of paths to saved PNG files
             - coordinates (list): List of (x1, y1, x2, y2) tuples indicating
               the position of each crop in the original image coordinates
               
     Example:
         >>> img = np.random.rand(2048, 2048, 3) * 255
-        >>> crops, coords = zoom_img(img, zoom_factor=0.5, target_size=1024)
-        >>> print(f\"Created {len(crops)} overlapping crops\")
-        >>> print(f\"First crop spans: {coords[0]}\")
+        >>> crops, pngs, coords = zoom_img(img, zoom_factor=0.5, target_size=1024, base_filepath='img.czi')
+        >>> print(f"Created {len(crops)} overlapping crops")
+        >>> print(f"First crop spans: {coords[0]}")
         
     Note:
         - Crops overlap by 50% to avoid missing features at boundaries
         - All crops are resized to target_size × target_size using cubic interpolation
         - Coordinates are in (x1, y1, x2, y2) format relative to original image
         - Works with multi-channel images (BF, RFP, GFP)
+        - PNG files are saved with naming: basename_crop_0.png, basename_crop_1.png, etc.
     """
     # Calculate crop dimensions based on zoom factor
     y_size = int(img.shape[0] * zoom_factor)  # Height of each crop
     x_size = int(img.shape[1] * zoom_factor)  # Width of each crop
     
-    stack = []        # Store cropped and resized images
+    crops = []        # Store cropped and resized images
+    png_paths = []    # Store paths to saved PNG files
     coordinates = []  # Store crop positions in original image
+    crop_number = 0   # Counter for crop numbering
     
     # Iterate over image with 50% overlap (stride = size // 2)
     # This ensures we don't miss cellular features at crop boundaries
@@ -207,17 +212,32 @@ def zoom_img(img, zoom_factor, target_size=1024):
             
             # Resize crop to target size using cubic interpolation
             # Cubic interpolation maintains visual quality better than linear
-            sub = cv2.resize(sub, (target_size, target_size),
-                           interpolation=cv2.INTER_CUBIC)
+            sub_resized = cv2.resize(sub, (target_size, target_size),
+                                   interpolation=cv2.INTER_CUBIC)
+            
+            # Save as PNG if base_filepath provided
+            if base_filepath:
+                # Convert to uint8 for saving
+                if sub_resized.dtype == np.float32 or sub_resized.dtype == np.float64:
+                    sub_uint8 = (sub_resized * 255).astype(np.uint8)
+                else:
+                    sub_uint8 = sub_resized
+                
+                # Create PNG filename based on original file and crop number
+                base_name = os.path.splitext(base_filepath)[0]
+                png_path = f"{base_name}_crop_{crop_number}.png"
+                Image.fromarray(sub_uint8).save(png_path)
+                png_paths.append(png_path)
             
             # Add to collection
-            stack.append(sub)
+            crops.append(sub_resized)
             
             # Store crop coordinates in original image space
             # Format: (left, top, right, bottom) for easy mapping back
             coordinates.append((x, y, x + x_size, y + y_size))
+            crop_number += 1
     
-    return stack, coordinates
+    return crops, png_paths, coordinates
 
 
 def predict_and_analyze(model, image_array, image_path, confidence_threshold=0.5, imgsz=1024, crop_id=None):
@@ -581,11 +601,12 @@ Examples:
                 for frame_idx, stacked_img in enumerate(stacked_images):
                     if args.zoom:
                         # Zoomed prediction with multiple crops
-                        crops, coordinates = zoom_img(stacked_img, args.zoom_factor, args.imgsz)
-                        print(f"  Created {len(crops)} zoomed crops for frame {frame_idx}")
+                        frame_filepath = f"{group_name}_frame_{frame_idx}"
+                        crops, png_paths, coordinates = zoom_img(stacked_img, args.zoom_factor, args.imgsz, base_filepath=frame_filepath)
+                        print(f"  Created {len(crops)} zoomed crops with {len(png_paths)} PNG files for frame {frame_idx}")
                         
-                        for crop_idx, (crop, coord) in enumerate(zip(crops, coordinates)):
-                            crop_name = f"{group_name}_frame_{frame_idx}_crop{crop_idx}"
+                        for crop_idx, (crop, png_path, coord) in enumerate(zip(crops, png_paths, coordinates)):
+                            crop_name = png_path
                             df = predict_and_analyze(
                                 model, crop, crop_name,
                                 confidence_threshold=args.confidence,
@@ -635,11 +656,11 @@ Examples:
                 
                 if args.zoom:
                     # Zoomed prediction with multiple crops
-                    crops, coordinates = zoom_img(img_array, args.zoom_factor, args.imgsz)
-                    print(f"  Created {len(crops)} zoomed crops for {group_name}")
+                    crops, png_paths, coordinates = zoom_img(img_array, args.zoom_factor, args.imgsz, base_filepath=group_info['path'])
+                    print(f"  Created {len(crops)} zoomed crops with {len(png_paths)} PNG files for {group_name}")
                     
-                    for crop_idx, (crop, coord) in enumerate(zip(crops, coordinates)):
-                        crop_name = f"{group_info['path']}_crop{crop_idx}"
+                    for crop_idx, (crop, png_path, coord) in enumerate(zip(crops, png_paths, coordinates)):
+                        crop_name = png_path
                         df = predict_and_analyze(
                             model, crop, crop_name,
                             confidence_threshold=args.confidence,
@@ -684,11 +705,11 @@ Examples:
                 
                 if args.zoom:
                     # Zoomed prediction with multiple crops
-                    crops, coordinates = zoom_img(img_array, args.zoom_factor, args.imgsz)
-                    print(f"  Created {len(crops)} zoomed crops for {group_name}")
+                    crops, png_paths, coordinates = zoom_img(img_array, args.zoom_factor, args.imgsz, base_filepath=group_info['path'])
+                    print(f"  Created {len(crops)} zoomed crops with {len(png_paths)} PNG files for {group_name}")
                     
-                    for crop_idx, (crop, coord) in enumerate(zip(crops, coordinates)):
-                        crop_name = f"{group_info['path']}_crop{crop_idx}"
+                    for crop_idx, (crop, png_path, coord) in enumerate(zip(crops, png_paths, coordinates)):
+                        crop_name = png_path
                         df = predict_and_analyze(
                             model, crop, crop_name,
                             confidence_threshold=args.confidence,

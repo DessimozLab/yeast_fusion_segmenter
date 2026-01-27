@@ -60,17 +60,45 @@ class TestBatchPredictIntegration(unittest.TestCase):
     def test_zoom_img_function(self):
         """Test zoom_img function creates valid crops"""
         from batch_predict import zoom_img
+        import tempfile
+        import os
         
         # Create test image
         test_img = np.random.randint(0, 255, (2048, 2048, 3), dtype=np.uint8)
         
-        # Test zoom
-        crops, coordinates = zoom_img(test_img, zoom_factor=0.5, target_size=1024)
+        # Test zoom WITHOUT base_filepath (no PNG files saved)
+        crops, png_paths, coordinates = zoom_img(test_img, zoom_factor=0.5, target_size=1024)
         
         # Verify crops were created
         self.assertGreater(len(crops), 0, "Should create at least one crop")
         self.assertEqual(len(crops), len(coordinates), 
                         "Should have same number of crops and coordinates")
+        self.assertEqual(len(png_paths), 0,
+                        "Should have no PNG paths when base_filepath not provided")
+        
+        # Test zoom WITH base_filepath (PNG files saved)
+        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
+            tmp_path = tmp.name
+        
+        try:
+            crops2, png_paths2, coordinates2 = zoom_img(test_img, zoom_factor=0.5, 
+                                                         target_size=1024, 
+                                                         base_filepath=tmp_path)
+            
+            self.assertEqual(len(crops2), len(png_paths2),
+                            "Should have same number of crops and PNG paths when base_filepath provided")
+            
+            # Verify PNG files were created
+            for png_path in png_paths2:
+                self.assertTrue(os.path.exists(png_path), 
+                              f"PNG file should exist: {png_path}")
+                # Clean up created PNG
+                if os.path.exists(png_path):
+                    os.remove(png_path)
+        finally:
+            # Clean up temp file
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
         
         # Verify crop dimensions
         for crop in crops:
@@ -85,6 +113,79 @@ class TestBatchPredictIntegration(unittest.TestCase):
             self.assertGreaterEqual(y1, 0, "y1 should be non-negative")
             self.assertLessEqual(x2, test_img.shape[1], "x2 should be within image bounds")
             self.assertLessEqual(y2, test_img.shape[0], "y2 should be within image bounds")
+    
+    def test_zoom_mode_with_model(self):
+        """Test zoom mode end-to-end with a real model"""
+        from batch_predict import zoom_img, process_image, predict_and_collect
+        from ultralytics import YOLO
+        import tempfile
+        import os
+        
+        # Check if a model exists
+        model_path = None
+        for candidate in ['yolov8n-seg.pt', 'yolov8s-seg.pt', 'yolo11n.pt']:
+            if os.path.exists(candidate):
+                model_path = candidate
+                break
+        
+        if model_path is None:
+            self.skipTest("No YOLO model found for testing")
+        
+        # Load model
+        model = YOLO(model_path)
+        
+        # Create a larger test image (2048x2048 to test zooming)
+        test_img = np.random.randint(0, 255, (2048, 2048, 3), dtype=np.uint8)
+        
+        # Save as temporary file
+        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
+            tmp_path = tmp.name
+            Image.fromarray(test_img).save(tmp_path)
+        
+        try:
+            # Process image
+            arr, png_path = process_image(tmp_path, 'png', crop=1024)
+            
+            # Create zoomed crops with PNG files
+            crops, png_paths, coordinates = zoom_img(arr, zoom_factor=0.5, 
+                                                     target_size=1024, 
+                                                     base_filepath=tmp_path)
+            
+            # Verify crops were created
+            self.assertGreater(len(crops), 0, "Should create at least one crop")
+            self.assertEqual(len(png_paths), len(crops), 
+                           "Should have PNG path for each crop")
+            
+            # Run prediction on first crop using saved PNG
+            if len(png_paths) > 0:
+                csv_path = png_paths[0].replace('.png', '.csv')
+                df = predict_and_collect(model, png_paths[0], csv_path, 
+                                        crop=1024, crop_id=0)
+                
+                # Verify output structure (may be None if no detections)
+                if df is not None:
+                    self.assertIsInstance(df, pd.DataFrame, 
+                                        "Should return a DataFrame")
+                    # Check for expected columns
+                    expected_cols = ['file', 'crop_id', 'class', 'proba', 
+                                   'x1', 'y1', 'x2', 'y2']
+                    for col in expected_cols:
+                        self.assertIn(col, df.columns, 
+                                    f"DataFrame should have '{col}' column")
+                
+                # Clean up CSV if created
+                if os.path.exists(csv_path):
+                    os.remove(csv_path)
+            
+            # Clean up PNG crops
+            for png_path in png_paths:
+                if os.path.exists(png_path):
+                    os.remove(png_path)
+                    
+        finally:
+            # Clean up temp file
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
 
 
 class TestImageProcessingFunctions(unittest.TestCase):

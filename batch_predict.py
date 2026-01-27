@@ -126,35 +126,55 @@ def process_image(path, fmt, crop=1024):
         raise ValueError(f'Unknown format: {fmt}')
 
 
-def zoom_img(img, zoom_factor, target_size=1024):
+def zoom_img(img, zoom_factor, target_size=1024, base_filepath=None):
     """
-    Crop image into overlapping sub-regions for zoomed predictions.
+    Create overlapping crops from a large image for zoomed predictions.
     
     Args:
         img: Image array (H, W, C)
         zoom_factor: Fraction of image to use for each crop (e.g., 40/60)
         target_size: Size to resize each crop to
+        base_filepath: Base filepath for saving PNG crops (optional)
         
     Returns:
-        stack: List of cropped and resized images
-        coordinates: List of (x1, y1, x2, y2) coordinates for each crop
+        tuple: (crops, png_paths, coordinates)
+            - crops: List of cropped image arrays
+            - png_paths: List of paths to saved PNG files
+            - coordinates: List of (x1, y1, x2, y2) tuples
     """
     y_size = int(img.shape[0] * zoom_factor)
     x_size = int(img.shape[1] * zoom_factor)
-    stack = []
+    crops = []
+    png_paths = []
     coordinates = []
+    crop_number = 0
     
     for y in range(0, img.shape[0] - y_size + 1, y_size // 2):
         for x in range(0, img.shape[1] - x_size + 1, x_size // 2):
             sub = img[y:y + y_size, x:x + x_size]
             # Interpolate to target size
-            sub = cv2.resize(sub, (target_size, target_size),
-                           interpolation=cv2.INTER_CUBIC)
-            stack.append(sub)
-            # Append coordinates
+            sub_resized = cv2.resize(sub, (target_size, target_size),
+                                   interpolation=cv2.INTER_CUBIC)
+            
+            # Save as PNG if base_filepath provided
+            if base_filepath:
+                # Convert to uint8 for saving
+                if sub_resized.dtype == np.float32 or sub_resized.dtype == np.float64:
+                    sub_uint8 = (sub_resized * 255).astype(np.uint8)
+                else:
+                    sub_uint8 = sub_resized
+                
+                # Create PNG filename based on original file and crop number
+                base_name = os.path.splitext(base_filepath)[0]
+                png_path = f"{base_name}_crop_{crop_number}.png"
+                Image.fromarray(sub_uint8).save(png_path)
+                png_paths.append(png_path)
+            
+            crops.append(sub_resized)
             coordinates.append((x, y, x + x_size, y + y_size))
+            crop_number += 1
     
-    return stack, coordinates
+    return crops, png_paths, coordinates
 
 
 def predict_and_collect(model, imgfile, outcsv, crop=1024, crop_id=None):
@@ -345,14 +365,13 @@ Note:
         
         if args.zoom:
             # Zoomed prediction with multiple crops
-            crops, coordinates = zoom_img(arr, args.zoom_factor, args.crop)
-            print(f"  Created {len(crops)} zoomed crops")
+            crops, png_paths, coordinates = zoom_img(arr, args.zoom_factor, args.crop, base_filepath=imgfile)
+            print(f"  Created {len(crops)} zoomed crops with {len(png_paths)} PNG files")
             
-            for crop_idx, (crop, coord) in enumerate(zip(crops, coordinates)):
-                temp_path = f"{imgfile}_crop{crop_idx}_yoloinput.png"
-                Image.fromarray(crop.astype(np.uint8)).save(temp_path)
-                df = predict_and_collect(model, temp_path,
-                                       temp_path.replace('.png', '.csv'),
+            for crop_idx, (crop, png_path, coord) in enumerate(zip(crops, png_paths, coordinates)):
+                # Use the saved PNG path directly
+                df = predict_and_collect(model, png_path,
+                                       png_path.replace('.png', '.csv'),
                                        crop=args.crop, crop_id=crop_idx)
                 if df is not None:
                     # Add coordinate information
