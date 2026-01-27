@@ -5,39 +5,130 @@ channels:
   - nvidia
   - defaults
 dependencies:
-  - python=3.9
-  - pip=23.1.2
-  - numpy=1.24.3
-  - matplotlib=3.7.1
-  - pillow=9.5.0
-  - h5py=3.8.0
-  - scikit-image=0.20.0
-  - opencv=4.7.0
-  - pandas=2.0.1
-  - scipy=1.10.1
-  - tqdm=4.65.0
-  - pytorch=2.0.0
-  - torchvision=0.15.0
-  - pytorch-cuda=11.7  # Specify CUDA version compatible with PyTorch 2.0
-  - cudatoolkit=11.7   # CUDA toolkit
-  - cudnn=8.5.0        # CUDA Deep Neural Network library
-  - scikit-learn=1.2.2
-  - ipykernel=6.23.0
-  - jupyterlab=3.6.3
-  - jupyterlab_widgets=3.0.7
-  - jupyter_client=8.2.0
-  - jupyter_core=5.3.0
-  - jupyter_server=2.5.0
-  - ipywidgets=8.0.6
-  - nbconvert=7.3.1
-  - nbformat=5.8.0
-  - notebook=6.5.4
-  - widgetsnbextension=4.0.7
+  # Core Python
+  - python=3.9.23
+  - pip=25.2
+  
+  # Scientific Computing
+  - pandas=2.3.1
+  - scipy=1.13.1
+  - h5py=3.14.0
+  - tqdm=4.67.1
+  
+  # Image Processing
+  - matplotlib=3.9.4
+  - pillow=11.3.0
+  
+  # CUDA Toolkit and GPU Support (CUDA 12.9)
+  - cuda-toolkit=12.9.1
+  - cuda-cudart=12.9.79
+  - cuda-libraries=12.9.1
+  - cuda-libraries-dev=12.9.1
+  - cuda-nvcc=12.9.86
+  - cudnn=9.10.2  # CUDA Deep Neural Network library
+  
+  # Jupyter Environment
+  - jupyterlab=4.4.6
+  - ipykernel=6.30.1
+  - ipython=8.18.1
+  - jupyter_client=8.6.3
+  - jupyter_core=5.8.1
+  - jupyter_server=2.16.0
+  - nbconvert-core=7.16.6
+  - nbformat=5.10.4
+  
+  # Bioinformatics Tools
+  - mafft=7.526
+  - raxml-ng=1.2.2
+  - foldseek=10.941cd33
+  
+  # Graphics and Visualization
+  - opencv-python=4.13.0.90
+  - qt6-main=6.9.1
+  - pyside6=6.9.1
+  
+  # System Libraries
+  - openmpi=4.1.6
+  - pytorch-mutex=1.0=cpu
+  
+  # pip-installed packages
   - pip:
-    - ultralytics==8.0.120
-    - czifile==2019.7.2
-    - pyimagej==1.4.1
-    - shutil-which==3.1.0
-    - jupyterlab-pygments==0.2.2
-    - jupyterlab-widgets==3.0.7
+    # Deep Learning - PyTorch with CUDA 12.8
+    - torch==2.8.0
+    - torchvision==0.23.0
+    - torchaudio==2.8.0
+    - torch-geometric==2.6.1
+    - pytorch-lightning==2.6.0
+    - torchmetrics==1.8.2
+    - triton==3.4.0
+    
+    # NVIDIA CUDA Libraries (matching CUDA 12.8)
+    - nvidia-cublas-cu12==12.8.4.1
+    - nvidia-cuda-cupti-cu12==12.8.90
+    - nvidia-cuda-nvrtc-cu12==12.8.93
+    - nvidia-cuda-runtime-cu12==12.8.90
+    - nvidia-cudnn-cu12==9.10.2.21
+    - nvidia-cufft-cu12==11.3.3.83
+    - nvidia-curand-cu12==10.3.9.90
+    - nvidia-cusolver-cu12==11.7.3.90
+    - nvidia-cusparse-cu12==12.5.8.93
+    - nvidia-nccl-cu12==2.27.3
+    - nvidia-nvjitlink-cu12==12.8.93
+    - nvidia-nvtx-cu12==12.8.90
+    
+    # YOLO and Computer Vision
+    - ultralytics==8.4.7
+    - ultralytics-thop==2.0.18
+    - opencv-python==4.13.0.90
+    
+    # Image Processing
+    - scikit-image==0.24.0
+    - imageio==2.37.2
+    - tifffile==2024.8.30
+    - pypng==0.20220715.0
+    
+    # ImageJ Integration
+    - pyimagej==1.7.0
+    - imagej==0.3.2
+    - imglyb==2.1.0
+    - jpype1==1.6.0
+    - scyjava==1.12.1
+    - jgo==1.1.0
+    - cjdk==0.4.1
+    
+    # Machine Learning
+    - scikit-learn==1.6.1
+    - numpy==2.0.2
+    - safetensors==0.7.0
+    - transformers==4.57.3
+    - tokenizers==0.22.1
+    - huggingface-hub==0.36.0
+    
+    # Advanced ML Libraries
+    - deepspeed==0.18.4
+    - tensorboard==2.20.0
+    - einops==0.8.1
+    - opt-einsum==3.4.0
+    
+    # Data Science
+    - polars==1.36.1
+    - xarray==2024.7.0
+    - seaborn==0.13.2
+    - statsmodels==0.14.5
+    
+    # Utilities
+    - colour==0.1.5
+    - biopython==1.79
+    - pyyaml==6.0.2
+    - regex==2025.11.3
+    - click==8.1.8
+    - loguru==0.7.3
+    - iprogress==0.4
+    - progressbar2==4.5.0
+    
+    # Jupyter Widgets
+    - ipywidgets==8.1.8
+    - jupyterlab-widgets==3.0.16
+    - widgetsnbextension==4.0.15
+    - jupyterlab_pygments==0.3.0
   
