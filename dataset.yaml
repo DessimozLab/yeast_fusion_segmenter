@@ -10,7 +10,8 @@ names:
  3: lmsgfp
  4: lsgfp
  5: dip
-
+ 6: d2
+ 
 
 # Hyperparameters
 # lr0: 0.01  # initial learning rate (i.e. SGD=1E-2, Adam=1E-3)
