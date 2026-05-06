@@ -36,6 +36,89 @@ except ImportError:
     imagej = None
 
 
+_IJ = None
+
+
+def _get_imagej_instance():
+    """Lazily initialize a single headless ImageJ runtime."""
+    global _IJ
+    if _IJ is None:
+        _IJ = imagej.init('sc.fiji:fiji', mode='headless')
+    return _IJ
+
+
+def percentile_u8(channel, low_pct=1.0, high_pct=99.0):
+    """Robustly scale one channel to uint8 using percentile clipping."""
+    ch = channel.astype(np.float32)
+    lo, hi = np.percentile(ch, [low_pct, high_pct])
+    if hi <= lo:
+        lo, hi = float(ch.min()), float(ch.max())
+        if hi <= lo:
+            return np.zeros_like(ch, dtype=np.uint8)
+    ch = np.clip((ch - lo) / (hi - lo), 0.0, 1.0)
+    return (ch * 255).astype(np.uint8)
+
+
+def convert_czi_to_rgb_uint8(raw_array):
+    """Convert raw CZI array to RGB uint8 with robust channel handling."""
+    arr = np.asarray(raw_array)
+    arr = np.squeeze(arr)
+
+    while arr.ndim > 3:
+        arr = arr[0]
+
+    if arr.ndim == 2:
+        g = percentile_u8(arr)
+        return np.stack([g, g, g], axis=-1)
+
+    if arr.ndim != 3:
+        raise ValueError(f'Unsupported CZI array shape after squeeze: {arr.shape}')
+
+    channel_axis = None
+    for i, s in enumerate(arr.shape):
+        if s in (3, 4):
+            channel_axis = i
+            break
+    if channel_axis is None:
+        channel_axis = int(np.argmin(arr.shape))
+
+    if channel_axis != 2:
+        arr = np.moveaxis(arr, channel_axis, 2)
+
+    if arr.shape[2] == 1:
+        arr = np.repeat(arr, 3, axis=2)
+    elif arr.shape[2] == 2:
+        arr = np.concatenate(
+            [arr, np.zeros((arr.shape[0], arr.shape[1], 1), dtype=arr.dtype)],
+            axis=2,
+        )
+    elif arr.shape[2] > 3:
+        arr = arr[:, :, :3]
+
+    rgb = np.zeros((arr.shape[0], arr.shape[1], 3), dtype=np.uint8)
+    for c in range(3):
+        rgb[:, :, c] = percentile_u8(arr[:, :, c])
+    return rgb
+
+
+def center_crop_or_pad(image, size=1024):
+    """Center crop to size and zero-pad if source image is smaller."""
+    h, w = image.shape[:2]
+    y0 = max((h - size) // 2, 0)
+    x0 = max((w - size) // 2, 0)
+    y1 = min(y0 + size, h)
+    x1 = min(x0 + size, w)
+    cropped = image[y0:y1, x0:x1, ...]
+
+    if image.ndim == 2:
+        out = np.zeros((size, size), dtype=image.dtype)
+        out[:cropped.shape[0], :cropped.shape[1]] = cropped
+    else:
+        out = np.zeros((size, size, image.shape[2]), dtype=image.dtype)
+        out[:cropped.shape[0], :cropped.shape[1], :] = cropped
+    return out
+
+
 def yield_frames(img, crop=1024, verbose=False, scaler=True):
     """
     Extract and normalize frames from multi-page TIFF images.
@@ -72,42 +155,17 @@ def process_image(path, fmt, crop=1024):
     if fmt == 'czi':
         if imagej is None:
             raise ImportError('imagej is required for CZI format. Install with `pip install imagej`')
-        # Initialize ImageJ (headless)
-        ij = imagej.init('sc.fiji:fiji', headless=True)
+        ij = _get_imagej_instance()
         dataset = ij.io().open(path)
-        img5d = ij.py.from_java(dataset)
-        # img5d shape: (T, C, Z, Y, X) or similar
-        # Take first timepoint, first channel, first Z
-        if img5d.ndim == 5:
-            plane = img5d[0, 0, 0]
-        elif img5d.ndim == 4:
-            plane = img5d[0, 0]
-        else:
-            plane = img5d.squeeze()
-        plane = np.array(plane)
-        
-        # Normalize to 0-255 uint8
-        plane = plane.astype(np.float32)
-        plane -= plane.min()
-        if plane.max() > 0:
-            plane /= plane.max()
-        plane_uint8 = (plane * 255).astype(np.uint8)
-        
-        # Convert to PIL image
-        pil_img = Image.fromarray(plane_uint8)
-        
-        # Resize to crop size
-        pil_img = pil_img.resize((crop, crop))
-        
-        # Convert to RGB
-        rgb_img = pil_img.convert('RGB')
+        raw = ij.py.from_java(dataset)
+        rgb_img = center_crop_or_pad(convert_czi_to_rgb_uint8(raw), size=crop)
         
         # Save as PNG for YOLO prediction
         png_path = path.replace('.czi', '.png').replace('.CZI', '.png')
-        rgb_img.save(png_path)
+        Image.fromarray(rgb_img).save(png_path)
         
         # Return array and PNG path
-        return np.array(rgb_img).astype(np.uint8), png_path
+        return rgb_img, png_path
     elif fmt == 'tif':
         img = Image.open(path)
         frames = [frame for frame in yield_frames(img, crop=crop)]

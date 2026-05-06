@@ -23,16 +23,97 @@ from pathlib import Path
 import colour as clr
 import yaml
 
-# Optional imports for CZI support
+# Optional import for CZI support
 try:
     import imagej
-    import czifile
     CZI_SUPPORT = True
 except ImportError:
     imagej = None
-    czifile = None
     CZI_SUPPORT = False
-    print("Warning: CZI support not available. Install with: pip install pyimagej czifile")
+    print("Warning: CZI support not available. Install with: pip install pyimagej")
+
+
+_IJ = None
+
+
+def _get_imagej_instance():
+    """Lazily initialize a single headless ImageJ runtime."""
+    global _IJ
+    if _IJ is None:
+        _IJ = imagej.init('sc.fiji:fiji', mode='headless')
+    return _IJ
+
+
+def percentile_u8(channel, low_pct=1.0, high_pct=99.0):
+    """Robustly scale one channel to uint8 using percentile clipping."""
+    ch = channel.astype(np.float32)
+    lo, hi = np.percentile(ch, [low_pct, high_pct])
+    if hi <= lo:
+        lo, hi = float(ch.min()), float(ch.max())
+        if hi <= lo:
+            return np.zeros_like(ch, dtype=np.uint8)
+    ch = np.clip((ch - lo) / (hi - lo), 0.0, 1.0)
+    return (ch * 255).astype(np.uint8)
+
+
+def convert_czi_to_rgb_uint8(raw_array):
+    """Convert raw CZI array to RGB uint8 with robust channel handling."""
+    arr = np.asarray(raw_array)
+    arr = np.squeeze(arr)
+
+    while arr.ndim > 3:
+        arr = arr[0]
+
+    if arr.ndim == 2:
+        g = percentile_u8(arr)
+        return np.stack([g, g, g], axis=-1)
+
+    if arr.ndim != 3:
+        raise ValueError(f'Unsupported CZI array shape after squeeze: {arr.shape}')
+
+    channel_axis = None
+    for i, s in enumerate(arr.shape):
+        if s in (3, 4):
+            channel_axis = i
+            break
+    if channel_axis is None:
+        channel_axis = int(np.argmin(arr.shape))
+
+    if channel_axis != 2:
+        arr = np.moveaxis(arr, channel_axis, 2)
+
+    if arr.shape[2] == 1:
+        arr = np.repeat(arr, 3, axis=2)
+    elif arr.shape[2] == 2:
+        arr = np.concatenate(
+            [arr, np.zeros((arr.shape[0], arr.shape[1], 1), dtype=arr.dtype)],
+            axis=2,
+        )
+    elif arr.shape[2] > 3:
+        arr = arr[:, :, :3]
+
+    rgb = np.zeros((arr.shape[0], arr.shape[1], 3), dtype=np.uint8)
+    for c in range(3):
+        rgb[:, :, c] = percentile_u8(arr[:, :, c])
+    return rgb
+
+
+def center_crop_or_pad(image, size=1024):
+    """Center crop to size and zero-pad if source image is smaller."""
+    h, w = image.shape[:2]
+    y0 = max((h - size) // 2, 0)
+    x0 = max((w - size) // 2, 0)
+    y1 = min(y0 + size, h)
+    x1 = min(x0 + size, w)
+    cropped = image[y0:y1, x0:x1, ...]
+
+    if image.ndim == 2:
+        out = np.zeros((size, size), dtype=image.dtype)
+        out[:cropped.shape[0], :cropped.shape[1]] = cropped
+    else:
+        out = np.zeros((size, size, image.shape[2]), dtype=image.dtype)
+        out[:cropped.shape[0], :cropped.shape[1], :] = cropped
+    return out
 
 
 def yield_frames(img, crop=1024, verbose=False, scaler=True):
@@ -78,43 +159,27 @@ def load_czi_with_imagej(filepath, resize=None):
         tuple: (np.array normalized image array, str PNG file path)
     """
     if not CZI_SUPPORT:
-        raise ImportError("CZI support not available. Install with: pip install pyimagej czifile")
+        raise ImportError("CZI support not available. Install with: pip install pyimagej")
     
-    # Initialize ImageJ (headless)
-    ij = imagej.init('sc.fiji:fiji', headless=True)
-    
-    # Open the CZI file
+    ij = _get_imagej_instance()
     dataset = ij.io().open(filepath)
-    
-    # Convert to numpy array
-    img5d = ij.py.from_java(dataset)
-    
-    # Select first timepoint and Z-slice
-    plane = np.array(img5d)
-    
-    # Normalize to 0-255 uint8
-    plane = plane.astype(np.float32)
-    plane -= plane.min()
-    if plane.max() > 0:
-        plane /= plane.max()
-    plane_uint8 = (plane * 255).astype(np.uint8)
-    
-    # Convert to PIL image
-    pil_img = Image.fromarray(plane_uint8)
-    
-    # Resize if specified
+    raw = ij.py.from_java(dataset)
+
+    rgb_uint8 = convert_czi_to_rgb_uint8(raw)
+
     if resize is not None:
-        pil_img = pil_img.resize(resize)
-    
-    # Convert to RGB
-    rgb_img = pil_img.convert('RGB')
-    
-    # Save as PNG for YOLO prediction
+        if isinstance(resize, tuple):
+            if len(resize) == 2 and resize[0] == resize[1]:
+                rgb_uint8 = center_crop_or_pad(rgb_uint8, int(resize[0]))
+            else:
+                rgb_uint8 = cv2.resize(rgb_uint8, resize, interpolation=cv2.INTER_CUBIC)
+        else:
+            rgb_uint8 = center_crop_or_pad(rgb_uint8, int(resize))
+
     png_path = filepath.replace('.czi', '.png').replace('.CZI', '.png')
-    rgb_img.save(png_path)
-    
-    # Convert to normalized numpy array and return with PNG path
-    return np.array(rgb_img).astype(np.float32) / 255.0, png_path
+    Image.fromarray(rgb_uint8).save(png_path)
+
+    return rgb_uint8, png_path
 
 
 def process_tiff_stack(bf_path, gfp_path, rfp_path, crop=1024, verbose=False):
@@ -651,8 +716,8 @@ Examples:
                 
                 # Load CZI and get PNG path
                 img_array, png_path = load_czi_with_imagej(group_info['path'], resize=(args.crop, args.crop))
-                # Convert to uint8 format expected by the model
-                img_array = (img_array * 255).astype(np.uint8)
+                if img_array.dtype != np.uint8:
+                    img_array = np.clip(img_array, 0, 255).astype(np.uint8)
                 
                 if args.zoom:
                     # Zoomed prediction with multiple crops
