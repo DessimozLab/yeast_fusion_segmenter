@@ -69,6 +69,11 @@ class), but no model is suitable for scientific use. Add independently
 annotated images for every phenotype, freeze a larger test set, and rerun this
 protocol before selecting a model.
 
+The directly comparable corrected-model annotations on all seven 40× images
+are recorded in [MODEL_COMPARISON_40X.md](MODEL_COMPARISON_40X.md). All three
+models produce zero accepted instances at the annotation threshold, so that
+comparison is a failure diagnostic rather than a biological agreement study.
+
 Strong augmentation makes a small set useful for a pipeline test, but it does
 not replace independent biological/acquisition diversity. The original U-Net
 microscopy challenge used 35 images with augmentation; in contrast, broader
