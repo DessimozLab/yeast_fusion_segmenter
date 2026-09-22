@@ -52,6 +52,43 @@ the notebook protocol. It is not a robust biological-performance estimate:
 two held-out fields and one diploid instance are far too few for model
 selection or phenotype-specific claims.
 
+## Current quarantined mixed-domain CZI model
+
+Visual inspection identified two 40× CZI fields whose conversion orientation
+remains uncertain: `p1-1g7-08` and `p1-3c12-15`. They are explicitly
+quarantined with `--exclude-samples`; raw files remain immutable. The current
+`all_images_czi_holdout` definition therefore contains 110 PNGs: 94 train,
+one validation field (`p1-1g2-09`), and 15 test images. Its supervised subset
+has 28 / 1 / 1 annotated images; the 54-instance `p1-1e3-13` CZI field is the
+only annotated test image, while the other 14 test CZI fields are inference
+only. The older orientation-poisoned CZI checkpoints are invalid and must not
+be compared with this result.
+
+```bash
+CUDA_VISIBLE_DEVICES=0 PYTORCH_ALLOC_CONF=expandable_segments:True \
+python train_yolo.py --dataset data/dataset_info/all_images_czi_holdout.json \
+  --annotated-only --notebook-protocol --batch-size 4 --device 0 \
+  --output models/all_images_czi_holdout_yolov8s_quarantined_b4_retry.pt
+```
+
+The run uses pretrained YOLOv8s at 1024px and the notebook's augmentation and
+hyperparameter schedule: 180° rotations, 0.5 vertical/horizontal flips, HSV
+jitter, and no mosaic, mixup, or copy-paste. Batch size 4 is the only
+intentional deviation from the notebook's batch 20, required because CUDA 0
+was shared. It early-stopped after 359 epochs; the best validation epoch was
+259, with mask mAP50 0.4540 and mask mAP50-95 0.2718 on the one 84-instance
+validation field.
+
+| Test image / instances | Box mAP50 | Box mAP50-95 | Mask mAP50 | Mask mAP50-95 | Mask precision | Mask recall |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `40x_p1-1e3-13` / 54 | 0.460 | 0.339 | 0.439 | 0.289 | 0.449 | 0.490 |
+
+This is a genuine held-out CZI result under the current quarantine, and is a
+large improvement over the earlier failed CZI runs. It is still only one test
+field, so it is not a stable biological-performance estimate. An inference
+visualization at confidence 0.25 is available locally at
+`runs/segment/predictions/all_images_czi_holdout_quarantined_heldout_czi/40x_p1-1e3-13_annotated.png`.
+
 ### CZI-only notebook-protocol rerun
 
 The CZI conversion and mask-orientation path was rebuilt separately and run

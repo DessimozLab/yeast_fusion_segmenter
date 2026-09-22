@@ -80,6 +80,14 @@ every detection. See [TRAINING_CLI.md](TRAINING_CLI.md#inference-from-a-saved-da
 Baseline training and cross-dataset evaluation results are recorded in
 [MODEL_PERFORMANCE.md](MODEL_PERFORMANCE.md).
 
+The current quarantined mixed-domain model is
+`all_images_czi_holdout_yolov8s_quarantined_b4_retry.pt`. It excludes the two
+visually uncertain 40× fields `p1-1g7-08` and `p1-3c12-15`, and achieved mask
+mAP50 0.439 on the one 54-instance held-out CZI field. This is promising but
+not a generalization claim: use the model only with the documented quarantine
+and collect additional independently annotated CZI fields before scientific
+use.
+
 ## � License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

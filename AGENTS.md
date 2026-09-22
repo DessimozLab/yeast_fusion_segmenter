@@ -59,6 +59,10 @@ instead of globbing raw files in training, annotation, or inference code.
   flip is applied only when overlap improves by more than 0.10 and mean edge
   distance decreases. Do not remove this check or replace it with filename
   heuristics; some source CZI files require a vertical mask flip.
+- The current mixed CZI-holdout dataset quarantines `p1-1g7-08` and
+  `p1-3c12-15` after visual orientation QC. Build it with
+  `--exclude-samples p1-1g7-08,p1-3c12-15`; do not delete or modify raw files.
+  Its validation/test source IDs are `p1-1g2-09` and `p1-1e3-13` respectively.
 - Rebuilding an output dataset replaces that output directory. Do not point it
   at user source data or a broad directory.
 

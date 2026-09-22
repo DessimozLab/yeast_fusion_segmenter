@@ -81,6 +81,28 @@ the images or split, rebuild a new dataset-info file using
 `prepare_yolo_data.py --file-format raw`; then pass that new file to
 `train_yolo.py --dataset`.
 
+### Current quarantined CZI holdout run
+
+The current mixed dataset quarantines the visually uncertain 40× fields
+`p1-1g7-08` and `p1-3c12-15`. Rebuild it reproducibly (using `p1-1g2-09` for
+validation and `p1-1e3-13` for test), then train at a GPU-compatible batch
+size. Do not use the earlier checkpoints trained before this quarantine.
+
+```bash
+python prepare_yolo_data.py --resume --input-dir data/raw --file-format raw \
+  --source-format all --magnification all \
+  --exclude-samples p1-1g7-08,p1-3c12-15 \
+  --val-samples p1-1g2-09 --test-samples p1-1e3-13 \
+  --val-split 0 --test-split 0 --random-seed 42 \
+  --output-dir data/yolo_datasets/all_images_czi_holdout \
+  --dataset-info data/dataset_info/all_images_czi_holdout.json
+
+CUDA_VISIBLE_DEVICES=0 PYTORCH_ALLOC_CONF=expandable_segments:True \
+python train_yolo.py --dataset data/dataset_info/all_images_czi_holdout.json \
+  --annotated-only --notebook-protocol --batch-size 4 --device 0 \
+  --output models/all_images_czi_holdout_yolov8s_quarantined_b4_retry.pt
+```
+
 ## Visualize ground-truth contours
 
 Use `create_label_overlays.py` to render the exact prepared YOLO polygons used
