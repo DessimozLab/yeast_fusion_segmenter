@@ -176,6 +176,19 @@ python prepare_yolo_data.py --input-dir data/raw --file-format raw \
   --dataset-info data/dataset_info/all_images_czi_holdout.json
 ```
 
+### Quarantine known-bad records
+
+Do not delete or rename raw scientific files to exclude questionable images.
+Instead, record their source IDs in the reproducible build command. The
+current temporary 40× quarantine is `p1-1g7-08,p1-3c12-15`; neither image nor
+its HDF5 annotation will enter any split built with this option.
+
+```bash
+python prepare_yolo_data.py --input-dir data/raw --file-format raw \
+  --exclude-samples p1-1g7-08,p1-3c12-15 \
+  --output-dir datasets/quarantined_experiment
+```
+
 The actual count may differ slightly from the stated percentage because splits
 use whole image frames. Check the final printed counts and the saved split
 metadata before training.

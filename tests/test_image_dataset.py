@@ -69,6 +69,12 @@ class TestMicroscopyImageDataset(unittest.TestCase):
         dataset = MicroscopyImageDataset(self.root)
         self.assertEqual(dataset.annotated_records(), dataset.records)
 
+    def test_excluded_sample_is_not_discovered_or_saved(self):
+        dataset = MicroscopyImageDataset(self.root, excluded_sample_ids=("fusion-a-001",))
+        self.assertEqual(dataset.records, [])
+        info_path = dataset.save_dataset_info(Path(self.tempdir.name) / "excluded.json", name="excluded")
+        self.assertEqual(MicroscopyImageDataset.load_dataset_info(info_path)["excluded_sample_ids"], ["fusion-a-001"])
+
     def test_known_40x_orientation_correction_has_one_exception(self):
         corrected = ImageRecord("p1-1e3-13", "40x", "czi", {"czi": Path("example.czi")})
         exception = ImageRecord("p1-1g2-09", "40x", "czi", {"czi": Path("exception.czi")})

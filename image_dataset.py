@@ -118,6 +118,7 @@ class MicroscopyImageDataset:
         png_root: str | Path | None = None,
         magnifications: tuple[str, ...] = MAGNIFICATIONS,
         source_formats: tuple[str, ...] = ("czi", "tiff"),
+        excluded_sample_ids: tuple[str, ...] = (),
     ):
         self.root = Path(root).resolve()
         self.png_root = Path(png_root).resolve() if png_root else self.root.parent / "derived" / "png"
@@ -129,6 +130,7 @@ class MicroscopyImageDataset:
         if invalid_formats:
             raise ValueError(f"Unknown source format selection: {sorted(invalid_formats)}")
         self.source_formats = tuple(source_formats)
+        self.excluded_sample_ids = tuple(sorted({sample_id.lower() for sample_id in excluded_sample_ids}))
         self.records = self._discover()
 
     def __iter__(self) -> Iterator[ImageRecord]:
@@ -147,6 +149,7 @@ class MicroscopyImageDataset:
                 records.extend(self._czi_records(base, magnification, masks))
             if "tiff" in self.source_formats:
                 records.extend(self._tiff_records(base, magnification, masks))
+        records = [record for record in records if record.sample_id not in self.excluded_sample_ids]
         identities = [(record.magnification, record.sample_id) for record in records]
         if len(identities) != len(set(identities)):
             raise ValueError("A sample id may appear only once per magnification")
@@ -162,6 +165,7 @@ class MicroscopyImageDataset:
                 (magnification, sample_id)
                 for magnification in self.magnifications
                 for sample_id in self._masks(self.root / magnification / "annotations")
+                if sample_id not in self.excluded_sample_ids
             }
             orphaned = available_annotations.difference(paired_annotations)
             if orphaned:
@@ -253,6 +257,7 @@ class MicroscopyImageDataset:
             "png_root": str(self.png_root),
             "magnifications": list(self.magnifications),
             "source_formats": list(self.source_formats),
+            "excluded_sample_ids": list(self.excluded_sample_ids),
             "yolo_data": str(data_path) if data_path else None,
             "split": split or {},
             "annotation_classes": annotation_classes or {},

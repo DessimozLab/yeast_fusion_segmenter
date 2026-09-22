@@ -65,6 +65,8 @@ def parse_args():
                         help='For --file-format raw, prepare all images or only 40x')
     parser.add_argument('--source-format', choices=['all', 'czi', 'tiff'], default='all',
                         help='For --file-format raw, restrict the selected source image format')
+    parser.add_argument('--exclude-samples', default='',
+                        help='Comma-separated source sample IDs to quarantine from this dataset')
     parser.add_argument('--dataset-info', type=str, default=None,
                         help='Where to save the reproducible dataset-info JSON (raw input only)')
     parser.add_argument('--resume', action='store_true',
@@ -701,8 +703,10 @@ def process_canonical_raw_files(args):
 
     magnifications = ('40x',) if args.magnification == '40x' else ('40x', 'other')
     source_formats = ('czi', 'tiff') if args.source_format == 'all' else (args.source_format,)
+    excluded_sample_ids = tuple(sample.strip().lower() for sample in args.exclude_samples.split(',') if sample.strip())
     raw_dataset = MicroscopyImageDataset(
-        args.input_dir, magnifications=magnifications, source_formats=source_formats
+        args.input_dir, magnifications=magnifications, source_formats=source_formats,
+        excluded_sample_ids=excluded_sample_ids,
     )
     # A fresh dataset build must use the current conversion protocol rather
     # than silently reuse cached PNGs from an earlier protocol. ``--resume``
@@ -933,6 +937,9 @@ def main():
                 "test": args.test_split,
                 "random_seed": args.random_seed,
                 "unannotated_to_test": True,
+                "excluded_sample_ids": list(raw_dataset.excluded_sample_ids),
+                "named_val_samples": list(val_samples),
+                "named_test_samples": list(test_samples),
             },
             annotation_classes={class_id: name for class_id, name in enumerate(CLASS_NAMES)},
         )

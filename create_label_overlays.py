@@ -104,7 +104,12 @@ def main():
             image_dir = resolve_split_dir(config, yaml_path, split)
             split_output = output_dir / split
             split_output.mkdir(exist_ok=True)
-            for image_path in sorted(image_dir.glob("*.png")):
+            image_paths = sorted(image_dir.glob("*.png"))
+            expected_names = {image_path.name for image_path in image_paths}
+            for stale_overlay in split_output.glob("*.png"):
+                if stale_overlay.name not in expected_names:
+                    stale_overlay.unlink()
+            for image_path in image_paths:
                 label_path = image_dir.parent / "labels" / f"{image_path.stem}.txt"
                 output_path = split_output / image_path.name
                 segments = draw_overlay(image_path, label_path, output_path, class_names, args.thickness)
