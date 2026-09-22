@@ -81,6 +81,28 @@ the images or split, rebuild a new dataset-info file using
 `prepare_yolo_data.py --file-format raw`; then pass that new file to
 `train_yolo.py --dataset`.
 
+## Visualize ground-truth contours
+
+Use `create_label_overlays.py` to render the exact prepared YOLO polygons used
+for training and evaluation. It writes one PNG per image, retains the
+`train`/`val`/`test` split layout, and creates a `manifest.csv` plus a
+class-colour `legend.txt`. Images with no paired annotation are retained and
+marked `no annotation`.
+
+```bash
+python create_label_overlays.py \
+  --dataset data/dataset_info/all_images_czi_holdout.json \
+  --output-dir validation/all_images_czi_holdout_label_overlays
+```
+
+Alternatively, point directly at a prepared YOLO YAML:
+
+```bash
+python create_label_overlays.py \
+  --data data/yolo_datasets/all_images_czi_holdout/dataset.yaml \
+  --output-dir validation/all_images_czi_holdout_label_overlays
+```
+
 ## Train or evaluate only annotated images
 
 `--annotated-only` creates a filtered YOLO YAML under the prepared dataset and
