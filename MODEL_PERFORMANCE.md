@@ -18,7 +18,10 @@ An annotated image has a non-empty YOLO label. Empty HDF5 frames and images
 without an HDF5 annotation are retained for inference but excluded by
 `--annotated-only`. The mixed test folder includes 14 unannotated CZI images
 in addition to three annotated test images. The 40× and CZI-only training
-sets are the same five annotated 40× images; `dip` is absent from them.
+sets are the same five annotated 40× images; `dip` is absent from those two
+datasets but is present in the `all_images` training labels. Consequently,
+`all_images` is the only maintained dataset/model that trains all seven
+phenotype classes.
 
 ## Training protocol
 

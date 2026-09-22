@@ -168,6 +168,11 @@ The prepared repository datasets currently contain:
 | `data/dataset_info/all_images.json` | 112 | 92 / 3 / 17 |
 | `data/dataset_info/all_czi.json` | 21 | 5 / 1 / 15 |
 
+The 40× and CZI-only datasets share the same five annotated 40× training
+images. They contain no `dip` (class 5) examples. `all_images` includes TIFF
+and CZI data and does contain `dip` training labels, so it is the maintained
+choice when all seven notebook phenotype classes are required.
+
 ## 6. Annotate canonical raw data
 
 Use `--format raw` to ensure annotation goes through the same loader and PNG conversion path:
