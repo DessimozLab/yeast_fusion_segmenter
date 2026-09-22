@@ -7,6 +7,51 @@ mask-orientation alignment check. The class mapping exactly follows
 `d2`. Earlier three-class checkpoints collapsed lysis phenotypes and are not
 valid for phenotype classification.
 
+## Notebook-compatible TIFF model
+
+The earlier 50-epoch `yolov8n` baselines below are retained as failure
+diagnostics, but they are **not** comparable to the final notebook training
+run. The notebook uses upper-left TIFF crops (not centre crops),
+`yolov8s-seg.pt`, 1,000 requested epochs with early stopping, batch 20, and
+the notebook augmentation/hyperparameter schedule. `all_tiff_notebook` is a
+fresh build using that exact TIFF geometry and the same seven-class encoding.
+
+| Dataset | Source selection | Images (train / val / test) | Annotated images (train / val / test) | Instances (train / val / test) |
+| --- | --- | ---: | ---: | ---: |
+| `all_tiff_notebook` | all TIFF image triplets at every magnification | 87 / 2 / 2 | 21 / 2 / 2 | 731 / 120 / 87 |
+
+The remaining 66 TIFF images are retained as unannotated images for inference;
+`--annotated-only` excludes them from training and evaluation. The test split
+contains `f`, `h`, `lmcf`, and `dip` labels only, so absent phenotype rows are
+not evidence of performance on the other three classes.
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
+  --dataset data/dataset_info/all_tiff_notebook.json --annotated-only \
+  --notebook-protocol --device 0 \
+  --output models/all_tiff_yolov8s_notebook_1000e.pt
+```
+
+The run early-stopped after 352 epochs (best epoch 252). Its best validation
+result was mask mAP50 0.602 and mask mAP50-95 0.457 on two labelled images.
+On the separate two-image TIFF test split, the frozen best checkpoint obtained:
+
+| Test images / instances | Box mAP50 | Box mAP50-95 | Mask mAP50 | Mask mAP50-95 |
+| ---: | ---: | ---: | ---: | ---: |
+| 2 / 87 | 0.646 | 0.555 | 0.646 | 0.465 |
+
+| Test class | Instances | Mask mAP50 | Mask mAP50-95 |
+| --- | ---: | ---: | ---: |
+| `f` | 20 | 0.857 | 0.634 |
+| `h` | 56 | 0.850 | 0.616 |
+| `lmcf` | 10 | 0.879 | 0.609 |
+| `dip` | 1 | 0.000 | 0.000 |
+
+This establishes that the TIFF data and annotation pipeline are valid under
+the notebook protocol. It is not a robust biological-performance estimate:
+two held-out fields and one diploid instance are far too few for model
+selection or phenotype-specific claims.
+
 ## Datasets
 
 | Dataset | Source selection | PNGs (train / val / test) | Annotated PNGs (train / val / test) | Training classes |
