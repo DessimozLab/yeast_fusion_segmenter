@@ -1,0 +1,464 @@
+[
+  {
+    "sample_id": "p1-1e3-13",
+    "magnification": "40x",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/images/czi/p1-1e3-13.czi"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/annotations/p1-1e3-13__mask.h5"
+  },
+  {
+    "sample_id": "p1-1g2-09",
+    "magnification": "40x",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/images/czi/p1-1g2-09.czi"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/annotations/p1-1g2-09__mask.h5"
+  },
+  {
+    "sample_id": "p1-1g7-08",
+    "magnification": "40x",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/images/czi/p1-1g7-08.czi"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/annotations/p1-1g7-08__mask.h5"
+  },
+  {
+    "sample_id": "p1-1g7-18",
+    "magnification": "40x",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/images/czi/p1-1g7-18.czi"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/annotations/p1-1g7-18__mask.h5"
+  },
+  {
+    "sample_id": "p1-2b2-03",
+    "magnification": "40x",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/images/czi/p1-2b2-03.czi"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/annotations/p1-2b2-03__mask.h5"
+  },
+  {
+    "sample_id": "p1-3b9-04",
+    "magnification": "40x",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/images/czi/p1-3b9-04.czi"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/annotations/p1-3b9-04__mask.h5"
+  },
+  {
+    "sample_id": "p1-3c12-15",
+    "magnification": "40x",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/images/czi/p1-3c12-15.czi"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/annotations/p1-3c12-15__mask.h5"
+  },
+  {
+    "sample_id": "dprm1xdprm1-11",
+    "magnification": "other",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/dprm1xdprm1-11.czi"
+    },
+    "annotation_path": null
+  },
+  {
+    "sample_id": "dprm1xdprm1-17",
+    "magnification": "other",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/dprm1xdprm1-17.czi"
+    },
+    "annotation_path": null
+  },
+  {
+    "sample_id": "dprm1xdprm1-32",
+    "magnification": "other",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/dprm1xdprm1-32.czi"
+    },
+    "annotation_path": null
+  },
+  {
+    "sample_id": "dprm1xdprm1-34",
+    "magnification": "other",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/dprm1xdprm1-34.czi"
+    },
+    "annotation_path": null
+  },
+  {
+    "sample_id": "filtro-h-5-03",
+    "magnification": "other",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-h-5-03.czi"
+    },
+    "annotation_path": null
+  },
+  {
+    "sample_id": "filtro-h-5-04",
+    "magnification": "other",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-h-5-04.czi"
+    },
+    "annotation_path": null
+  },
+  {
+    "sample_id": "filtro-h-5-05",
+    "magnification": "other",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-h-5-05.czi"
+    },
+    "annotation_path": null
+  },
+  {
+    "sample_id": "filtro-h-5-06",
+    "magnification": "other",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-h-5-06.czi"
+    },
+    "annotation_path": null
+  },
+  {
+    "sample_id": "filtro-ph1-5-01",
+    "magnification": "other",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-ph1-5-01.czi"
+    },
+    "annotation_path": null
+  },
+  {
+    "sample_id": "filtro-ph1-5-02",
+    "magnification": "other",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-ph1-5-02.czi"
+    },
+    "annotation_path": null
+  },
+  {
+    "sample_id": "filtro-ph1-5-03",
+    "magnification": "other",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-ph1-5-03.czi"
+    },
+    "annotation_path": null
+  },
+  {
+    "sample_id": "filtro-ph1-5-04",
+    "magnification": "other",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-ph1-5-04.czi"
+    },
+    "annotation_path": null
+  },
+  {
+    "sample_id": "filtro-ph1-5-05",
+    "magnification": "other",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-ph1-5-05.czi"
+    },
+    "annotation_path": null
+  },
+  {
+    "sample_id": "filtro-ph1-5-07",
+    "magnification": "other",
+    "source_format": "czi",
+    "sources": {
+      "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-ph1-5-07.czi"
+    },
+    "annotation_path": null
+  },
+  {
+    "sample_id": "mk3-f001",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f001__rfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f001__bf.tiff",
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f001__gfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f001__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f002",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f002__bf.tiff",
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f002__gfp.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f002__rfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f002__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f003",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f003__gfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f003__bf.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f003__rfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f003__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f004",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f004__rfp.tiff",
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f004__gfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f004__bf.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f004__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f005",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f005__bf.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f005__rfp.tiff",
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f005__gfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f005__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f006",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f006__bf.tiff",
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f006__gfp.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f006__rfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f006__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f007",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f007__gfp.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f007__rfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f007__bf.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f007__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f008",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f008__gfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f008__bf.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f008__rfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f008__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f009",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f009__rfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f009__bf.tiff",
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f009__gfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f009__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f010",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f010__gfp.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f010__rfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f010__bf.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f010__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f011",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f011__rfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f011__bf.tiff",
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f011__gfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f011__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f012",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f012__bf.tiff",
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f012__gfp.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f012__rfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f012__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f013",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f013__rfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f013__bf.tiff",
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f013__gfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f013__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f014",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f014__rfp.tiff",
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f014__gfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f014__bf.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f014__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f015",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f015__gfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f015__bf.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f015__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f016",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f016__rfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f016__bf.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f016__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f017",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f017__rfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f017__bf.tiff",
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f017__gfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f017__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f018",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f018__gfp.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f018__rfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f018__bf.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f018__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f019",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f019__bf.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f019__rfp.tiff",
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f019__gfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f019__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f020",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f020__bf.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f020__rfp.tiff",
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f020__gfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f020__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f021",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f021__gfp.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f021__rfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f021__bf.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f021__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f022",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f022__gfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f022__bf.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f022__rfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f022__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f023",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f023__gfp.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f023__rfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f023__bf.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f023__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f024",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f024__gfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f024__bf.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f024__rfp.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f024__mask.h5"
+  },
+  {
+    "sample_id": "mk3-f025",
+    "magnification": "other",
+    "source_format": "tiff",
+    "sources": {
+      "gfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f025__gfp.tiff",
+      "rfp": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f025__rfp.tiff",
+      "bf": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/tiff/mk3-f025__bf.tiff"
+    },
+    "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/annotations/mk3-f025__mask.h5"
+  }
+]

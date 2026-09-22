@@ -1,0 +1,15 @@
+
+# YOLOv8 dataset configuration
+path: /home/dmoi/projects/yeast_fusion_segmenter/data/yolo_datasets/all_czi
+train: train/images
+val: val/images
+test: test/images
+
+names:
+  0: f
+  1: h
+  2: lmcf
+  3: lmsgfp
+  4: lsgfp
+  5: dip
+  6: d2

@@ -1,0 +1,1 @@
+czi_path,czi_key,mask_path,mask_key,score,overlap,mean_dist,best_channel,inside_sum,outside_edge_sum,inside_mean,outside_edge_mean,assignment_mode,expected_mask_key,is_mismatch

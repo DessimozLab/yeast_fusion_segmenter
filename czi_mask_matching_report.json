@@ -1,0 +1,1445 @@
+{
+  "n_czi": 19,
+  "n_masks": 91,
+  "n_usable_masks": 91,
+  "target_size": 512,
+  "assignment": [
+    {
+      "czi": "zoomed/dprm1xdprm1-34.czi",
+      "matched_mask": "Images_mk3/F6_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "flip_lr",
+      "score": 0.9628312595073993,
+      "overlap": 0.9923076923076923,
+      "mean_dist": 0.9825477600097656,
+      "top2_gap": 0.0,
+      "czi_channel_used": 0,
+      "czi_edge_density": 0.14678955078125
+    },
+    {
+      "czi": "new_images/filtro Ph1/5-04.czi",
+      "matched_mask": "images_CNN/F6_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "flip_lr",
+      "score": 0.9594380697378746,
+      "overlap": 0.9846153846153847,
+      "mean_dist": 0.8392438292503357,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.11713409423828125
+    },
+    {
+      "czi": "new40x/P1_2B2-03.czi",
+      "matched_mask": "images_CNN_clean/F06_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "orig",
+      "score": 0.9533839753040901,
+      "overlap": 0.9846153846153847,
+      "mean_dist": 1.0410469770431519,
+      "top2_gap": 0.0,
+      "czi_channel_used": 0,
+      "czi_edge_density": 0.20666122436523438
+    },
+    {
+      "czi": "new_images/filtro Ph1/5-03.czi",
+      "matched_mask": "new40x/P1_1G7-08_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "flip_ud",
+      "score": 0.4502237746563893,
+      "overlap": 0.6193952033368092,
+      "mean_dist": 5.639047622680664,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.0934906005859375
+    },
+    {
+      "czi": "new40x/P1_1G7-08.czi",
+      "matched_mask": "Images_mk3/F8_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "flip_lr",
+      "score": 0.9171423752210579,
+      "overlap": 0.9489795918367347,
+      "mean_dist": 1.061240553855896,
+      "top2_gap": 0.0,
+      "czi_channel_used": 1,
+      "czi_edge_density": 0.20063400268554688
+    },
+    {
+      "czi": "new40x/P1_1G2-09.czi",
+      "matched_mask": "new40x/P1_1G2-09_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "flip_ud",
+      "score": 0.94561129063676,
+      "overlap": 0.9745199409158051,
+      "mean_dist": 0.9636216759681702,
+      "top2_gap": 0.5079419527534814,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.09001922607421875
+    },
+    {
+      "czi": "new_images/filtro Ph1/5-02.czi",
+      "matched_mask": "Images_mk3/F10_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "flip_ud",
+      "score": 0.15685475244273817,
+      "overlap": 0.5053598774885145,
+      "mean_dist": 11.616837501525879,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.055805206298828125
+    },
+    {
+      "czi": "new_images/filtro H/5-05.czi",
+      "matched_mask": "images_CNN/F8_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "flip_lr",
+      "score": 0.6376086070586224,
+      "overlap": 0.7255102040816327,
+      "mean_dist": 2.930053234100342,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.11579132080078125
+    },
+    {
+      "czi": "new_images/filtro Ph1/5-07.czi",
+      "matched_mask": "Images_mk3/F23_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "flip_udlr",
+      "score": 0.393479674412654,
+      "overlap": 0.6442307692307693,
+      "mean_dist": 8.358369827270508,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.07979965209960938
+    },
+    {
+      "czi": "new40x/P1_1G7-18.czi",
+      "matched_mask": "Images_mk3/F11_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "orig",
+      "score": 0.8528707577352939,
+      "overlap": 0.8956521739130435,
+      "mean_dist": 1.4260472059249878,
+      "top2_gap": 0.0,
+      "czi_channel_used": 1,
+      "czi_edge_density": 0.15677261352539062
+    },
+    {
+      "czi": "new40x/P1_1E3-13.czi",
+      "matched_mask": "new40x/P1_1E3-13_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "flip_ud",
+      "score": 0.7000707014150925,
+      "overlap": 0.7580287929125138,
+      "mean_dist": 1.9319363832473755,
+      "top2_gap": 0.0,
+      "czi_channel_used": 0,
+      "czi_edge_density": 0.10678482055664062
+    },
+    {
+      "czi": "zoomed/dprm1xdprm1-17.czi",
+      "matched_mask": "Images_mk3/F16_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "orig",
+      "score": 0.5475493030050684,
+      "overlap": 0.6477334789732386,
+      "mean_dist": 3.339472532272339,
+      "top2_gap": 0.0,
+      "czi_channel_used": 0,
+      "czi_edge_density": 0.062442779541015625
+    },
+    {
+      "czi": "new_images/filtro H/5-03.czi",
+      "matched_mask": "images_CNN_clean/F21_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "orig",
+      "score": 0.3625104856824542,
+      "overlap": 0.5996503496503497,
+      "mean_dist": 7.904662132263184,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.057445526123046875
+    },
+    {
+      "czi": "zoomed/dprm1xdprm1-32.czi",
+      "matched_mask": "Images_mk3/F17_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "flip_lr",
+      "score": 0.7040798325815062,
+      "overlap": 0.7681159420289855,
+      "mean_dist": 2.1345369815826416,
+      "top2_gap": 0.0,
+      "czi_channel_used": 1,
+      "czi_edge_density": 0.10235977172851562
+    },
+    {
+      "czi": "new_images/filtro H/5-06.czi",
+      "matched_mask": "images_384_CNN/BF03_Position020_new_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "flip_udlr",
+      "score": 0.11984164769562938,
+      "overlap": 0.45142296368989204,
+      "mean_dist": 11.05271053314209,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.0539398193359375
+    },
+    {
+      "czi": "new_images/filtro Ph1/5-05.czi",
+      "matched_mask": "images_CNN_clean/F08_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "flip_udlr",
+      "score": 0.49854327299156975,
+      "overlap": 0.6520408163265307,
+      "mean_dist": 5.116584777832031,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.08107376098632812
+    },
+    {
+      "czi": "new_images/filtro H/5-04.czi",
+      "matched_mask": "images_CNN/BF03_Position020_new_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "flip_udlr",
+      "score": -0.37526519683673165,
+      "overlap": 0.30323846908734053,
+      "mean_dist": 22.616788864135742,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.037174224853515625
+    },
+    {
+      "czi": "zoomed/dprm1xdprm1-11.czi",
+      "matched_mask": "images_384_CNN/BF04_Position010_new_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "orig",
+      "score": 0.2584365984696372,
+      "overlap": 0.420032310177706,
+      "mean_dist": 5.386523723602295,
+      "top2_gap": 0.0,
+      "czi_channel_used": 0,
+      "czi_edge_density": 0.035953521728515625
+    },
+    {
+      "czi": "new_images/filtro Ph1/5-01.czi",
+      "matched_mask": "Images_mk3/F7_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "flip_udlr",
+      "score": -0.039425497857558556,
+      "overlap": 0.5322896281800391,
+      "mean_dist": 19.057170867919922,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.05854034423828125
+    }
+  ],
+  "flags": [
+    {
+      "czi": "zoomed/dprm1xdprm1-34.czi",
+      "matched_mask": "Images_mk3/F6_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "flip_lr",
+      "score": 0.9628312595073993,
+      "overlap": 0.9923076923076923,
+      "mean_dist": 0.9825477600097656,
+      "top2_gap": 0.0,
+      "czi_channel_used": 0,
+      "czi_edge_density": 0.14678955078125,
+      "reasons": [
+        "small_top2_gap"
+      ]
+    },
+    {
+      "czi": "new_images/filtro Ph1/5-04.czi",
+      "matched_mask": "images_CNN/F6_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "flip_lr",
+      "score": 0.9594380697378746,
+      "overlap": 0.9846153846153847,
+      "mean_dist": 0.8392438292503357,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.11713409423828125,
+      "reasons": [
+        "small_top2_gap"
+      ]
+    },
+    {
+      "czi": "new40x/P1_2B2-03.czi",
+      "matched_mask": "images_CNN_clean/F06_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "orig",
+      "score": 0.9533839753040901,
+      "overlap": 0.9846153846153847,
+      "mean_dist": 1.0410469770431519,
+      "top2_gap": 0.0,
+      "czi_channel_used": 0,
+      "czi_edge_density": 0.20666122436523438,
+      "reasons": [
+        "small_top2_gap"
+      ]
+    },
+    {
+      "czi": "new_images/filtro Ph1/5-03.czi",
+      "matched_mask": "new40x/P1_1G7-08_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "flip_ud",
+      "score": 0.4502237746563893,
+      "overlap": 0.6193952033368092,
+      "mean_dist": 5.639047622680664,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.0934906005859375,
+      "reasons": [
+        "small_top2_gap"
+      ]
+    },
+    {
+      "czi": "new40x/P1_1G7-08.czi",
+      "matched_mask": "Images_mk3/F8_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "flip_lr",
+      "score": 0.9171423752210579,
+      "overlap": 0.9489795918367347,
+      "mean_dist": 1.061240553855896,
+      "top2_gap": 0.0,
+      "czi_channel_used": 1,
+      "czi_edge_density": 0.20063400268554688,
+      "reasons": [
+        "small_top2_gap"
+      ]
+    },
+    {
+      "czi": "new_images/filtro Ph1/5-02.czi",
+      "matched_mask": "Images_mk3/F10_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "flip_ud",
+      "score": 0.15685475244273817,
+      "overlap": 0.5053598774885145,
+      "mean_dist": 11.616837501525879,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.055805206298828125,
+      "reasons": [
+        "small_top2_gap",
+        "high_distance"
+      ]
+    },
+    {
+      "czi": "new_images/filtro H/5-05.czi",
+      "matched_mask": "images_CNN/F8_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "flip_lr",
+      "score": 0.6376086070586224,
+      "overlap": 0.7255102040816327,
+      "mean_dist": 2.930053234100342,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.11579132080078125,
+      "reasons": [
+        "small_top2_gap"
+      ]
+    },
+    {
+      "czi": "new_images/filtro Ph1/5-07.czi",
+      "matched_mask": "Images_mk3/F23_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "flip_udlr",
+      "score": 0.393479674412654,
+      "overlap": 0.6442307692307693,
+      "mean_dist": 8.358369827270508,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.07979965209960938,
+      "reasons": [
+        "small_top2_gap",
+        "high_distance"
+      ]
+    },
+    {
+      "czi": "new40x/P1_1G7-18.czi",
+      "matched_mask": "Images_mk3/F11_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "orig",
+      "score": 0.8528707577352939,
+      "overlap": 0.8956521739130435,
+      "mean_dist": 1.4260472059249878,
+      "top2_gap": 0.0,
+      "czi_channel_used": 1,
+      "czi_edge_density": 0.15677261352539062,
+      "reasons": [
+        "small_top2_gap"
+      ]
+    },
+    {
+      "czi": "new40x/P1_1E3-13.czi",
+      "matched_mask": "new40x/P1_1E3-13_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "flip_ud",
+      "score": 0.7000707014150925,
+      "overlap": 0.7580287929125138,
+      "mean_dist": 1.9319363832473755,
+      "top2_gap": 0.0,
+      "czi_channel_used": 0,
+      "czi_edge_density": 0.10678482055664062,
+      "reasons": [
+        "small_top2_gap"
+      ]
+    },
+    {
+      "czi": "zoomed/dprm1xdprm1-17.czi",
+      "matched_mask": "Images_mk3/F16_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "orig",
+      "score": 0.5475493030050684,
+      "overlap": 0.6477334789732386,
+      "mean_dist": 3.339472532272339,
+      "top2_gap": 0.0,
+      "czi_channel_used": 0,
+      "czi_edge_density": 0.062442779541015625,
+      "reasons": [
+        "small_top2_gap"
+      ]
+    },
+    {
+      "czi": "new_images/filtro H/5-03.czi",
+      "matched_mask": "images_CNN_clean/F21_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "orig",
+      "score": 0.3625104856824542,
+      "overlap": 0.5996503496503497,
+      "mean_dist": 7.904662132263184,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.057445526123046875,
+      "reasons": [
+        "small_top2_gap"
+      ]
+    },
+    {
+      "czi": "zoomed/dprm1xdprm1-32.czi",
+      "matched_mask": "Images_mk3/F17_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "flip_lr",
+      "score": 0.7040798325815062,
+      "overlap": 0.7681159420289855,
+      "mean_dist": 2.1345369815826416,
+      "top2_gap": 0.0,
+      "czi_channel_used": 1,
+      "czi_edge_density": 0.10235977172851562,
+      "reasons": [
+        "small_top2_gap"
+      ]
+    },
+    {
+      "czi": "new_images/filtro H/5-06.czi",
+      "matched_mask": "images_384_CNN/BF03_Position020_new_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "flip_udlr",
+      "score": 0.11984164769562938,
+      "overlap": 0.45142296368989204,
+      "mean_dist": 11.05271053314209,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.0539398193359375,
+      "reasons": [
+        "small_top2_gap",
+        "high_distance"
+      ]
+    },
+    {
+      "czi": "new_images/filtro Ph1/5-05.czi",
+      "matched_mask": "images_CNN_clean/F08_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "flip_udlr",
+      "score": 0.49854327299156975,
+      "overlap": 0.6520408163265307,
+      "mean_dist": 5.116584777832031,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.08107376098632812,
+      "reasons": [
+        "small_top2_gap"
+      ]
+    },
+    {
+      "czi": "new_images/filtro H/5-04.czi",
+      "matched_mask": "images_CNN/BF03_Position020_new_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "flip_udlr",
+      "score": -0.37526519683673165,
+      "overlap": 0.30323846908734053,
+      "mean_dist": 22.616788864135742,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.037174224853515625,
+      "reasons": [
+        "small_top2_gap",
+        "high_distance"
+      ]
+    },
+    {
+      "czi": "zoomed/dprm1xdprm1-11.czi",
+      "matched_mask": "images_384_CNN/BF04_Position010_new_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T0",
+      "orientation": "orig",
+      "score": 0.2584365984696372,
+      "overlap": 0.420032310177706,
+      "mean_dist": 5.386523723602295,
+      "top2_gap": 0.0,
+      "czi_channel_used": 0,
+      "czi_edge_density": 0.035953521728515625,
+      "reasons": [
+        "small_top2_gap"
+      ]
+    },
+    {
+      "czi": "new_images/filtro Ph1/5-01.czi",
+      "matched_mask": "Images_mk3/F7_mask.h5",
+      "mask_group": "FOV0",
+      "mask_frame": "T5",
+      "orientation": "flip_udlr",
+      "score": -0.039425497857558556,
+      "overlap": 0.5322896281800391,
+      "mean_dist": 19.057170867919922,
+      "top2_gap": 0.0,
+      "czi_channel_used": 2,
+      "czi_edge_density": 0.05854034423828125,
+      "reasons": [
+        "small_top2_gap",
+        "high_distance"
+      ]
+    }
+  ],
+  "per_czi_top5": {
+    "new40x/P1_1E3-13.czi": [
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.7942370871397165,
+        "overlap": 0.8461538461538461,
+        "mean_dist": 1.7305586338043213
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.7942370871397165,
+        "overlap": 0.8461538461538461,
+        "mean_dist": 1.7305586338043213
+      },
+      {
+        "mask": "images_CNN_clean/F06_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.7942370871397165,
+        "overlap": 0.8461538461538461,
+        "mean_dist": 1.7305586338043213
+      },
+      {
+        "mask": "new40x/P1_1E3-13_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_ud",
+        "score": 0.7000707014150925,
+        "overlap": 0.7580287929125138,
+        "mean_dist": 1.9319363832473755
+      },
+      {
+        "mask": "Images_mk3/F11_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.6160544732342595,
+        "overlap": 0.691304347826087,
+        "mean_dist": 2.508329153060913
+      }
+    ],
+    "new40x/P1_1G2-09.czi": [
+      {
+        "mask": "new40x/P1_1G2-09_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_ud",
+        "score": 0.94561129063676,
+        "overlap": 0.9745199409158051,
+        "mean_dist": 0.9636216759681702
+      },
+      {
+        "mask": "Images_mk3/F14_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_udlr",
+        "score": 0.43766933788327855,
+        "overlap": 0.588380716934487,
+        "mean_dist": 5.023712635040283
+      },
+      {
+        "mask": "images_384_CNN/BF04_Position005_new_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_udlr",
+        "score": 0.43766933788327855,
+        "overlap": 0.588380716934487,
+        "mean_dist": 5.023712635040283
+      },
+      {
+        "mask": "images_CNN/BF04_Position005_new_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_udlr",
+        "score": 0.43766933788327855,
+        "overlap": 0.588380716934487,
+        "mean_dist": 5.023712635040283
+      },
+      {
+        "mask": "images_CNN_clean/F14_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_udlr",
+        "score": 0.43766933788327855,
+        "overlap": 0.588380716934487,
+        "mean_dist": 5.023712635040283
+      }
+    ],
+    "new40x/P1_1G7-08.czi": [
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.94599956374902,
+        "overlap": 0.9769230769230769,
+        "mean_dist": 1.030783772468567
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.94599956374902,
+        "overlap": 0.9769230769230769,
+        "mean_dist": 1.030783772468567
+      },
+      {
+        "mask": "images_CNN_clean/F06_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.94599956374902,
+        "overlap": 0.9769230769230769,
+        "mean_dist": 1.030783772468567
+      },
+      {
+        "mask": "Images_mk3/F8_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.9171423752210579,
+        "overlap": 0.9489795918367347,
+        "mean_dist": 1.061240553855896
+      },
+      {
+        "mask": "images_CNN/F8_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.9171423752210579,
+        "overlap": 0.9489795918367347,
+        "mean_dist": 1.061240553855896
+      }
+    ],
+    "new40x/P1_1G7-18.czi": [
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.8813594319270208,
+        "overlap": 0.9230769230769231,
+        "mean_dist": 1.3905830383300781
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.8813594319270208,
+        "overlap": 0.9230769230769231,
+        "mean_dist": 1.3905830383300781
+      },
+      {
+        "mask": "images_CNN_clean/F06_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.8813594319270208,
+        "overlap": 0.9230769230769231,
+        "mean_dist": 1.3905830383300781
+      },
+      {
+        "mask": "Images_mk3/F11_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "orig",
+        "score": 0.8528707577352939,
+        "overlap": 0.8956521739130435,
+        "mean_dist": 1.4260472059249878
+      },
+      {
+        "mask": "images_CNN/F11_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "orig",
+        "score": 0.8528707577352939,
+        "overlap": 0.8956521739130435,
+        "mean_dist": 1.4260472059249878
+      }
+    ],
+    "new40x/P1_2B2-03.czi": [
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "orig",
+        "score": 0.9533839753040901,
+        "overlap": 0.9846153846153847,
+        "mean_dist": 1.0410469770431519
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "orig",
+        "score": 0.9533839753040901,
+        "overlap": 0.9846153846153847,
+        "mean_dist": 1.0410469770431519
+      },
+      {
+        "mask": "images_CNN_clean/F06_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "orig",
+        "score": 0.9533839753040901,
+        "overlap": 0.9846153846153847,
+        "mean_dist": 1.0410469770431519
+      },
+      {
+        "mask": "Images_mk3/F10_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.9378761068894705,
+        "overlap": 0.9693721286370597,
+        "mean_dist": 1.0498673915863037
+      },
+      {
+        "mask": "images_CNN/F10_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.9378761068894705,
+        "overlap": 0.9693721286370597,
+        "mean_dist": 1.0498673915863037
+      }
+    ],
+    "new_images/filtro H/5-03.czi": [
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.7424148996059711,
+        "overlap": 0.7923076923076923,
+        "mean_dist": 1.663093090057373
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.7424148996059711,
+        "overlap": 0.7923076923076923,
+        "mean_dist": 1.663093090057373
+      },
+      {
+        "mask": "images_CNN_clean/F06_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.7424148996059711,
+        "overlap": 0.7923076923076923,
+        "mean_dist": 1.663093090057373
+      },
+      {
+        "mask": "Images_mk3/F23_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "orig",
+        "score": 0.3625104856824542,
+        "overlap": 0.5996503496503497,
+        "mean_dist": 7.904662132263184
+      },
+      {
+        "mask": "images_CNN_clean/F21_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "orig",
+        "score": 0.3625104856824542,
+        "overlap": 0.5996503496503497,
+        "mean_dist": 7.904662132263184
+      }
+    ],
+    "new_images/filtro H/5-04.czi": [
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.37972774468935455,
+        "overlap": 0.5538461538461539,
+        "mean_dist": 5.8039469718933105
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.37972774468935455,
+        "overlap": 0.5538461538461539,
+        "mean_dist": 5.8039469718933105
+      },
+      {
+        "mask": "images_CNN_clean/F06_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.37972774468935455,
+        "overlap": 0.5538461538461539,
+        "mean_dist": 5.8039469718933105
+      },
+      {
+        "mask": "images_384_CNN/BF03_Position020_new_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_udlr",
+        "score": -0.37526519683673165,
+        "overlap": 0.30323846908734053,
+        "mean_dist": 22.616788864135742
+      },
+      {
+        "mask": "images_CNN/BF03_Position020_new_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_udlr",
+        "score": -0.37526519683673165,
+        "overlap": 0.30323846908734053,
+        "mean_dist": 22.616788864135742
+      }
+    ],
+    "new_images/filtro H/5-05.czi": [
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.9103737715574411,
+        "overlap": 0.9461538461538461,
+        "mean_dist": 1.192669153213501
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.9103737715574411,
+        "overlap": 0.9461538461538461,
+        "mean_dist": 1.192669153213501
+      },
+      {
+        "mask": "images_CNN_clean/F06_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.9103737715574411,
+        "overlap": 0.9461538461538461,
+        "mean_dist": 1.192669153213501
+      },
+      {
+        "mask": "Images_mk3/F8_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.6376086070586224,
+        "overlap": 0.7255102040816327,
+        "mean_dist": 2.930053234100342
+      },
+      {
+        "mask": "images_CNN/F8_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.6376086070586224,
+        "overlap": 0.7255102040816327,
+        "mean_dist": 2.930053234100342
+      }
+    ],
+    "new_images/filtro H/5-06.czi": [
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.6949029410802401,
+        "overlap": 0.7615384615384615,
+        "mean_dist": 2.221184015274048
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.6949029410802401,
+        "overlap": 0.7615384615384615,
+        "mean_dist": 2.221184015274048
+      },
+      {
+        "mask": "images_CNN_clean/F06_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.6949029410802401,
+        "overlap": 0.7615384615384615,
+        "mean_dist": 2.221184015274048
+      },
+      {
+        "mask": "Images_mk3/F23_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_udlr",
+        "score": 0.19227047986917567,
+        "overlap": 0.493006993006993,
+        "mean_dist": 10.024550437927246
+      },
+      {
+        "mask": "images_CNN_clean/F21_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_udlr",
+        "score": 0.19227047986917567,
+        "overlap": 0.493006993006993,
+        "mean_dist": 10.024550437927246
+      }
+    ],
+    "new_images/filtro Ph1/5-01.czi": [
+      {
+        "mask": "Images_mk3/F8_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "orig",
+        "score": 0.16954892508837638,
+        "overlap": 0.6173469387755102,
+        "mean_dist": 14.926600456237793
+      },
+      {
+        "mask": "images_CNN/F8_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "orig",
+        "score": 0.16954892508837638,
+        "overlap": 0.6173469387755102,
+        "mean_dist": 14.926600456237793
+      },
+      {
+        "mask": "images_CNN_clean/F08_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "orig",
+        "score": 0.16954892508837638,
+        "overlap": 0.6173469387755102,
+        "mean_dist": 14.926600456237793
+      },
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.14662735792306758,
+        "overlap": 0.4153846153846154,
+        "mean_dist": 8.958575248718262
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.14662735792306758,
+        "overlap": 0.4153846153846154,
+        "mean_dist": 8.958575248718262
+      }
+    ],
+    "new_images/filtro Ph1/5-02.czi": [
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.9212389680055472,
+        "overlap": 0.9538461538461539,
+        "mean_dist": 1.0869061946868896
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.9212389680055472,
+        "overlap": 0.9538461538461539,
+        "mean_dist": 1.0869061946868896
+      },
+      {
+        "mask": "images_CNN_clean/F06_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.9212389680055472,
+        "overlap": 0.9538461538461539,
+        "mean_dist": 1.0869061946868896
+      },
+      {
+        "mask": "Images_mk3/F10_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.15685475244273817,
+        "overlap": 0.5053598774885145,
+        "mean_dist": 11.616837501525879
+      },
+      {
+        "mask": "images_CNN/F10_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.15685475244273817,
+        "overlap": 0.5053598774885145,
+        "mean_dist": 11.616837501525879
+      }
+    ],
+    "new_images/filtro Ph1/5-03.czi": [
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.9488062236859248,
+        "overlap": 0.9769230769230769,
+        "mean_dist": 0.9372284412384033
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.9488062236859248,
+        "overlap": 0.9769230769230769,
+        "mean_dist": 0.9372284412384033
+      },
+      {
+        "mask": "images_CNN_clean/F06_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.9488062236859248,
+        "overlap": 0.9769230769230769,
+        "mean_dist": 0.9372284412384033
+      },
+      {
+        "mask": "new40x/P1_1G7-08_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_ud",
+        "score": 0.4502237746563893,
+        "overlap": 0.6193952033368092,
+        "mean_dist": 5.639047622680664
+      },
+      {
+        "mask": "Images_mk3/F9_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.3366376430903499,
+        "overlap": 0.6393280632411067,
+        "mean_dist": 10.089680671691895
+      }
+    ],
+    "new_images/filtro Ph1/5-04.czi": [
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.9594380697378746,
+        "overlap": 0.9846153846153847,
+        "mean_dist": 0.8392438292503357
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.9594380697378746,
+        "overlap": 0.9846153846153847,
+        "mean_dist": 0.8392438292503357
+      },
+      {
+        "mask": "images_CNN_clean/F06_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.9594380697378746,
+        "overlap": 0.9846153846153847,
+        "mean_dist": 0.8392438292503357
+      },
+      {
+        "mask": "images_384_CNN/BF03_Position020_new_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_ud",
+        "score": 0.6783475181703127,
+        "overlap": 0.774288518155054,
+        "mean_dist": 3.198033332824707
+      },
+      {
+        "mask": "images_CNN/BF03_Position020_new_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_ud",
+        "score": 0.6783475181703127,
+        "overlap": 0.774288518155054,
+        "mean_dist": 3.198033332824707
+      }
+    ],
+    "new_images/filtro Ph1/5-05.czi": [
+      {
+        "mask": "Images_mk3/F8_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.49854327299156975,
+        "overlap": 0.6520408163265307,
+        "mean_dist": 5.116584777832031
+      },
+      {
+        "mask": "images_CNN/F8_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.49854327299156975,
+        "overlap": 0.6520408163265307,
+        "mean_dist": 5.116584777832031
+      },
+      {
+        "mask": "images_CNN_clean/F08_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.49854327299156975,
+        "overlap": 0.6520408163265307,
+        "mean_dist": 5.116584777832031
+      },
+      {
+        "mask": "new40x/P1_2B2-03_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_udlr",
+        "score": 0.464036740062251,
+        "overlap": 0.658051689860835,
+        "mean_dist": 6.467164993286133
+      },
+      {
+        "mask": "Images_mk3/F9_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.13169652799372616,
+        "overlap": 0.4950592885375494,
+        "mean_dist": 12.112092018127441
+      }
+    ],
+    "new_images/filtro Ph1/5-07.czi": [
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.8893305422709539,
+        "overlap": 0.9230769230769231,
+        "mean_dist": 1.1248793601989746
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.8893305422709539,
+        "overlap": 0.9230769230769231,
+        "mean_dist": 1.1248793601989746
+      },
+      {
+        "mask": "images_CNN_clean/F06_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_ud",
+        "score": 0.8893305422709539,
+        "overlap": 0.9230769230769231,
+        "mean_dist": 1.1248793601989746
+      },
+      {
+        "mask": "Images_mk3/F23_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_udlr",
+        "score": 0.393479674412654,
+        "overlap": 0.6442307692307693,
+        "mean_dist": 8.358369827270508
+      },
+      {
+        "mask": "images_CNN_clean/F21_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_udlr",
+        "score": 0.393479674412654,
+        "overlap": 0.6442307692307693,
+        "mean_dist": 8.358369827270508
+      }
+    ],
+    "zoomed/dprm1xdprm1-11.czi": [
+      {
+        "mask": "images_384_CNN/BF04_Position010_new_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "orig",
+        "score": 0.2584365984696372,
+        "overlap": 0.420032310177706,
+        "mean_dist": 5.386523723602295
+      },
+      {
+        "mask": "images_CNN/BF04_Position010_new_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "orig",
+        "score": 0.2584365984696372,
+        "overlap": 0.420032310177706,
+        "mean_dist": 5.386523723602295
+      },
+      {
+        "mask": "Images_mk3/F17_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "orig",
+        "score": 0.23119010890739553,
+        "overlap": 0.39855072463768115,
+        "mean_dist": 5.5786871910095215
+      },
+      {
+        "mask": "images_CNN_clean/F15_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "orig",
+        "score": 0.23119010890739553,
+        "overlap": 0.39855072463768115,
+        "mean_dist": 5.5786871910095215
+      },
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "orig",
+        "score": 0.2125864238005418,
+        "overlap": 0.33076923076923076,
+        "mean_dist": 3.939426898956299
+      }
+    ],
+    "zoomed/dprm1xdprm1-17.czi": [
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.7620159904773419,
+        "overlap": 0.8076923076923077,
+        "mean_dist": 1.5225439071655273
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.7620159904773419,
+        "overlap": 0.8076923076923077,
+        "mean_dist": 1.5225439071655273
+      },
+      {
+        "mask": "images_CNN_clean/F06_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.7620159904773419,
+        "overlap": 0.8076923076923077,
+        "mean_dist": 1.5225439071655273
+      },
+      {
+        "mask": "Images_mk3/F16_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "orig",
+        "score": 0.5475493030050684,
+        "overlap": 0.6477334789732386,
+        "mean_dist": 3.339472532272339
+      },
+      {
+        "mask": "images_384_CNN/BF04_Position008_new_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "orig",
+        "score": 0.5475493030050684,
+        "overlap": 0.6477334789732386,
+        "mean_dist": 3.339472532272339
+      }
+    ],
+    "zoomed/dprm1xdprm1-32.czi": [
+      {
+        "mask": "Images_mk3/F17_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_lr",
+        "score": 0.7040798325815062,
+        "overlap": 0.7681159420289855,
+        "mean_dist": 2.1345369815826416
+      },
+      {
+        "mask": "images_CNN_clean/F15_mask.h5",
+        "group": "FOV0",
+        "frame": "T0",
+        "orientation": "flip_lr",
+        "score": 0.7040798325815062,
+        "overlap": 0.7681159420289855,
+        "mean_dist": 2.1345369815826416
+      },
+      {
+        "mask": "Images_mk3/F10_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "orig",
+        "score": 0.6970217808610996,
+        "overlap": 0.7595712098009189,
+        "mean_dist": 2.0849809646606445
+      },
+      {
+        "mask": "images_CNN/F10_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "orig",
+        "score": 0.6970217808610996,
+        "overlap": 0.7595712098009189,
+        "mean_dist": 2.0849809646606445
+      },
+      {
+        "mask": "images_CNN_clean/F10_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "orig",
+        "score": 0.6970217808610996,
+        "overlap": 0.7595712098009189,
+        "mean_dist": 2.0849809646606445
+      }
+    ],
+    "zoomed/dprm1xdprm1-34.czi": [
+      {
+        "mask": "Images_mk3/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.9628312595073993,
+        "overlap": 0.9923076923076923,
+        "mean_dist": 0.9825477600097656
+      },
+      {
+        "mask": "images_CNN/F6_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.9628312595073993,
+        "overlap": 0.9923076923076923,
+        "mean_dist": 0.9825477600097656
+      },
+      {
+        "mask": "images_CNN_clean/F06_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_lr",
+        "score": 0.9628312595073993,
+        "overlap": 0.9923076923076923,
+        "mean_dist": 0.9825477600097656
+      },
+      {
+        "mask": "Images_mk3/F7_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.8316025222374269,
+        "overlap": 0.8737769080234834,
+        "mean_dist": 1.4058128595352173
+      },
+      {
+        "mask": "images_CNN/F7_mask.h5",
+        "group": "FOV0",
+        "frame": "T5",
+        "orientation": "flip_udlr",
+        "score": 0.8316025222374269,
+        "overlap": 0.8737769080234834,
+        "mean_dist": 1.4058128595352173
+      }
+    ]
+  }
+}

@@ -20,9 +20,11 @@ License: MIT
 import argparse
 import os
 import glob
+import json
 import numpy as np
 import pandas as pd
 from PIL import Image, ImageSequence
+from pathlib import Path
 from ultralytics import YOLO
 from scipy.stats import describe
 import cv2
@@ -379,6 +381,79 @@ def load_config(config_path):
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
+
+def dataset_prediction_files(dataset_info_path, split='all', annotated_only=False):
+    """Return prepared PNGs and provenance from a saved dataset object.
+
+    Dataset-info JSON is the durable interface between preparation, training,
+    and inference.  It points to the materialized YOLO PNGs and contains the
+    original CZI/TIFF paths plus the deterministic HDF5 pairing.  Inference
+    therefore does not need to reopen CZI files or rediscover raw files.
+    """
+    from image_dataset import MicroscopyImageDataset
+
+    info_path = Path(dataset_info_path).resolve()
+    info = MicroscopyImageDataset.load_dataset_info(info_path)
+    yolo_data = info.get('yolo_data')
+    if not yolo_data:
+        raise ValueError(f"Dataset info has no prepared YOLO data path: {info_path}")
+    yolo_yaml = Path(yolo_data).resolve()
+    if not yolo_yaml.exists():
+        raise FileNotFoundError(f"Prepared YOLO dataset YAML not found: {yolo_yaml}")
+
+    config = yaml.safe_load(yolo_yaml.read_text()) or {}
+    dataset_root = Path(config.get('path', yolo_yaml.parent))
+    if not dataset_root.is_absolute():
+        dataset_root = (yolo_yaml.parent / dataset_root).resolve()
+
+    selected_splits = ('train', 'val', 'test') if split == 'all' else (split,)
+    record_lookup = {
+        (record['magnification'], record['sample_id']): record
+        for record in info['records']
+    }
+    files = []
+    for selected_split in selected_splits:
+        image_dir = dataset_root / selected_split / 'images'
+        label_dir = dataset_root / selected_split / 'labels'
+        if not image_dir.exists():
+            raise FileNotFoundError(f"Dataset split has no image directory: {image_dir}")
+        for image_path in sorted(image_dir.glob('*.png')):
+            label_path = label_dir / f'{image_path.stem}.txt'
+            if annotated_only and (not label_path.exists() or not label_path.read_text().strip()):
+                continue
+            try:
+                magnification, materialized_id = image_path.stem.split('_', 1)
+            except ValueError as error:
+                raise ValueError(f"Invalid prepared image name: {image_path.name}") from error
+            sample_id = materialized_id.split('__f', 1)[0]
+            record = record_lookup.get((magnification, sample_id))
+            if record is None:
+                raise ValueError(
+                    f"Prepared image {image_path.name} has no matching record in {info_path}"
+                )
+            metadata = {
+                'dataset_name': info['name'],
+                'dataset_split': selected_split,
+                'sample_id': sample_id,
+                'magnification': magnification,
+                'source_format': record['source_format'],
+                'source_paths': json.dumps(record['sources'], sort_keys=True),
+                'annotation_path': record.get('annotation_path'),
+            }
+            files.append((image_path, metadata))
+    if not files:
+        qualifier = 'annotated ' if annotated_only else ''
+        raise ValueError(f"No {qualifier}PNG images found for split '{split}' in {info_path}")
+    return files
+
+
+def append_metadata(dataframe, metadata):
+    """Attach dataset provenance to each detected instance, when requested."""
+    if dataframe is not None and metadata:
+        for key, value in metadata.items():
+            dataframe[key] = value
+    return dataframe
+
 def main():
     parser = argparse.ArgumentParser(
         description='Batch predict with YOLO and compile results to CSV',
@@ -400,6 +475,10 @@ Examples:
   # Process with custom zoom factor
   python batch_predict.py --input_dir images/ --model yolov8n-seg_yfusion.pt --format png --output_csv results.csv --zoom --zoom_factor 0.5
 
+  # Predict a prepared dataset object's held-out test split
+  python batch_predict.py --dataset data/dataset_info/all_images.json --split test \\
+      --model models/all_images_yolov8n_seg.pt --output_csv test_predictions.csv
+
 Note:
   - The script will create individual CSV files for each image and a combined output CSV
   - Supported formats: png, tif, czi
@@ -410,6 +489,11 @@ Note:
         """)
     parser.add_argument('--config', type=str, help='Path to YAML configuration file')
     parser.add_argument('--input_dir', help='Directory with images')
+    parser.add_argument('--dataset', help='Dataset-info JSON saved by MicroscopyImageDataset')
+    parser.add_argument('--split', choices=['train', 'val', 'test', 'all'], default='all',
+                        help='Prepared dataset split to predict (default: all)')
+    parser.add_argument('--annotated-only', action='store_true',
+                        help='With --dataset, keep only PNGs with non-empty YOLO labels')
     parser.add_argument('--model', help='Path to YOLO model')
     parser.add_argument('--format', choices=['png', 'tif', 'czi'], help='Image format')
     parser.add_argument('--output_csv', help='Output CSV file')
@@ -426,21 +510,37 @@ Note:
             if not hasattr(args, key) or getattr(args, key) is None:
                 setattr(args, key, value)
     
-    # Validate required arguments
-    required = ['input_dir', 'model', 'format', 'output_csv']
+    # A saved dataset object supplies model-ready PNGs and their provenance;
+    # directory mode retains the original multi-format behaviour.
+    if args.dataset and args.input_dir:
+        parser.error('Use either --dataset or --input_dir, not both.')
+    if args.annotated_only and not args.dataset:
+        parser.error('--annotated-only requires --dataset.')
+    required = ['model', 'output_csv']
+    if not args.dataset:
+        required.extend(['input_dir', 'format'])
     missing = [arg for arg in required if not getattr(args, arg, None)]
     if missing:
         parser.error(f"Missing required arguments: {', '.join(missing)}. Provide via --config or command line.")
 
     model = YOLO(args.model)
-    pattern = {'png': '*.png', 'tif': '*.tif', 'czi': '*.czi'}[args.format]
-    files = sorted(glob.glob(os.path.join(args.input_dir, pattern)))
+    if args.dataset:
+        files = dataset_prediction_files(args.dataset, args.split, args.annotated_only)
+        per_image_dir = Path(args.output_csv).with_suffix('')
+        per_image_dir.mkdir(parents=True, exist_ok=True)
+    else:
+        pattern = {'png': '*.png', 'tif': '*.tif', 'czi': '*.czi'}[args.format]
+        files = [(Path(path), None) for path in sorted(glob.glob(os.path.join(args.input_dir, pattern)))]
+        per_image_dir = None
     all_dfs = []
     
-    for imgfile in tqdm.tqdm(files):
+    for image_path, metadata in tqdm.tqdm(files):
+        imgfile = str(image_path)
         print(f"Processing {imgfile}...")
         # Load image as array and get PNG path (for CZI)
-        arr, png_path = process_image(imgfile, args.format, crop=args.crop)
+        # Dataset objects reference already materialized, model-ready PNGs.
+        image_format = 'png' if args.dataset else args.format
+        arr, png_path = process_image(imgfile, image_format, crop=args.crop)
         
         if args.zoom:
             # Zoomed prediction with multiple crops
@@ -449,8 +549,9 @@ Note:
             
             for crop_idx, (crop, crop_png_path, coord) in enumerate(zip(crops, png_paths, coordinates)):
                 # Use the saved PNG path directly
-                df = predict_and_collect(model, crop_png_path,
-                                       crop_png_path.replace('.png', '.csv'),
+                outcsv = (per_image_dir / f'{image_path.stem}_crop_{crop_idx}.csv'
+                          if per_image_dir else Path(crop_png_path).with_suffix('.csv'))
+                df = predict_and_collect(model, crop_png_path, str(outcsv),
                                        crop=args.crop, crop_id=crop_idx)
                 if df is not None:
                     # Add coordinate information
@@ -458,7 +559,7 @@ Note:
                     df['crop_y1'] = coord[1]
                     df['crop_x2'] = coord[2]
                     df['crop_y2'] = coord[3]
-                    all_dfs.append(df)
+                    all_dfs.append(append_metadata(df, metadata))
                 # Clean up the crop PNG file
                 if os.path.exists(crop_png_path):
                     os.remove(crop_png_path)
@@ -468,20 +569,22 @@ Note:
             if png_path is not None:
                 # CZI file - use the saved PNG directly
                 pred_path = png_path
-                df = predict_and_collect(model, pred_path,
-                                       pred_path.replace('.png', '.csv'),
+                outcsv = (per_image_dir / f'{image_path.stem}.csv'
+                          if per_image_dir else Path(pred_path).with_suffix('.csv'))
+                df = predict_and_collect(model, pred_path, str(outcsv),
                                        crop=args.crop, crop_id=0)
                 if df is not None:
-                    all_dfs.append(df)
+                    all_dfs.append(append_metadata(df, metadata))
             else:
                 # TIFF or PNG - create temp file
                 temp_path = imgfile + '_yoloinput.png'
                 Image.fromarray(arr.astype(np.uint8)).save(temp_path)
-                df = predict_and_collect(model, temp_path,
-                                       temp_path.replace('.png', '.csv'),
+                outcsv = (per_image_dir / f'{image_path.stem}.csv'
+                          if per_image_dir else Path(temp_path).with_suffix('.csv'))
+                df = predict_and_collect(model, temp_path, str(outcsv),
                                        crop=args.crop, crop_id=0)
                 if df is not None:
-                    all_dfs.append(df)
+                    all_dfs.append(append_metadata(df, metadata))
                 os.remove(temp_path)
     
     if all_dfs:

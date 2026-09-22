@@ -5,6 +5,7 @@ import yaml
 import argparse
 from ultralytics import YOLO
 import logging
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -15,8 +16,17 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train YOLO model on custom dataset')
     
     # Dataset arguments
-    parser.add_argument('--data', type=str, required=True, 
-                        help='Path to dataset YAML configuration file')
+    dataset_group = parser.add_mutually_exclusive_group(required=True)
+    dataset_group.add_argument('--data', type=str,
+                               help='Path to dataset YAML configuration file')
+    dataset_group.add_argument('--dataset', type=str,
+                               help='Dataset-info JSON saved by MicroscopyImageDataset')
+    parser.add_argument('--annotated-only', action='store_true',
+                        help='Use only images with non-empty annotation labels')
+    parser.add_argument('--evaluate', action='store_true',
+                        help='Evaluate the pretrained/model checkpoint instead of training')
+    parser.add_argument('--eval-split', choices=['train', 'val', 'test'], default='test',
+                        help='Dataset split to evaluate with --evaluate (default: test)')
     parser.add_argument('--img-size', type=int, default=1024, 
                         help='Input image size (default: 1024)')
     
@@ -105,14 +115,62 @@ def validate_dataset(data_yaml):
     logger.info(f"Dataset validated with {len(data_config['names'])} classes")
     return data_config
 
+
+def annotated_only_yaml(data_yaml: str) -> str:
+    """Create a YOLO YAML whose splits contain only non-empty label files.
+
+    Dataset preparation pairs each generated label with the HDF5 path stored in
+    the dataset-info record.  A non-empty YOLO label is therefore the usable
+    model-facing representation of an associated annotation.
+    """
+    data_path = Path(data_yaml).resolve()
+    config = yaml.safe_load(data_path.read_text())
+    root = Path(config.get('path', data_path.parent)).resolve()
+    filtered = root / 'annotated_only'
+    filtered.mkdir(parents=True, exist_ok=True)
+
+    for split in ('train', 'val', 'test'):
+        image_dir, label_dir = root / split / 'images', root / split / 'labels'
+        images = []
+        for image in sorted(image_dir.glob('*.png')):
+            label = label_dir / f'{image.stem}.txt'
+            if label.exists() and label.read_text().strip():
+                images.append(str(image.resolve()))
+        list_path = filtered / f'{split}.txt'
+        list_path.write_text('\n'.join(images) + ('\n' if images else ''))
+        config[split] = str(list_path.resolve())
+
+    output = filtered / 'dataset.yaml'
+    output.write_text(yaml.safe_dump(config, sort_keys=False))
+    return str(output)
+
+
+def resolve_data_path(args) -> str:
+    """Resolve dataset-info/YOLO YAML input and apply optional label filtering."""
+    data_path = args.data
+    if args.dataset:
+        from image_dataset import MicroscopyImageDataset
+        dataset_info = MicroscopyImageDataset.load_dataset_info(args.dataset)
+        data_path = dataset_info['yolo_data']
+        if not data_path:
+            raise ValueError(f"Dataset info has no prepared YOLO data path: {args.dataset}")
+        logger.info("Using dataset '%s' from %s", dataset_info['name'], args.dataset)
+    if args.annotated_only:
+        data_path = annotated_only_yaml(data_path)
+        logger.info("Using annotated-only dataset YAML: %s", data_path)
+    return data_path
+
 def train_model(args):
     """Main function to train the YOLO model"""
     # Validate model path
     if not os.path.exists(args.model) and not args.model.startswith('yolov8'):
         raise FileNotFoundError(f"Model not found: {args.model}")
     
+    # Resolve a persisted dataset definition when requested.
+    data_path = resolve_data_path(args)
+
     # Validate and load dataset configuration
-    data_config = validate_dataset(args.data)
+    data_config = validate_dataset(data_path)
     
     # Load hyperparameters
     hyp = load_hyperparameters(args.hyp)
@@ -124,7 +182,7 @@ def train_model(args):
     # Training settings
     logger.info(f"Starting training for {args.epochs} epochs")
     results = model.train(
-        data=args.data,
+        data=data_path,
         epochs=args.epochs,
         imgsz=args.img_size,
         batch=args.batch_size,
@@ -132,26 +190,47 @@ def train_model(args):
         workers=args.workers,
         project='yolo_training',
         name=os.path.splitext(args.output)[0],
-        exist_ok=True,
+        # Never reuse a prior run directory: an interrupted run can leave a
+        # partial results.csv and make Ultralytics' final plotting fail.
+        exist_ok=False,
         pretrained=True,
         **hyp
     )
     
-    # Save the model
+    # Copy the best training checkpoint to the requested handoff location.
     output_path = args.output
     logger.info(f"Saving model to {output_path}")
-    model.export(format='pt')
-    
-    # Move the exported model to the target path if it's not already there
-    export_path = f"{model.trainer.save_dir}/{model.trainer.name}/weights/best.pt"
-    if os.path.exists(export_path) and export_path != output_path:
+    best_path = os.path.join(str(model.trainer.save_dir), 'weights', 'best.pt')
+    if not os.path.exists(best_path):
+        raise FileNotFoundError(f"Training completed but best checkpoint was not found: {best_path}")
+    if os.path.abspath(best_path) != os.path.abspath(output_path):
         import shutil
-        shutil.copy(export_path, output_path)
+        os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
+        shutil.copy2(best_path, output_path)
     
     return results
 
+
+def evaluate_model(args):
+    """Evaluate a pretrained or trained model without modifying its weights."""
+    if not os.path.exists(args.model) and not args.model.startswith('yolov8'):
+        raise FileNotFoundError(f"Model not found: {args.model}")
+    data_path = resolve_data_path(args)
+    validate_dataset(data_path)
+    model = YOLO(args.model)
+    logger.info("Evaluating %s on %s (%s split)", args.model, data_path, args.eval_split)
+    return model.val(
+        data=data_path, split=args.eval_split, imgsz=args.img_size,
+        batch=args.batch_size, device=args.device, workers=args.workers,
+        project='yolo_evaluation', name=Path(args.model).stem, exist_ok=False,
+    )
+
 if __name__ == "__main__":
     args = parse_args()
-    train_model(args)
-    logger.info("Training completed successfully")
-    print(f"Trained model saved to: {args.output}")
+    if args.evaluate:
+        evaluate_model(args)
+        logger.info("Evaluation completed successfully")
+    else:
+        train_model(args)
+        logger.info("Training completed successfully")
+        print(f"Trained model saved to: {args.output}")

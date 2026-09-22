@@ -36,6 +36,42 @@ Yeast fusion experiments are crucial for studying cellular processes, mating typ
 - 8GB+ RAM (16GB+ recommended for large datasets)
 - 10GB+ storage space for models and datasets
 
+## Raw image datasets
+
+Raw TIFF and CZI inputs are loaded through `MicroscopyImageDataset`, which
+converts them to model-ready PNG files before training or annotation and keeps
+the paired HDF5 annotation path in each image record. **The naming convention
+is mandatory: files that do not follow it cannot be discovered or paired, and
+dataset loading will break.** See [DATASET_NAMING.md](DATASET_NAMING.md) for
+the required `data/raw/<40x|other>/...` layout, filenames, and migration
+command. See [DATASET_PREPARATION.md](DATASET_PREPARATION.md) for the
+end-to-end migration, validation, training, and annotation workflow. CZI
+conversion requires ImageJ/Fiji in the `yeast_fusion_segmenter` mamba
+environment.
+
+HDF5 annotations use the notebook's seven phenotype classes (`f`, `h`,
+`lmcf`, `lmsgfp`, `lsgfp`, `dip`, `d2`) in a fixed order. This class mapping
+must be preserved when preparing data or interpreting predictions; details
+are in [DATASET_NAMING.md](DATASET_NAMING.md#annotation-classes).
+
+Three prepared, reproducible YOLO datasets are available: `40x_only`,
+`all_czi`, and `all_images`. Start training directly from their saved definitions, e.g.
+`python train_yolo.py --dataset data/dataset_info/40x_only.json`. See
+[DATASET_PREPARATION.md](DATASET_PREPARATION.md) for dataset sizes and the
+full preparation workflow.
+
+For the training CLI and dataset-selection examples, see
+[TRAINING_CLI.md](TRAINING_CLI.md).
+
+The same saved dataset definitions can be passed to `batch_predict.py` for
+provenance-preserving inference, for example:
+`python batch_predict.py --dataset data/dataset_info/all_images.json --split test --model models/all_images_yolov8n_seg.pt --output_csv predictions.csv`.
+The output records the original source and paired HDF5 annotation path for
+every detection. See [TRAINING_CLI.md](TRAINING_CLI.md#inference-from-a-saved-dataset).
+
+Baseline training and cross-dataset evaluation results are recorded in
+[MODEL_PERFORMANCE.md](MODEL_PERFORMANCE.md).
+
 ## � License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

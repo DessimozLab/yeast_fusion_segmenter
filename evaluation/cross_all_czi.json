@@ -1,0 +1,37 @@
+{
+  "protocol": {
+    "split": "test",
+    "img_size": 512,
+    "device": "0"
+  },
+  "results": [
+    {
+      "model": "all_czi",
+      "model_path": "/home/dmoi/projects/yeast_fusion_segmenter/models/all_czi_yolov8n_seg.pt",
+      "dataset": "all_czi",
+      "dataset_info": "/home/dmoi/projects/yeast_fusion_segmenter/data/dataset_info/all_czi.json",
+      "labelled_test_images": 1,
+      "total_test_images": 15,
+      "box_map50": 0.0,
+      "box_map50_95": 0.0,
+      "mask_map50": 0.0,
+      "mask_map50_95": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+    },
+    {
+      "model": "all_czi",
+      "model_path": "/home/dmoi/projects/yeast_fusion_segmenter/models/all_czi_yolov8n_seg.pt",
+      "dataset": "all_images",
+      "dataset_info": "/home/dmoi/projects/yeast_fusion_segmenter/data/dataset_info/all_images.json",
+      "labelled_test_images": 17,
+      "total_test_images": 31,
+      "box_map50": 0.0,
+      "box_map50_95": 0.0,
+      "mask_map50": 0.0,
+      "mask_map50_95": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+    }
+  ]
+}

@@ -9,6 +9,11 @@ input_dir: datasets/test/images  # Directory containing input images
 output_csv: batch_predictions.csv  # Output CSV file with results
 format: png  # Image format: 'png', 'tif', or 'czi'
 
+# Alternatively, use a saved dataset object instead of input_dir/format.
+# dataset: data/dataset_info/all_images.json
+# split: test  # train, val, test, or all
+# annotated_only: false  # keep only images with non-empty YOLO labels
+
 # Image Processing Parameters
 crop: 1024  # Crop size for processing (default: 1024)
 
@@ -27,3 +32,8 @@ zoom_factor: 0.667  # Zoom factor (40/60 = 0.667, smaller = more crops)
 #
 # Override specific parameters from command line:
 # python batch_predict.py --config batch_predict_config.yaml --zoom true --crop 512
+#
+# Dataset-object inference preserves sample, source, magnification, and HDF5
+# annotation provenance in the combined CSV:
+# python batch_predict.py --dataset data/dataset_info/all_images.json --split test \
+#   --model models/all_images_yolov8n_seg.pt --output_csv test_predictions.csv

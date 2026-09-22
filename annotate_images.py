@@ -577,7 +577,7 @@ Examples:
                        help='Input directory containing images')
     parser.add_argument('--output', type=str,
                        help='Output CSV file path')
-    parser.add_argument('--format', type=str, choices=['auto', 'tiff', 'czi', 'single'], default='auto',
+    parser.add_argument('--format', type=str, choices=['auto', 'tiff', 'czi', 'single', 'raw'], default='auto',
                        help='Image format (auto-detect by default)')
     parser.add_argument('--confidence', type=float, default=0.5,
                        help='Confidence threshold for detections (default: 0.5)')
@@ -624,7 +624,21 @@ Examples:
     model = YOLO(args.model)
     
     # Find image groups
-    if args.format == 'auto':
+    if args.format == 'raw':
+        # Canonical raw data always passes through the shared loader first;
+        # annotation therefore receives deterministic PNG paths and retained
+        # HDF5 metadata rather than performing another filename search.
+        from image_dataset import MicroscopyImageDataset
+        raw_dataset = MicroscopyImageDataset(args.input)
+        image_groups = {
+            record.sample_id: {
+                'type': 'single',
+                'path': str(record.sources['png']),
+                'annotation_path': str(record.annotation_path) if record.annotation_path else None,
+            }
+            for record in raw_dataset.materialize_pngs()
+        }
+    elif args.format == 'auto':
         print("Auto-detecting image format...")
         image_groups = find_image_groups(args.input)
     else:

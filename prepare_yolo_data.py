@@ -18,6 +18,7 @@ from pathlib import Path
 import pickle
 import warnings
 import sys
+import re
 
 # Suppress specific warnings
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -33,6 +34,20 @@ logging.basicConfig(
 )
 logger = logging.getLogger('DataPreparation')
 
+# HDF5 annotations follow the seven 1000-wide phenotype bins defined in
+# ``segment_retrain(1).ipynb``. Their order is a model contract.
+CLASS_NAMES = (
+    'f',      # free cells
+    'h',      # hyphae
+    'lmcf',   # lysis: medium, cytoplasmic fluorescence
+    'lmsgfp', # lysis: medium, strong GFP
+    'lsgfp',  # lysis: strong GFP
+    'dip',    # diploid
+    'd2',     # doublet / d2 phenotype
+)
+CLASS_BIN_WIDTH = 1000
+_FRAME_SUFFIX_RE = re.compile(r'__f(?P<index>\d{4})$')
+
 def parse_args():
     """Parse command line arguments for data preparation"""
     parser = argparse.ArgumentParser(description='Prepare image data for training YOLO model')
@@ -44,8 +59,16 @@ def parse_args():
                         help='Output directory for processed datasets')
     
     # Processing options
-    parser.add_argument('--file-format', type=str, choices=['tiff', 'czi'], required=True,
-                        help='Input file format (tiff or czi)')
+    parser.add_argument('--file-format', type=str, choices=['tiff', 'czi', 'raw'], required=True,
+                        help='Input format; use raw for the canonical data/raw layout')
+    parser.add_argument('--magnification', choices=['all', '40x'], default='all',
+                        help='For --file-format raw, prepare all images or only 40x')
+    parser.add_argument('--source-format', choices=['all', 'czi', 'tiff'], default='all',
+                        help='For --file-format raw, restrict the selected source image format')
+    parser.add_argument('--dataset-info', type=str, default=None,
+                        help='Where to save the reproducible dataset-info JSON (raw input only)')
+    parser.add_argument('--resume', action='store_true',
+                        help='Resume a partially prepared canonical raw dataset')
     parser.add_argument('--crop-size', type=int, default=1024,
                         help='Size to crop images (default: 1024)')
     parser.add_argument('--aug-count', type=int, default=5,
@@ -65,12 +88,15 @@ def parse_args():
     
     return parser.parse_args()
 
-def create_directory_structure(output_dir):
+def create_directory_structure(output_dir, resume=False):
     """Create the directory structure for the dataset"""
     logger.info(f"Creating directory structure in {output_dir}")
     
     # Remove existing directory if it exists
     if os.path.exists(output_dir):
+        if resume:
+            logger.info("Resuming existing output directory %s", output_dir)
+            return
         logger.warning(f"Output directory {output_dir} already exists. Removing it.")
         shutil.rmtree(output_dir)
     
@@ -83,6 +109,14 @@ def create_directory_structure(output_dir):
         os.makedirs(os.path.join(output_dir, split, 'labels'), exist_ok=True)
     
     logger.info("Directory structure created successfully")
+
+
+def validate_split_arguments(args):
+    """Validate the explicit train/validation/test split requested by the CLI."""
+    if not 0 <= args.val_split < 1 or not 0 <= args.test_split < 1:
+        raise ValueError("--val-split and --test-split must be in [0, 1)")
+    if args.val_split + args.test_split >= 1:
+        raise ValueError("--val-split plus --test-split must be less than 1")
 
 def yield_frames(img, crop=1024, verbose=False, scaler=True):
     """Extract and normalize frames from an image"""
@@ -122,21 +156,38 @@ def adjust_brightness_contrast(image, brightness=1.0, contrast=1.0):
     
     return image
 
-def split_mask(mask, crop=1024):
-    """Split mask into three separate class masks"""
+
+def center_crop_or_pad(image, size=1024):
+    """Notebook-compatible center crop with zero padding for smaller inputs."""
+    height, width = image.shape[:2]
+    y0 = max((height - size) // 2, 0)
+    x0 = max((width - size) // 2, 0)
+    cropped = image[y0:min(y0 + size, height), x0:min(x0 + size, width), ...]
+    output_shape = (size, size) if image.ndim == 2 else (size, size, image.shape[2])
+    output = np.zeros(output_shape, dtype=image.dtype)
+    if image.ndim == 2:
+        output[:cropped.shape[0], :cropped.shape[1]] = cropped
+    else:
+        output[:cropped.shape[0], :cropped.shape[1], :] = cropped
+    return output
+
+def split_mask(mask, crop=1024, num_classes=len(CLASS_NAMES)):
+    """Split an encoded mask with the notebook's seven-bin logic.
+
+    Class ``i`` is exactly ``i * 1000 <= value < (i + 1) * 1000``. Zeros in
+    the class-0 working mask are background and are ignored by contour export.
+    """
+    if num_classes != len(CLASS_NAMES):
+        raise ValueError(f"Expected {len(CLASS_NAMES)} phenotype classes, got {num_classes}")
     mask = mask[0:crop, 0:crop]
-    
-    mask1 = copy.deepcopy(mask)
-    mask1[mask1 > 1000] = 0
-    
-    mask2 = copy.deepcopy(mask)
-    mask2[mask2 < 1000] = 0
-    mask2[mask2 > 2000] = 0
-    
-    mask3 = copy.deepcopy(mask)
-    mask3[mask3 < 2000] = 0
-    
-    return mask1, mask2, mask3
+    masks = []
+    for class_id in range(num_classes):
+        class_mask = copy.deepcopy(mask)
+        lower = class_id * CLASS_BIN_WIDTH
+        upper = (class_id + 1) * CLASS_BIN_WIDTH
+        class_mask[(class_mask < lower) | (class_mask >= upper)] = 0
+        masks.append(class_mask)
+    return masks
 
 def output_contours(m, cl, verbose=False):
     """Extract contours from a mask and format them for YOLO training"""
@@ -177,21 +228,43 @@ def output_contours(m, cl, verbose=False):
     return lines
 
 def mask_to_contour_file(mask, output_file, verbose=False):
-    """Convert mask to contour file in YOLO format"""
-    if isinstance(mask, list):
-        m1, m2, m3 = mask
-    else:
-        m1, m2, m3 = split_mask(mask)
-    
-    lines = output_contours(m1, 0, verbose=verbose)
-    lines += output_contours(m2, 1, verbose=verbose)
-    lines += output_contours(m3, 2, verbose=verbose)
+    """Convert every notebook phenotype bin in an HDF5 mask to YOLO polygons."""
+    masks = mask if isinstance(mask, (list, tuple)) else split_mask(mask)
+    if len(masks) != len(CLASS_NAMES):
+        raise ValueError(f"Expected {len(CLASS_NAMES)} class masks, got {len(masks)}")
+    lines = []
+    for class_id, class_mask in enumerate(masks):
+        lines.extend(output_contours(class_mask, class_id, verbose=verbose))
     
     with open(output_file, 'w') as f:
         for l in lines:
             f.write(l)
     
     return output_file
+
+
+def load_annotation_mask(annotation_path, materialized_sample_id):
+    """Load the HDF5 frame corresponding to a materialized PNG record.
+
+    TIFF stacks become ``<sample>__f0000.png``, ``__f0001.png``, and so on.
+    Their HDF5 datasets use the same frame order, so each PNG must consume the
+    matching mask rather than the first non-empty mask in the file. A CZI or
+    single-frame TIFF has no suffix and uses frame zero.
+    """
+    match = _FRAME_SUFFIX_RE.search(materialized_sample_id)
+    frame_index = int(match['index']) if match else 0
+    with h5py.File(annotation_path, 'r') as mask_file:
+        frames = [
+            np.asarray(mask_file[group][frame], dtype=np.uint16)
+            for group in mask_file.keys()
+            for frame in mask_file[group]
+        ]
+    if frame_index >= len(frames):
+        raise ValueError(
+            f"Annotation {annotation_path} has {len(frames)} frames but "
+            f"{materialized_sample_id} requires frame {frame_index}"
+        )
+    return frames[frame_index]
 
 def random_rotation(image, masks, angle_range):
     """Apply random rotation to image and masks"""
@@ -555,8 +628,52 @@ def process_czi_files(args):
     logger.info(f"Processed {image_count} CZI files")
     return image_count
 
+
+def process_canonical_raw_files(args):
+    """Create a YOLO dataset from canonical raw data via MicroscopyImageDataset.
+
+    This is the supported training entry point for ``data/raw``.  Source files
+    are converted to PNG before they are copied into a split, and labels are
+    resolved from the annotation path stored in the record metadata.
+    """
+    from image_dataset import MicroscopyImageDataset
+
+    magnifications = ('40x',) if args.magnification == '40x' else ('40x', 'other')
+    source_formats = ('czi', 'tiff') if args.source_format == 'all' else (args.source_format,)
+    raw_dataset = MicroscopyImageDataset(
+        args.input_dir, magnifications=magnifications, source_formats=source_formats
+    )
+    png_records = raw_dataset.materialize_pngs()
+    image_count = 0
+    for record in tqdm.tqdm(png_records, desc="Preparing canonical raw images"):
+        split = 'train' if record.annotation_path else 'test'
+        output_base = f"{record.magnification}_{record.sample_id}"
+        output_image = os.path.join(args.output_dir, split, 'images', output_base + '.png')
+        output_label = os.path.join(args.output_dir, split, 'labels', output_base + '.txt')
+        # Match the notebook exactly: center crop/pad RGB and its HDF5 mask
+        # together before contour extraction. Rewriting is intentional so a
+        # resumed legacy output cannot retain full-frame images or collapsed
+        # three-class labels.
+        with Image.open(record.sources['png']) as source_image:
+            rgb = np.asarray(source_image.convert('RGB'))
+        Image.fromarray(center_crop_or_pad(rgb, size=args.crop_size)).save(output_image)
+        if record.annotation_path:
+            mask = load_annotation_mask(record.annotation_path, record.sample_id)
+            if not mask.any():
+                logger.warning("Empty annotation frame for %s", record.annotation_path)
+                open(output_label, 'w').close()
+            else:
+                mask = center_crop_or_pad(mask, size=args.crop_size)
+                mask_to_contour_file(split_mask(mask, crop=args.crop_size), output_label, verbose=args.verbose)
+        else:
+            open(output_label, 'w').close()
+        image_count += 1
+    logger.info("Prepared %s PNGs from canonical raw data", image_count)
+    return image_count, raw_dataset
+
 def create_dataset_yaml(output_dir):
     """Create a YAML file with dataset configuration for YOLO training"""
+    class_lines = '\n'.join(f"  {class_id}: {name}" for class_id, name in enumerate(CLASS_NAMES))
     yaml_content = f"""
 # YOLOv8 dataset configuration
 path: {os.path.abspath(output_dir)}
@@ -565,9 +682,7 @@ val: val/images
 test: test/images
 
 names:
-  0: f  # free cells
-  1: h  # hyphae
-  2: l  # budding
+{class_lines}
 """
 
     yaml_path = os.path.join(output_dir, 'dataset.yaml')
@@ -590,8 +705,22 @@ def split_dataset(output_dir, val_split=0.1, test_split=0.1):
     
     # Calculate split points
     total = len(image_files)
+    # A fractional split should not silently disappear for a small microscopy
+    # collection. Reserve one image for each requested hold-out split whenever
+    # at least one training image can still remain.
     val_count = int(total * val_split)
     test_count = int(total * test_split)
+    if val_split > 0 and total >= 3:
+        val_count = max(1, val_count)
+    if test_split > 0 and total - val_count >= 2:
+        test_count = max(1, test_count)
+    if val_count + test_count >= total:
+        overflow = val_count + test_count - (total - 1)
+        if test_count >= overflow:
+            test_count -= overflow
+        else:
+            val_count -= overflow - test_count
+            test_count = 0
     
     # Split the files
     val_files = image_files[:val_count]
@@ -637,25 +766,44 @@ def split_dataset(output_dir, val_split=0.1, test_split=0.1):
 def main():
     """Main function to prepare data for YOLO training"""
     args = parse_args()
+    validate_split_arguments(args)
     
     # Set random seed for reproducibility
     random.seed(args.random_seed)
     np.random.seed(args.random_seed)
     
     # Create directory structure
-    create_directory_structure(args.output_dir)
+    create_directory_structure(args.output_dir, resume=args.resume)
     
     # Process files based on format
     if args.file_format == 'tiff':
         process_tiff_files(args)
     elif args.file_format == 'czi':
         process_czi_files(args)
+    elif args.file_format == 'raw':
+        _, raw_dataset = process_canonical_raw_files(args)
     
     # Split the dataset
     split_dataset(args.output_dir, args.val_split, args.test_split)
     
     # Create dataset YAML
     yaml_path = create_dataset_yaml(args.output_dir)
+    if args.file_format == 'raw':
+        info_path = args.dataset_info or os.path.join(args.output_dir, 'dataset-info.json')
+        raw_dataset.save_dataset_info(
+            info_path,
+            name=Path(args.output_dir).name,
+            yolo_data=yaml_path,
+            split={
+                "train": round(1 - args.val_split - args.test_split, 10),
+                "val": args.val_split,
+                "test": args.test_split,
+                "random_seed": args.random_seed,
+                "unannotated_to_test": True,
+            },
+            annotation_classes={class_id: name for class_id, name in enumerate(CLASS_NAMES)},
+        )
+        logger.info("Saved dataset info at %s", info_path)
     
     logger.info("Data preparation completed successfully")
     logger.info(f"Dataset ready for training at: {args.output_dir}")

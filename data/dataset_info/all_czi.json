@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "name": "all_czi",
+  "raw_root": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw",
+  "png_root": "/home/dmoi/projects/yeast_fusion_segmenter/data/derived/png",
+  "magnifications": [
+    "40x",
+    "other"
+  ],
+  "source_formats": [
+    "czi"
+  ],
+  "yolo_data": "/home/dmoi/projects/yeast_fusion_segmenter/data/yolo_datasets/all_czi/dataset.yaml",
+  "split": {
+    "train": 0.8,
+    "val": 0.1,
+    "test": 0.1,
+    "random_seed": 42,
+    "unannotated_to_test": true
+  },
+  "annotation_classes": {
+    "0": "f",
+    "1": "h",
+    "2": "lmcf",
+    "3": "lmsgfp",
+    "4": "lsgfp",
+    "5": "dip",
+    "6": "d2"
+  },
+  "records": [
+    {
+      "sample_id": "p1-1e3-13",
+      "magnification": "40x",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/images/czi/p1-1e3-13.czi"
+      },
+      "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/annotations/p1-1e3-13__mask.h5"
+    },
+    {
+      "sample_id": "p1-1g2-09",
+      "magnification": "40x",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/images/czi/p1-1g2-09.czi"
+      },
+      "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/annotations/p1-1g2-09__mask.h5"
+    },
+    {
+      "sample_id": "p1-1g7-08",
+      "magnification": "40x",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/images/czi/p1-1g7-08.czi"
+      },
+      "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/annotations/p1-1g7-08__mask.h5"
+    },
+    {
+      "sample_id": "p1-1g7-18",
+      "magnification": "40x",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/images/czi/p1-1g7-18.czi"
+      },
+      "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/annotations/p1-1g7-18__mask.h5"
+    },
+    {
+      "sample_id": "p1-2b2-03",
+      "magnification": "40x",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/images/czi/p1-2b2-03.czi"
+      },
+      "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/annotations/p1-2b2-03__mask.h5"
+    },
+    {
+      "sample_id": "p1-3b9-04",
+      "magnification": "40x",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/images/czi/p1-3b9-04.czi"
+      },
+      "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/annotations/p1-3b9-04__mask.h5"
+    },
+    {
+      "sample_id": "p1-3c12-15",
+      "magnification": "40x",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/images/czi/p1-3c12-15.czi"
+      },
+      "annotation_path": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/40x/annotations/p1-3c12-15__mask.h5"
+    },
+    {
+      "sample_id": "dprm1xdprm1-11",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/dprm1xdprm1-11.czi"
+      },
+      "annotation_path": null
+    },
+    {
+      "sample_id": "dprm1xdprm1-17",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/dprm1xdprm1-17.czi"
+      },
+      "annotation_path": null
+    },
+    {
+      "sample_id": "dprm1xdprm1-32",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/dprm1xdprm1-32.czi"
+      },
+      "annotation_path": null
+    },
+    {
+      "sample_id": "dprm1xdprm1-34",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/dprm1xdprm1-34.czi"
+      },
+      "annotation_path": null
+    },
+    {
+      "sample_id": "filtro-h-5-03",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-h-5-03.czi"
+      },
+      "annotation_path": null
+    },
+    {
+      "sample_id": "filtro-h-5-04",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-h-5-04.czi"
+      },
+      "annotation_path": null
+    },
+    {
+      "sample_id": "filtro-h-5-05",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-h-5-05.czi"
+      },
+      "annotation_path": null
+    },
+    {
+      "sample_id": "filtro-h-5-06",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-h-5-06.czi"
+      },
+      "annotation_path": null
+    },
+    {
+      "sample_id": "filtro-ph1-5-01",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-ph1-5-01.czi"
+      },
+      "annotation_path": null
+    },
+    {
+      "sample_id": "filtro-ph1-5-02",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-ph1-5-02.czi"
+      },
+      "annotation_path": null
+    },
+    {
+      "sample_id": "filtro-ph1-5-03",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-ph1-5-03.czi"
+      },
+      "annotation_path": null
+    },
+    {
+      "sample_id": "filtro-ph1-5-04",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-ph1-5-04.czi"
+      },
+      "annotation_path": null
+    },
+    {
+      "sample_id": "filtro-ph1-5-05",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-ph1-5-05.czi"
+      },
+      "annotation_path": null
+    },
+    {
+      "sample_id": "filtro-ph1-5-07",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/home/dmoi/projects/yeast_fusion_segmenter/data/raw/other/images/czi/filtro-ph1-5-07.czi"
+      },
+      "annotation_path": null
+    }
+  ]
+}

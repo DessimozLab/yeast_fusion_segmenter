@@ -1,0 +1,20 @@
+czi_path,czi_key,matched_mask_path,matched_mask_key,final_mask_path,final_mask_key,final_source,score,overlap,mean_dist
+./zoomed/dprm1xdprm1-32.czi,dprm1xdprm1-32,./new40x/P1_1G7-18_mask.h5,P1_1G7-18,./new40x/P1_1G7-18_mask.h5,P1_1G7-18,best_assigned,0.09946535410036164,1.1045801909022275,64827868.531523466
+./zoomed/dprm1xdprm1-34.czi,dprm1xdprm1-34,./datasets_corrected/raw_pairs/masks/0003_P1_2B2-03_mask.h5,0003_P1_2B2-03,./datasets_corrected/raw_pairs/masks/0003_P1_2B2-03_mask.h5,0003_P1_2B2-03,best_assigned,0.06427512752284176,1.0663857404750117,36029474.352386594
+./new_images/filtro Ph1/5-03.czi,5-03,./datasets_corrected/raw_pairs/masks/0018_P1_1G2-09_mask.h5,0018_P1_1G2-09,./datasets_corrected/raw_pairs/masks/0018_P1_1G2-09_mask.h5,0018_P1_1G2-09,best_assigned,0.04872100425093566,1.0499273745966455,118794665.51891613
+./new_images/filtro Ph1/5-05.czi,5-05,./Images_mk3/F4_mask.h5,F4,./Images_mk3/F4_mask.h5,F4,best_assigned,0.04541624931885753,1.0464633489247064,142971737.87254333
+./new_images/filtro Ph1/5-04.czi,5-04,./Images_mk3/F7_mask.h5,F7,./Images_mk3/F7_mask.h5,F7,best_assigned,0.04409450258437985,1.0450811030879912,30268733.73979509
+./new40x/P1_2B2-03.czi,P1_2B2-03,./Images_mk3/F6_mask.h5,F6,./Images_mk3/F6_mask.h5,F6,best_assigned,0.04136938161204931,1.0422370076410916,7440742.65346536
+./new_images/filtro H/5-05.czi,5-05,./Images_mk3/F7_mask.h5,F7,./Images_mk3/F7_mask.h5,F7,best_assigned,0.04072407736116597,1.041564664619416,34066821.841308594
+./new_images/filtro H/5-03.czi,5-03,./images_384_CNN/BF01_Position001_new_mask.h5,BF01_Position001_new,./images_384_CNN/BF01_Position001_new_mask.h5,BF01_Position001_new,best_assigned,0.03992625915958731,1.0407340167609336,71506279.78770185
+./new40x/P1_1E3-13.czi,P1_1E3-13,./Images_mk3/F11_mask.h5,F11,./Images_mk3/F11_mask.h5,F11,best_assigned,0.03870503686266256,1.0394638249134496,15267258.403570592
+./new_images/filtro Ph1/5-02.czi,5-02,./images_CNN/F4_mask.h5,F4,./images_CNN/F4_mask.h5,F4,best_assigned,0.03419884110834718,1.034790335131947,101516072.35244465
+./new_images/filtro Ph1/5-01.czi,5-01,./Images_mk3/F10_mask.h5,F10,./Images_mk3/F10_mask.h5,F10,best_assigned,0.033788698711691496,1.0343660107624135,36721099.343719125
+./new_images/filtro Ph1/5-07.czi,5-07,./Images_mk3/F16_mask.h5,F16,./Images_mk3/F16_mask.h5,F16,best_assigned,0.03070455038618673,1.0311807869077416,40306515.59366584
+./new_images/filtro H/5-04.czi,5-04,./new40x/P1_1G7-08_mask.h5,P1_1G7-08,./new40x/P1_1G7-08_mask.h5,P1_1G7-08,best_assigned,0.030564229743616767,1.0310361011071534,89382606.1540227
+./new_images/filtro H/5-06.czi,5-06,./Images_mk3/F14_mask.h5,F14,./Images_mk3/F14_mask.h5,F14,best_assigned,0.025787347716884897,1.0261227079319286,62612882.03084183
+./zoomed/dprm1xdprm1-17.czi,dprm1xdprm1-17,./datasets_corrected/raw_pairs/masks/0000_P1_1E3-13_mask.h5,0000_P1_1E3-13,./datasets_corrected/raw_pairs/masks/0000_P1_1E3-13_mask.h5,0000_P1_1E3-13,best_assigned,0.021956369678909002,1.0221991746188486,30049822.19034481
+./zoomed/dprm1xdprm1-11.czi,dprm1xdprm1-11,./new40x/P1_1G7-08_mask.h5,P1_1G7-08,./new40x/P1_1G7-08_mask.h5,P1_1G7-08,best_assigned,0.021273932190505062,1.0215018255502863,27788312.049176216
+./new40x/P1_1G7-08.czi,P1_1G7-08,./new40x/P1_1G7-08_mask.h5,P1_1G7-08,./new40x/P1_1G7-08_mask.h5,P1_1G7-08,same_key,0.008562466011331931,1.0085992187751562,6403878.888523102
+./new40x/P1_1G7-18.czi,P1_1G7-18,./new40x/P1_1G7-18_mask.h5,P1_1G7-18,./new40x/P1_1G7-18_mask.h5,P1_1G7-18,same_key,0.004373348387754787,1.0043829154319759,3972906.0616316795
+./new40x/P1_1G2-09.czi,P1_1G2-09,./new40x/P1_1G2-09_mask.h5,P1_1G2-09,./new40x/P1_1G2-09_mask.h5,P1_1G2-09,same_key,-0.01848516573394356,0.981684627054869,-32892417.117343426
