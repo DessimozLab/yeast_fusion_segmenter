@@ -43,6 +43,10 @@ png_records = dataset.materialize_pngs()  # TIFF and CZI -> model-ready PNG
 
 CZI conversion uses ImageJ/Fiji through `pyimagej`; run it in the `yeast_fusion_segmenter` mamba environment. TIFF stacks are normalized per channel, combined as BF/GFP/RFP RGB, and converted frame-by-frame. The resulting `ImageRecord` keeps the paired `annotation_path` so training code can locate the correct HDF5 mask without another filename search.
 
+The known `40x` series is vertically flipped at PNG materialization, except
+`p1-1g2-09`, which is already correctly oriented. This is a conversion rule,
+not a raw-file rename or edit: never flip the raw CZI/HDF5 inputs manually.
+
 ## Migrating the existing source collections
 
 Review the move plan first, then apply it:

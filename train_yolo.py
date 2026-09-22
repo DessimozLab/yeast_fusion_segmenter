@@ -37,14 +37,14 @@ def parse_args():
                         help='Name for the output model file (default: yolov8_retrained.pt)')
     
     # Training arguments
-    parser.add_argument('--epochs', type=int, default=100, 
-                        help='Number of training epochs (default: 100)')
-    parser.add_argument('--batch-size', type=int, default=8, 
-                        help='Training batch size (default: 8)')
+    parser.add_argument('--epochs', type=int, default=None,
+                        help='Number of training epochs (100 normally; 1000 with --notebook-protocol)')
+    parser.add_argument('--batch-size', type=int, default=None,
+                        help='Training batch size (8 normally; 20 with --notebook-protocol)')
     parser.add_argument('--device', type=str, default='0', 
                         help='Device to run training on (default: 0 for first GPU)')
-    parser.add_argument('--workers', type=int, default=4, 
-                        help='Number of worker threads (default: 4)')
+    parser.add_argument('--workers', type=int, default=None,
+                        help='Number of worker threads (4 normally; 8 with --notebook-protocol)')
     parser.add_argument('--hyp', type=str, default=None, 
                         help='Path to hyperparameter file (default: None)')
     parser.add_argument('--notebook-protocol', action='store_true',
@@ -223,16 +223,20 @@ def train_model(args):
         hyp.update({'scale': 0.5, 'translate': 0.2})
         logger.info("Using zoom/crop augmentation: scale=0.5, translate=0.2")
     if args.notebook_protocol:
-        # These are the final training settings in the notebook. Explicit CLI
-        # values remain honored so a user can run a shorter smoke test.
+        # These are the final training settings in the notebook. ``None``
+        # distinguishes an omitted option from an explicit CLI override.
         if args.model == 'yolov8n-seg.pt':
             args.model = 'yolov8s-seg.pt'
-        if args.epochs == 100:
+        if args.epochs is None:
             args.epochs = 1000
-        if args.batch_size == 8:
+        if args.batch_size is None:
             args.batch_size = 20
-        if args.workers == 4:
+        if args.workers is None:
             args.workers = 8
+    else:
+        args.epochs = 100 if args.epochs is None else args.epochs
+        args.batch_size = 8 if args.batch_size is None else args.batch_size
+        args.workers = 4 if args.workers is None else args.workers
     
     # Initialize the model
     logger.info(f"Loading model: {args.model}")
@@ -280,7 +284,7 @@ def evaluate_model(args):
     logger.info("Evaluating %s on %s (%s split)", args.model, data_path, args.eval_split)
     return model.val(
         data=data_path, split=args.eval_split, imgsz=args.img_size,
-        batch=args.batch_size, device=args.device, workers=args.workers,
+        batch=args.batch_size or 8, device=args.device, workers=args.workers or 4,
         project='yolo_evaluation', name=Path(args.model).stem, exist_ok=False,
     )
 

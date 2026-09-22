@@ -77,6 +77,10 @@ def parse_args():
                         help='Fraction of images to use for validation')
     parser.add_argument('--test-split', type=float, default=0.1,
                         help='Fraction of images to use for testing')
+    parser.add_argument('--val-samples', default='',
+                        help='Comma-separated annotated sample IDs reserved for validation')
+    parser.add_argument('--test-samples', default='',
+                        help='Comma-separated annotated sample IDs reserved for testing')
     parser.add_argument('--random-seed', type=int, default=42,
                         help='Random seed for reproducibility')
     parser.add_argument('--brightness', type=float, default=1.0,
@@ -700,13 +704,27 @@ def process_canonical_raw_files(args):
     raw_dataset = MicroscopyImageDataset(
         args.input_dir, magnifications=magnifications, source_formats=source_formats
     )
-    png_records = raw_dataset.materialize_pngs()
+    # A fresh dataset build must use the current conversion protocol rather
+    # than silently reuse cached PNGs from an earlier protocol. ``--resume``
+    # retains the cache explicitly for interrupted, unchanged builds.
+    png_records = raw_dataset.materialize_pngs(overwrite=not args.resume)
     image_count = 0
     for record in tqdm.tqdm(png_records, desc="Preparing canonical raw images"):
         split = 'train' if record.annotation_path else 'test'
         output_base = f"{record.magnification}_{record.sample_id}"
         output_image = os.path.join(args.output_dir, split, 'images', output_base + '.png')
         output_label = os.path.join(args.output_dir, split, 'labels', output_base + '.txt')
+        if args.resume:
+            # A resumed build may already have moved a completed record to a
+            # holdout split.  Never recreate it in train, and recover only
+            # records whose image or label was not written atomically.
+            complete_elsewhere = any(
+                os.path.exists(os.path.join(args.output_dir, prior_split, 'images', output_base + '.png'))
+                and os.path.exists(os.path.join(args.output_dir, prior_split, 'labels', output_base + '.txt'))
+                for prior_split in ('train', 'val', 'test')
+            )
+            if complete_elsewhere:
+                continue
         # Match the notebook exactly: center crop/pad RGB and its HDF5 mask
         # together before contour extraction. Rewriting is intentional so a
         # resumed legacy output cannot retain full-frame images or collapsed
@@ -757,7 +775,7 @@ names:
     logger.info(f"Created dataset configuration at {yaml_path}")
     return yaml_path
 
-def split_dataset(output_dir, val_split=0.1, test_split=0.1):
+def split_dataset(output_dir, val_split=0.1, test_split=0.1, val_samples=(), test_samples=()):
     """Split the labelled portion into train/validation/test sets.
 
     Raw microscopy collections may include many images without a non-empty
@@ -779,11 +797,35 @@ def split_dataset(output_dir, val_split=0.1, test_split=0.1):
         and os.path.getsize(os.path.join(label_dir, f"{os.path.splitext(filename)[0]}.txt")) > 0
     ]
     
-    # Shuffle the images
-    random.shuffle(annotated_files)
+    def source_sample_id(filename):
+        # Canonical output names are ``<magnification>_<sample-id>`` plus an
+        # optional TIFF frame suffix.  Split selection must operate on the
+        # source sample, rather than accidentally splitting stack frames.
+        stem = os.path.splitext(filename)[0]
+        _, sample_id = stem.split('_', 1)
+        return _FRAME_SUFFIX_RE.sub('', sample_id)
+
+    val_samples = set(val_samples)
+    test_samples = set(test_samples)
+    overlap = val_samples & test_samples
+    if overlap:
+        raise ValueError(f"Samples cannot be in both validation and test: {sorted(overlap)}")
+    available_samples = {source_sample_id(filename) for filename in annotated_files}
+    missing = (val_samples | test_samples).difference(available_samples)
+    if missing:
+        raise ValueError(f"Requested holdout samples are not annotated dataset records: {sorted(missing)}")
+    val_files = [filename for filename in annotated_files if source_sample_id(filename) in val_samples]
+    test_files = [filename for filename in annotated_files if source_sample_id(filename) in test_samples]
+    remaining_files = [
+        filename for filename in annotated_files
+        if source_sample_id(filename) not in val_samples | test_samples
+    ]
+
+    # Shuffle only records not deliberately reserved as target-domain holdouts.
+    random.shuffle(remaining_files)
     
     # Calculate split points
-    total = len(annotated_files)
+    total = len(remaining_files)
     # A fractional split should not silently disappear for a small microscopy
     # collection. Reserve one image for each requested hold-out split whenever
     # at least one training image can still remain.
@@ -802,8 +844,8 @@ def split_dataset(output_dir, val_split=0.1, test_split=0.1):
             test_count = 0
     
     # Split the files
-    val_files = annotated_files[:val_count]
-    test_files = annotated_files[val_count:val_count + test_count]
+    val_files.extend(remaining_files[:val_count])
+    test_files.extend(remaining_files[val_count:val_count + test_count])
     
     # Move validation files
     for f in val_files:
@@ -862,8 +904,20 @@ def main():
     elif args.file_format == 'raw':
         _, raw_dataset = process_canonical_raw_files(args)
     
+    # A completed resumable build already has a YAML and finalized split;
+    # running split selection again would duplicate holdouts into train.
+    dataset_yaml = os.path.join(args.output_dir, 'dataset.yaml')
+    if args.resume and os.path.exists(dataset_yaml):
+        logger.info("Prepared dataset already finalized; preserving existing split at %s", dataset_yaml)
+        return
+
     # Split the dataset
-    split_dataset(args.output_dir, args.val_split, args.test_split)
+    val_samples = tuple(sample for sample in args.val_samples.split(',') if sample)
+    test_samples = tuple(sample for sample in args.test_samples.split(',') if sample)
+    split_dataset(
+        args.output_dir, args.val_split, args.test_split,
+        val_samples=val_samples, test_samples=test_samples,
+    )
     
     # Create dataset YAML
     yaml_path = create_dataset_yaml(args.output_dir)

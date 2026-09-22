@@ -49,6 +49,14 @@ end-to-end migration, validation, training, and annotation workflow. CZI
 conversion requires ImageJ/Fiji in the `yeast_fusion_segmenter` mamba
 environment.
 
+**Orientation is also a dataset contract. Every image and its paired HDF5
+mask must have the same, verified orientation before contours are generated.**
+The conversion path applies the repository's known 40× vertical correction
+(except `p1-1g2-09`) and checks CZI mask-to-image boundary alignment. Do not
+manually flip only an image or only its mask: that produces spatially invalid
+training labels. See [DATASET_PREPARATION.md](DATASET_PREPARATION.md) for the
+required orientation procedure.
+
 HDF5 annotations use the notebook's seven phenotype classes (`f`, `h`,
 `lmcf`, `lmsgfp`, `lsgfp`, `dip`, `d2`) in a fixed order. This class mapping
 must be preserved when preparing data or interpreting predictions; details

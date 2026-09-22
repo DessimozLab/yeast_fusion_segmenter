@@ -40,11 +40,23 @@ to both the converted RGB image and its HDF5 mask before extracting contours:
 CZI uses center crop/pad, while TIFF uses upper-left crop/pad. Cropping an
 image and its mask differently invalidates spatial labels.
 
+**Orientation is mandatory, too: every image and its paired HDF5 mask must be
+in the same verified orientation.** A vertical or horizontal flip applied to
+only one member of a pair creates invalid contours. Keep raw files immutable;
+make any documented conversion correction in the dataset loader, then inspect
+contour overlays before training.
+
 For CZI inputs, preparation also runs the notebook's per-file orientation
 sanity check. It compares HDF5 mask boundaries against fluorescence-image
 edges for the original, vertical-flip, horizontal-flip, and 180° masks, and
 uses a flipped mask only when it substantially improves alignment. This is
 required because some CZI/HDF5 pairs have an inverted vertical orientation.
+
+In addition, the repository's 40× acquisition series has a known Fiji display
+orientation: every `data/raw/40x` image is vertically flipped during PNG
+conversion except `p1-1g2-09`. This correction is applied before crop/pad and
+the paired HDF5 mask still passes through the boundary-alignment check. Do not
+pre-flip the raw CZI or HDF5 files; they are immutable inputs.
 
 ## 3. Migrate this repository’s legacy files (one time)
 
@@ -145,6 +157,23 @@ python prepare_yolo_data.py --input-dir data/raw --file-format raw \
   --output-dir data/yolo_datasets/mixed_60_20_20 \
   --dataset-info data/dataset_info/mixed_60_20_20.json \
   --val-split 0.20 --test-split 0.20 --random-seed 7
+```
+
+### Fixed target-domain holdouts
+
+To reserve specific annotated source fields instead of selecting them at
+random, pass comma-separated source sample IDs. This is useful when a CZI
+field is an explicit generalization test. Named holdouts are selected before
+any fractional split; use zero fractions when they are the only supervised
+holdouts.
+
+```bash
+python prepare_yolo_data.py --input-dir data/raw --file-format raw \
+  --magnification all --source-format all \
+  --val-samples p1-3c12-15 --test-samples p1-1e3-13 \
+  --val-split 0 --test-split 0 \
+  --output-dir data/yolo_datasets/all_images_czi_holdout \
+  --dataset-info data/dataset_info/all_images_czi_holdout.json
 ```
 
 The actual count may differ slightly from the stated percentage because splits

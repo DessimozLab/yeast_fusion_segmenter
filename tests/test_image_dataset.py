@@ -8,7 +8,7 @@ import h5py
 import numpy as np
 from PIL import Image
 
-from image_dataset import MicroscopyImageDataset
+from image_dataset import ImageRecord, MicroscopyImageDataset, requires_vertical_flip
 
 
 class TestMicroscopyImageDataset(unittest.TestCase):
@@ -68,6 +68,27 @@ class TestMicroscopyImageDataset(unittest.TestCase):
     def test_all_annotations_are_paired(self):
         dataset = MicroscopyImageDataset(self.root)
         self.assertEqual(dataset.annotated_records(), dataset.records)
+
+    def test_known_40x_orientation_correction_has_one_exception(self):
+        corrected = ImageRecord("p1-1e3-13", "40x", "czi", {"czi": Path("example.czi")})
+        exception = ImageRecord("p1-1g2-09", "40x", "czi", {"czi": Path("exception.czi")})
+        other = ImageRecord("sample", "other", "czi", {"czi": Path("other.czi")})
+
+        self.assertTrue(requires_vertical_flip(corrected))
+        self.assertFalse(requires_vertical_flip(exception))
+        self.assertFalse(requires_vertical_flip(other))
+        self.assertTrue(corrected.metadata()["vertical_flip_for_conversion"])
+
+    def test_corrupt_cached_png_is_rematerialized(self):
+        dataset = MicroscopyImageDataset(self.root)
+        cached = dataset.png_root / "other" / "fusion-a-001.png"
+        cached.parent.mkdir(parents=True)
+        cached.write_bytes(b"not a PNG")
+
+        converted = dataset.materialize_pngs()
+
+        with Image.open(converted[0].sources["png"]) as image:
+            image.verify()
 
     def test_orphan_annotation_fails_fast(self):
         annotations = self.root / "other" / "annotations"

@@ -19,6 +19,9 @@ from PIL import Image, ImageSequence
 
 MAGNIFICATIONS = ("40x", "other")
 CHANNELS = ("bf", "gfp", "rfp")
+# Fiji presents the known 40x CZI series inverted vertically.  The exception
+# was acquired with the corrected orientation already applied at the scope.
+_VERTICAL_FLIP_40X_EXCEPTION = "p1-1g2-09"
 _CZI_RE = re.compile(r"^(?P<id>[a-z0-9][a-z0-9-]*)\.czi$", re.IGNORECASE)
 _TIFF_RE = re.compile(
     r"^(?P<id>[a-z0-9][a-z0-9-]*)__?(?P<channel>bf|gfp|rfp)\.tiff?$",
@@ -45,7 +48,16 @@ class ImageRecord:
             "source_format": self.source_format,
             "sources": {key: str(value) for key, value in self.sources.items()},
             "annotation_path": str(self.annotation_path) if self.annotation_path else None,
+            "vertical_flip_for_conversion": requires_vertical_flip(self),
         }
+
+
+def requires_vertical_flip(record: ImageRecord) -> bool:
+    """Return whether this raw acquisition needs the known 40x Fiji correction."""
+    return (
+        record.magnification == "40x"
+        and record.sample_id != _VERTICAL_FLIP_40X_EXCEPTION
+    )
 
 
 def _to_uint8(image: np.ndarray) -> np.ndarray:
@@ -80,6 +92,16 @@ def _as_rgb(array: np.ndarray) -> np.ndarray:
     if array.shape[-1] == 2:
         array = np.concatenate((array, np.zeros((*array.shape[:2], 1), dtype=array.dtype)), axis=2)
     return np.stack([_to_uint8(array[..., index]) for index in range(3)], axis=2)
+
+
+def _is_valid_png(path: Path) -> bool:
+    """Return whether a cached materialized PNG can be decoded completely."""
+    try:
+        with Image.open(path) as image:
+            image.verify()
+        return True
+    except (OSError, ValueError):
+        return False
 
 
 class MicroscopyImageDataset:
@@ -261,7 +283,7 @@ class MicroscopyImageDataset:
             # CZI has one deterministic output frame.  Skipping an existing
             # PNG avoids reopening ImageJ/Fiji on resumable dataset builds.
             czi_destination = self.png_root / record.magnification / f"{record.sample_id}.png"
-            if record.source_format == "czi" and czi_destination.exists() and not overwrite:
+            if record.source_format == "czi" and _is_valid_png(czi_destination) and not overwrite:
                 converted.append(
                     ImageRecord(record.sample_id, record.magnification, "czi", {"png": czi_destination}, record.annotation_path)
                 )
@@ -277,7 +299,7 @@ class MicroscopyImageDataset:
                     f"{record.sample_id}{'' if frame_count == 1 else f'__f{index:04d}'}.png"
                     for index in range(frame_count)
                 ]
-                if all(destination.exists() for destination in destinations):
+                if all(_is_valid_png(destination) for destination in destinations):
                     converted.extend(
                         ImageRecord(
                             record.sample_id + ("" if frame_count == 1 else f"__f{index:04d}"),
@@ -291,10 +313,12 @@ class MicroscopyImageDataset:
                     continue
             frames = self._load_czi(record) if record.source_format == "czi" else self._load_tiff(record)
             for frame_index, image in enumerate(frames):
+                if requires_vertical_flip(record):
+                    image = np.flipud(image).copy()
                 suffix = "" if len(frames) == 1 else f"__f{frame_index:04d}"
                 destination = self.png_root / record.magnification / f"{record.sample_id}{suffix}.png"
                 destination.parent.mkdir(parents=True, exist_ok=True)
-                if overwrite or not destination.exists():
+                if overwrite or not _is_valid_png(destination):
                     Image.fromarray(image).save(destination)
                 converted.append(ImageRecord(record.sample_id + suffix, record.magnification, "tiff", {"png": destination}, record.annotation_path))
         return converted
