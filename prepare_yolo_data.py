@@ -693,18 +693,32 @@ names:
     return yaml_path
 
 def split_dataset(output_dir, val_split=0.1, test_split=0.1):
-    """Split the dataset into train/val/test sets"""
+    """Split the labelled portion into train/validation/test sets.
+
+    Raw microscopy collections may include many images without a non-empty
+    annotation.  Canonical preparation initially puts those images in test so
+    they remain available for inference, but they must not consume the tiny
+    supervised validation/test budgets.  Therefore hold-outs are selected
+    only from images with at least one YOLO annotation; empty-label images
+    stay in train (or, for source images without an HDF5 file, in test).
+    """
     logger.info("Splitting dataset into train/val/test sets")
     
     # Get all image files in the train folder
     train_image_dir = os.path.join(output_dir, 'train', 'images')
     image_files = [f for f in os.listdir(train_image_dir) if f.endswith('.png')]
+    label_dir = os.path.join(output_dir, 'train', 'labels')
+    annotated_files = [
+        filename for filename in image_files
+        if os.path.exists(os.path.join(label_dir, f"{os.path.splitext(filename)[0]}.txt"))
+        and os.path.getsize(os.path.join(label_dir, f"{os.path.splitext(filename)[0]}.txt")) > 0
+    ]
     
     # Shuffle the images
-    random.shuffle(image_files)
+    random.shuffle(annotated_files)
     
     # Calculate split points
-    total = len(image_files)
+    total = len(annotated_files)
     # A fractional split should not silently disappear for a small microscopy
     # collection. Reserve one image for each requested hold-out split whenever
     # at least one training image can still remain.
@@ -723,8 +737,8 @@ def split_dataset(output_dir, val_split=0.1, test_split=0.1):
             test_count = 0
     
     # Split the files
-    val_files = image_files[:val_count]
-    test_files = image_files[val_count:val_count + test_count]
+    val_files = annotated_files[:val_count]
+    test_files = annotated_files[val_count:val_count + test_count]
     
     # Move validation files
     for f in val_files:

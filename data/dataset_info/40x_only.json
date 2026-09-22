@@ -7,7 +7,8 @@
     "40x"
   ],
   "source_formats": [
-    "czi"
+    "czi",
+    "tiff"
   ],
   "yolo_data": "/home/dmoi/projects/yeast_fusion_segmenter/data/yolo_datasets/40x_only/dataset.yaml",
   "split": {
