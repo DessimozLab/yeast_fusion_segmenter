@@ -104,6 +104,20 @@ for CZI-only training. This negligible change is not evidence of usable
 cross-domain transfer: TIFF training examples improve TIFF evaluation but do
 not substitute for independently annotated CZI examples.
 
+### Zoom/crop augmentation experiment
+
+Using the identical mixed-source CZI-holdout dataset, `--zoom-augmentation`
+raised the online RandomPerspective settings from `scale=0.1, translate=0.1`
+to `scale=0.5, translate=0.2`. Enlarged views are cropped at the 1024px
+canvas jointly with their segmentation masks. The run early-stopped after 140
+epochs (best epoch 40) with zero CZI validation mask mAP. On the unchanged
+54-instance CZI test field, mask mAP50 and mAP50-95 were both 0.0000.
+
+Therefore this stronger zoom/crop augmentation does not help CZI transfer in
+the present data regime; it performs worse than the already unusable baseline.
+The `--zoom-augmentation` CLI option remains available for future experiments
+with a larger, representative CZI training set.
+
 ## Datasets
 
 | Dataset | Source selection | PNGs (train / val / test) | Annotated PNGs (train / val / test) | Training classes |

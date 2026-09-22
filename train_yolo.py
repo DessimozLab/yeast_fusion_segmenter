@@ -49,6 +49,8 @@ def parse_args():
                         help='Path to hyperparameter file (default: None)')
     parser.add_argument('--notebook-protocol', action='store_true',
                         help='Use the final segment_retrain(1).ipynb YOLOv8s training protocol')
+    parser.add_argument('--zoom-augmentation', action='store_true',
+                        help='Use stronger random scale/translation so training views include zoomed crops')
     
     return parser.parse_args()
 
@@ -213,6 +215,13 @@ def train_model(args):
     
     # Load hyperparameters
     hyp = load_hyperparameters(args.hyp, notebook_protocol=args.notebook_protocol)
+    if args.zoom_augmentation:
+        # Ultralytics RandomPerspective applies a scale about the image centre;
+        # portions outside the 1024px canvas are cropped.  This is an online
+        # zoom/crop augmentation that preserves image/mask geometry jointly.
+        hyp = dict(hyp)
+        hyp.update({'scale': 0.5, 'translate': 0.2})
+        logger.info("Using zoom/crop augmentation: scale=0.5, translate=0.2")
     if args.notebook_protocol:
         # These are the final training settings in the notebook. Explicit CLI
         # values remain honored so a user can run a shorter smoke test.

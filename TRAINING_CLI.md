@@ -60,6 +60,22 @@ silently duplicating offline samples. The canonical TIFF preparation also
 matches the notebook's upper-left crop; CZI uses its separately documented
 center-crop and orientation-alignment logic.
 
+### Test zoom/crop augmentation
+
+`--zoom-augmentation` increases the online geometric transform from the
+notebook's `scale=0.1, translate=0.1` to `scale=0.5, translate=0.2`.
+Ultralytics applies this transform jointly to each image and segmentation mask;
+an enlarged view is consequently cropped by the 1024px canvas. Use it as a
+controlled experiment, not as a replacement for independently annotated CZI
+fields.
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
+  --dataset data/dataset_info/all_images_czi_holdout.json --annotated-only \
+  --notebook-protocol --zoom-augmentation --device 0 \
+  --output models/all_images_czi_holdout_yolov8s_zoom.pt
+```
+
 The prepared definitions are selected at build time, not train time. To change
 the images or split, rebuild a new dataset-info file using
 `prepare_yolo_data.py --file-format raw`; then pass that new file to
