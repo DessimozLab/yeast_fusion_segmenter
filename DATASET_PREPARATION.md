@@ -165,7 +165,7 @@ The prepared repository datasets currently contain:
 | Dataset definition | PNG frames | Train / validation / test |
 | --- | ---: | ---: |
 | `data/dataset_info/40x_only.json` | 7 | 5 / 1 / 1 |
-| `data/dataset_info/all_images.json` | 128 | 80 / 17 / 31 |
+| `data/dataset_info/all_images.json` | 112 | 92 / 3 / 17 |
 | `data/dataset_info/all_czi.json` | 21 | 5 / 1 / 15 |
 
 ## 6. Annotate canonical raw data
