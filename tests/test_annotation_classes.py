@@ -14,6 +14,7 @@ from prepare_yolo_data import (
     load_annotation_mask,
     mask_to_contour_file,
     split_mask,
+    top_left_crop_or_pad,
 )
 
 
@@ -52,6 +53,14 @@ def test_center_crop_matches_notebook_geometry():
     cropped = center_crop_or_pad(image, size=4)
 
     assert np.array_equal(cropped, image[1:5, 1:5])
+
+
+def test_tiff_crop_matches_notebook_upper_left_geometry():
+    image = np.arange(36, dtype=np.uint16).reshape(6, 6)
+
+    cropped = top_left_crop_or_pad(image, size=4)
+
+    assert np.array_equal(cropped, image[:4, :4])
 
 
 def test_materialized_tiff_frame_uses_matching_hdf5_frame():

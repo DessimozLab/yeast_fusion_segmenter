@@ -51,8 +51,9 @@ instead of globbing raw files in training, annotation, or inference code.
   is named with this suffix, select its matching HDF5 `T<n>` frame, not the
   first mask frame.
 - `prepare_yolo_data.py --file-format raw` applies the notebook's 1024-pixel
-  center-crop/pad jointly to the RGB PNG and mask before contour extraction.
-  Never crop CZI images and masks independently.
+  crop/pad jointly to the RGB PNG and mask before contour extraction: center
+  crop/pad for CZI, upper-left crop/pad for TIFF. Never crop an image and its
+  mask independently.
 - CZI masks undergo the notebook's deterministic boundary-alignment check
   across original, vertical-flip, horizontal-flip, and 180° orientations. A
   flip is applied only when overlap improves by more than 0.10 and mean edge
@@ -185,6 +186,11 @@ Training writes Ultralytics artifacts under
 `runs/segment/yolo_training/models/` and copies the best checkpoint to
 `--output`. Use a new output/run name for every run; the CLI intentionally
 does not reuse an existing run directory.
+
+To reproduce the final notebook model run, add `--notebook-protocol`. It uses
+`yolov8s-seg.pt`, 1,000 epochs, batch 20, eight workers, `nbs=32`, and the
+notebook's 180° rotation/flip settings with mosaic, mixup, and copy-paste
+disabled. Explicit CLI values override those defaults for a short test.
 
 ### Dataset-size limitation
 

@@ -38,6 +38,28 @@ CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
   artifacts remain in `runs/segment/`.
 - `--hyp`: optional YAML override for augmentation and optimizer settings.
 
+## Reproduce the final notebook training protocol
+
+`segment_retrain(1).ipynb` trained `yolov8s-seg.pt` at 1024 px for 1,000
+epochs with batch size 20, eight workers, `nbs=32`, 180° rotations, 0.5
+vertical/horizontal flips, and **no** mosaic, mixup, or copy-paste. Use
+`--notebook-protocol` to select those settings; explicit CLI values override
+the protocol defaults for a shorter test run.
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
+  --dataset data/dataset_info/all_images.json --annotated-only \
+  --notebook-protocol --device 0 \
+  --output models/all_images_yolov8s_notebook.pt
+```
+
+The notebook has an exploratory offline augmentation section, but its final
+training YAML points to `datasets/train` rather than the `augmented/` folder.
+The CLI therefore reproduces the final model-training settings rather than
+silently duplicating offline samples. The canonical TIFF preparation also
+matches the notebook's upper-left crop; CZI uses its separately documented
+center-crop and orientation-alignment logic.
+
 The prepared definitions are selected at build time, not train time. To change
 the images or split, rebuild a new dataset-info file using
 `prepare_yolo_data.py --file-format raw`; then pass that new file to

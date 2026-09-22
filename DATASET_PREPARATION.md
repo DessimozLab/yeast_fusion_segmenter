@@ -35,10 +35,10 @@ The annotation conversion preserves the seven classes from
 must be respected.** Older three-class datasets have collapsed lysis
 phenotypes and must be rebuilt before training or evaluation.
 
-For raw datasets, the builder also applies the notebook's 1024px center
-crop/pad to both the converted RGB image and its HDF5 mask before extracting
-contours. This paired operation is required: cropping a CZI image and mask
-differently invalidates spatial labels.
+For raw datasets, the builder applies the notebook's paired 1024px crop/pad
+to both the converted RGB image and its HDF5 mask before extracting contours:
+CZI uses center crop/pad, while TIFF uses upper-left crop/pad. Cropping an
+image and its mask differently invalidates spatial labels.
 
 For CZI inputs, preparation also runs the notebook's per-file orientation
 sanity check. It compares HDF5 mask boundaries against fluorescence-image

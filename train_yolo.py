@@ -47,16 +47,55 @@ def parse_args():
                         help='Number of worker threads (default: 4)')
     parser.add_argument('--hyp', type=str, default=None, 
                         help='Path to hyperparameter file (default: None)')
+    parser.add_argument('--notebook-protocol', action='store_true',
+                        help='Use the final segment_retrain(1).ipynb YOLOv8s training protocol')
     
     return parser.parse_args()
 
-def load_hyperparameters(hyp_file=None):
+def notebook_hyperparameters():
+    """Return the final YOLO hyperparameters used by the retraining notebook."""
+    return {
+        'lr0': 0.001,
+        'lrf': 0.0001,
+        'momentum': 0.5,
+        'weight_decay': 0.0001,
+        'warmup_epochs': 3.0,
+        'warmup_momentum': 0.8,
+        'warmup_bias_lr': 0.01,
+        'box': 10,
+        'cls': 5,
+        'dfl': 0.5,
+        'pose': 0,
+        'kobj': 0,
+        'label_smoothing': 0.0,
+        'nbs': 32,
+        'hsv_h': 0.01,
+        'hsv_s': 0.01,
+        'hsv_v': 0.01,
+        'degrees': 180.0,
+        'translate': 0.1,
+        'scale': 0.1,
+        'shear': 0.1,
+        'perspective': 0.0,
+        'flipud': 0.5,
+        'fliplr': 0.5,
+        'mosaic': 0.0,
+        'mixup': 0.0,
+        'copy_paste': 0.0,
+    }
+
+
+def load_hyperparameters(hyp_file=None, notebook_protocol=False):
     """Load hyperparameters from file or use defaults"""
     if hyp_file and os.path.exists(hyp_file):
         logger.info(f"Loading hyperparameters from {hyp_file}")
         with open(hyp_file, 'r') as f:
             return yaml.safe_load(f)
     
+    if notebook_protocol:
+        logger.info("Using final segment_retrain(1).ipynb hyperparameters")
+        return notebook_hyperparameters()
+
     # Default hyperparameters
     logger.info("Using default hyperparameters")
     return {
@@ -173,7 +212,18 @@ def train_model(args):
     data_config = validate_dataset(data_path)
     
     # Load hyperparameters
-    hyp = load_hyperparameters(args.hyp)
+    hyp = load_hyperparameters(args.hyp, notebook_protocol=args.notebook_protocol)
+    if args.notebook_protocol:
+        # These are the final training settings in the notebook. Explicit CLI
+        # values remain honored so a user can run a shorter smoke test.
+        if args.model == 'yolov8n-seg.pt':
+            args.model = 'yolov8s-seg.pt'
+        if args.epochs == 100:
+            args.epochs = 1000
+        if args.batch_size == 8:
+            args.batch_size = 20
+        if args.workers == 4:
+            args.workers = 8
     
     # Initialize the model
     logger.info(f"Loading model: {args.model}")

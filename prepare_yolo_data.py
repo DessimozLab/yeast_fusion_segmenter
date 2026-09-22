@@ -171,6 +171,18 @@ def center_crop_or_pad(image, size=1024):
         output[:cropped.shape[0], :cropped.shape[1], :] = cropped
     return output
 
+
+def top_left_crop_or_pad(image, size=1024):
+    """Crop/pad from the upper-left, matching the notebook TIFF pipeline."""
+    cropped = image[:size, :size, ...]
+    if image.ndim == 2:
+        output = np.zeros((size, size), dtype=image.dtype)
+        output[:cropped.shape[0], :cropped.shape[1]] = cropped
+    else:
+        output = np.zeros((size, size, image.shape[2]), dtype=image.dtype)
+        output[:cropped.shape[0], :cropped.shape[1], :] = cropped
+    return output
+
 def split_mask(mask, crop=1024, num_classes=len(CLASS_NAMES)):
     """Split an encoded mask with the notebook's seven-bin logic.
 
@@ -701,7 +713,8 @@ def process_canonical_raw_files(args):
         # three-class labels.
         with Image.open(record.sources['png']) as source_image:
             rgb = np.asarray(source_image.convert('RGB'))
-        rgb = center_crop_or_pad(rgb, size=args.crop_size)
+        crop_or_pad = center_crop_or_pad if record.source_format == 'czi' else top_left_crop_or_pad
+        rgb = crop_or_pad(rgb, size=args.crop_size)
         Image.fromarray(rgb).save(output_image)
         if record.annotation_path:
             mask = load_annotation_mask(record.annotation_path, record.sample_id)
@@ -709,7 +722,7 @@ def process_canonical_raw_files(args):
                 logger.warning("Empty annotation frame for %s", record.annotation_path)
                 open(output_label, 'w').close()
             else:
-                mask = center_crop_or_pad(mask, size=args.crop_size)
+                mask = crop_or_pad(mask, size=args.crop_size)
                 if record.source_format == 'czi':
                     mask, orientation, scores = align_czi_mask_orientation(mask, rgb)
                     logger.info(
