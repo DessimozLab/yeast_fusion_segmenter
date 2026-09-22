@@ -80,6 +80,30 @@ phenotype diversity for this seven-class model to generalize. Do not use this
 checkpoint for annotation; add independently annotated CZI fields and use an
 experiment-level split before retraining.
 
+### Mixed TIFF+CZI training on the same CZI holdout
+
+To test transfer from the successful TIFF domain without test leakage,
+`all_images_czi_holdout` keeps the same CZI test field (`p1-1e3-13`) and CZI
+validation field (`p1-3c12-15`) as the CZI-only run. Its training set contains
+the remaining five annotated CZI fields plus all 25 annotated TIFF fields
+(30 annotated fields total). The test folder also retains 14 unannotated CZI
+images for inference, but `--annotated-only` evaluates only the 54-instance
+target CZI field.
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
+  --dataset data/dataset_info/all_images_czi_holdout.json --annotated-only \
+  --notebook-protocol --device 0 \
+  --output models/all_images_czi_holdout_yolov8s_notebook_1000e.pt
+```
+
+The mixed run early-stopped after 142 epochs (best epoch 42). Its CZI
+validation mask mAP50 was 0.00568. On the unchanged CZI test field it reached
+mask mAP50 0.00156 and mask mAP50-95 0.000312, versus 0.00132 and 0.000132
+for CZI-only training. This negligible change is not evidence of usable
+cross-domain transfer: TIFF training examples improve TIFF evaluation but do
+not substitute for independently annotated CZI examples.
+
 ## Datasets
 
 | Dataset | Source selection | PNGs (train / val / test) | Annotated PNGs (train / val / test) | Training classes |
