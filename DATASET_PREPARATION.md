@@ -173,6 +173,28 @@ images. They contain no `dip` (class 5) examples. `all_images` includes TIFF
 and CZI data and does contain `dip` training labels, so it is the maintained
 choice when all seven notebook phenotype classes are required.
 
+### Dataset-size and augmentation limitation
+
+There is no universal image count for cellular instance segmentation: the
+required number depends on phenotype rarity, cell density, imaging modality,
+and how much biological/acquisition variation the model must generalize over.
+For perspective, the original U-Net microscopy challenge result used 35 images
+with strong augmentation, whereas broader microscopy benchmarks contain
+hundreds to thousands of independently acquired images (for example,
+[LIVECell](https://www.nature.com/articles/s41592-021-01249-6) has 5,239
+images and 1.69 million annotated cells). Treat the current 26 annotated
+`all_images` training PNGs as a pipeline smoke-test dataset, not a sufficient
+scientific training corpus.
+
+As a practical starting target, collect at least hundreds of independent image
+fields overall, with substantial instance counts for **every** phenotype and a
+frozen, independently acquired validation/test set. Rotations, flips, color
+jitter, mosaics, and crops can reduce overfitting to orientation or intensity;
+they cannot create missing `dip` examples, novel lysis morphologies, microscope
+settings, batches, or biological replicates. Never count augmented derivatives
+as independent images, and split by acquisition/experiment before augmentation
+to avoid train/test leakage.
+
 ## 6. Annotate canonical raw data
 
 Use `--format raw` to ensure annotation goes through the same loader and PNG conversion path:

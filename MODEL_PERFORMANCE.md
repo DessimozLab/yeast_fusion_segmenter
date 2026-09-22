@@ -67,3 +67,12 @@ three. The mixed model detects some `h` instances (mask mAP50 0.143 for that
 class), but no model is suitable for scientific use. Add independently
 annotated images for every phenotype, freeze a larger test set, and rerun this
 protocol before selecting a model.
+
+Strong augmentation makes a small set useful for a pipeline test, but it does
+not replace independent biological/acquisition diversity. The original U-Net
+microscopy challenge used 35 images with augmentation; in contrast, broader
+benchmarks such as [LIVECell](https://www.nature.com/articles/s41592-021-01249-6)
+use 5,239 independently acquired images. A practical next milestone here is
+hundreds of independent image fields overall, ample instances of every
+phenotype, and an experiment-level held-out test set; augmented images must
+never be counted as independent samples.

@@ -181,6 +181,21 @@ Training writes Ultralytics artifacts under
 `--output`. Use a new output/run name for every run; the CLI intentionally
 does not reuse an existing run directory.
 
+### Dataset-size limitation
+
+Do not present augmentation as a substitute for biological data. Small
+microscopy examples can demonstrate a pipeline (U-Net's original challenge
+used 35 images with strong augmentation), but broad generalization benchmarks
+use hundreds to thousands of independently acquired fields; for example,
+[LIVECell](https://www.nature.com/articles/s41592-021-01249-6) contains 5,239
+images and 1.69 million annotated cells. The current 26 annotated mixed-dataset
+training PNGs are a smoke-test baseline only. Aim for hundreds of independent
+fields overall, with substantial instances per phenotype and an acquisition- or
+experiment-level held-out test set. Rotation, flips, HSV jitter, mosaic, and
+crops do not add missing phenotypes, biological replicates, modalities, or
+microscope conditions. Split before augmentation and never report augmented
+derivatives as independent samples.
+
 ## Evaluation and inference
 
 Evaluate only labelled data using the dataset object and `--annotated-only`:
