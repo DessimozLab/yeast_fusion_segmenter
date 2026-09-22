@@ -263,7 +263,7 @@ class MicroscopyImageDataset:
             czi_destination = self.png_root / record.magnification / f"{record.sample_id}.png"
             if record.source_format == "czi" and czi_destination.exists() and not overwrite:
                 converted.append(
-                    ImageRecord(record.sample_id, record.magnification, "tiff", {"png": czi_destination}, record.annotation_path)
+                    ImageRecord(record.sample_id, record.magnification, "czi", {"png": czi_destination}, record.annotation_path)
                 )
                 continue
             if record.source_format == "tiff" and not overwrite:

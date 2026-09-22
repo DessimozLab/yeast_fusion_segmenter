@@ -40,6 +40,12 @@ crop/pad to both the converted RGB image and its HDF5 mask before extracting
 contours. This paired operation is required: cropping a CZI image and mask
 differently invalidates spatial labels.
 
+For CZI inputs, preparation also runs the notebook's per-file orientation
+sanity check. It compares HDF5 mask boundaries against fluorescence-image
+edges for the original, vertical-flip, horizontal-flip, and 180° masks, and
+uses a flipped mask only when it substantially improves alignment. This is
+required because some CZI/HDF5 pairs have an inverted vertical orientation.
+
 ## 3. Migrate this repository’s legacy files (one time)
 
 The repository has already been reorganized into `data/raw`: 7 CZI records at 40× and 39 records at other magnifications. For a fresh legacy checkout, review the migration first, then apply it:

@@ -53,6 +53,11 @@ instead of globbing raw files in training, annotation, or inference code.
 - `prepare_yolo_data.py --file-format raw` applies the notebook's 1024-pixel
   center-crop/pad jointly to the RGB PNG and mask before contour extraction.
   Never crop CZI images and masks independently.
+- CZI masks undergo the notebook's deterministic boundary-alignment check
+  across original, vertical-flip, horizontal-flip, and 180° orientations. A
+  flip is applied only when overlap improves by more than 0.10 and mean edge
+  distance decreases. Do not remove this check or replace it with filename
+  heuristics; some source CZI files require a vertical mask flip.
 - Rebuilding an output dataset replaces that output directory. Do not point it
   at user source data or a broad directory.
 

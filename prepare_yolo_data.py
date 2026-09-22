@@ -243,6 +243,51 @@ def mask_to_contour_file(mask, output_file, verbose=False):
     return output_file
 
 
+def mask_boundary_alignment_score(mask, rgb, edge_channel=1):
+    """Measure mask-boundary agreement with one fluorescence image channel.
+
+    This reproduces the CZI orientation diagnostic in
+    ``segment_retrain(1).ipynb``.
+    """
+    mask_binary = (mask > 0).astype(np.uint8) * 255
+    contour_edges = cv2.Canny(mask_binary, 50, 150) > 0
+    if not contour_edges.any():
+        return 0.0, float("inf")
+    channel = cv2.GaussianBlur(rgb[:, :, edge_channel], (5, 5), 0)
+    median = np.median(channel)
+    edge_map = cv2.Canny(channel, int(max(0, 0.66 * median)), int(min(255, 1.33 * median))) > 0
+    dilated_edges = cv2.dilate(edge_map.astype(np.uint8), np.ones((5, 5), np.uint8), iterations=1) > 0
+    overlap = float((contour_edges & dilated_edges).sum()) / float(contour_edges.sum())
+    distance = cv2.distanceTransform((~edge_map).astype(np.uint8), cv2.DIST_L2, 3)
+    return overlap, float(distance[contour_edges].mean())
+
+
+def align_czi_mask_orientation(mask, rgb, improvement_threshold=0.10):
+    """Apply the notebook's per-CZI flip selection when it clearly improves alignment."""
+    candidates = {
+        "orig": mask,
+        "flip_ud": np.flipud(mask),
+        "flip_lr": np.fliplr(mask),
+        "flip_udlr": np.fliplr(np.flipud(mask)),
+    }
+    scored = {
+        name: (*mask_boundary_alignment_score(candidate, rgb), candidate)
+        for name, candidate in candidates.items()
+    }
+    original_overlap, original_distance, _ = scored["orig"]
+    selected, (best_overlap, best_distance, best_mask) = sorted(
+        scored.items(), key=lambda item: (-item[1][0], item[1][1])
+    )[0]
+    should_apply = (
+        selected != "orig"
+        and best_overlap > original_overlap + improvement_threshold
+        and best_distance < original_distance
+    )
+    return (best_mask if should_apply else mask), (selected if should_apply else "orig"), {
+        name: (overlap, distance) for name, (overlap, distance, _) in scored.items()
+    }
+
+
 def load_annotation_mask(annotation_path, materialized_sample_id):
     """Load the HDF5 frame corresponding to a materialized PNG record.
 
@@ -656,7 +701,8 @@ def process_canonical_raw_files(args):
         # three-class labels.
         with Image.open(record.sources['png']) as source_image:
             rgb = np.asarray(source_image.convert('RGB'))
-        Image.fromarray(center_crop_or_pad(rgb, size=args.crop_size)).save(output_image)
+        rgb = center_crop_or_pad(rgb, size=args.crop_size)
+        Image.fromarray(rgb).save(output_image)
         if record.annotation_path:
             mask = load_annotation_mask(record.annotation_path, record.sample_id)
             if not mask.any():
@@ -664,6 +710,12 @@ def process_canonical_raw_files(args):
                 open(output_label, 'w').close()
             else:
                 mask = center_crop_or_pad(mask, size=args.crop_size)
+                if record.source_format == 'czi':
+                    mask, orientation, scores = align_czi_mask_orientation(mask, rgb)
+                    logger.info(
+                        "CZI mask orientation for %s: %s (orig overlap %.3f; selected overlap %.3f)",
+                        record.sample_id, orientation, scores['orig'][0], scores[orientation][0],
+                    )
                 mask_to_contour_file(split_mask(mask, crop=args.crop_size), output_label, verbose=args.verbose)
         else:
             open(output_label, 'w').close()

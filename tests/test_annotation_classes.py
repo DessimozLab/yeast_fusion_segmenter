@@ -9,6 +9,7 @@ import h5py
 
 from prepare_yolo_data import (
     CLASS_NAMES,
+    align_czi_mask_orientation,
     center_crop_or_pad,
     load_annotation_mask,
     mask_to_contour_file,
@@ -64,3 +65,17 @@ def test_materialized_tiff_frame_uses_matching_hdf5_frame():
         mask = load_annotation_mask(h5_path, 'sample__f0001')
 
     assert np.array_equal(mask, np.full((2, 2), 3001, dtype=np.uint16))
+
+
+def test_czi_orientation_check_applies_clear_vertical_mask_flip():
+    mask = np.zeros((100, 100), dtype=np.uint16)
+    mask[10:30, 20:45] = 1001
+    rgb = np.zeros((100, 100, 3), dtype=np.uint8)
+    # The image boundary is where the vertically flipped mask belongs.
+    rgb[70:90, 20:45, 1] = 255
+
+    aligned, orientation, scores = align_czi_mask_orientation(mask, rgb)
+
+    assert orientation == 'flip_ud'
+    assert np.array_equal(aligned, np.flipud(mask))
+    assert scores['flip_ud'][0] > scores['orig'][0] + 0.10
