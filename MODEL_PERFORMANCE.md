@@ -52,6 +52,34 @@ the notebook protocol. It is not a robust biological-performance estimate:
 two held-out fields and one diploid instance are far too few for model
 selection or phenotype-specific claims.
 
+### CZI-only notebook-protocol rerun
+
+The CZI conversion and mask-orientation path was rebuilt separately and run
+with the same notebook protocol. It contained 21 CZI files: five annotated
+training fields, one annotated validation field, one annotated test field,
+and 14 unannotated inference-only test files. `dip` is absent from the five
+training fields.
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
+  --dataset data/dataset_info/all_czi_notebook.json --annotated-only \
+  --notebook-protocol --device 0 \
+  --output models/all_czi_yolov8s_notebook_1000e.pt
+```
+
+Early stopping selected epoch 45 of 145 completed epochs. Its one-field
+validation result was mask mAP50 0.0137 and mask mAP50-95 0.00549. The
+separate 54-instance CZI test field gave mask mAP50 0.00132 and mask
+mAP50-95 0.000132.
+
+This is a negative training result, not evidence that CZI loading is broken:
+the ImageJ conversion was pixel-checked against the prepared images and the
+one required HDF5 vertical flip was selected again during the rebuild. Five
+annotated CZI fields do not provide enough acquisition, morphology, or
+phenotype diversity for this seven-class model to generalize. Do not use this
+checkpoint for annotation; add independently annotated CZI fields and use an
+experiment-level split before retraining.
+
 ## Datasets
 
 | Dataset | Source selection | PNGs (train / val / test) | Annotated PNGs (train / val / test) | Training classes |
