@@ -61,7 +61,8 @@ with the image. The tool writes an exact
 `<magnification>/<sample-id> -> transform` choice to the override JSON.
 
 It does not modify raw files. If another tool needs corrected HDF5 files,
-export derived copies with identical HDF5 hierarchy and storage protocol:
+export derived copies with identical HDF5 hierarchy and storage protocol. This
+is a fallback for HDF5-dependent tools, **not** the primary training export.
 
 ```bash
 python export_corrected_hdf5_masks.py \
@@ -69,10 +70,13 @@ python export_corrected_hdf5_masks.py \
   --output-root data/derived/manual_orientation_hdf5
 ```
 
-## 4. Build a versioned dataset
+## 4. Export directly to a versioned YOLO dataset
 
 Create a new output directory and dataset-info JSON for every iteration. Do
 not overwrite an experiment that has already been trained or evaluated.
+This is the primary export path: it applies approved browser overrides while
+writing model-ready PNG images and YOLO segmentation polygon labels directly.
+No corrected HDF5 copy is required for YOLO training.
 
 ```bash
 python prepare_yolo_data.py --input-dir data/raw --file-format raw \
@@ -98,6 +102,9 @@ python create_label_overlays.py \
 
 Confirm that every expected class has training instances and that validation
 and test fields are independent of training acquisitions.
+
+Only export derived HDF5 masks with `export_corrected_hdf5_masks.py` when a
+separate downstream application explicitly requires HDF5.
 
 ## 5. Train a fresh network iteration
 

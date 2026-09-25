@@ -66,7 +66,9 @@ instead of globbing raw files in training, annotation, or inference code.
 - Use `manual_orientation_review_app.py` for a human-approved mask transform
   when automatic CZI alignment is ambiguous. It records exact keys in
   `data/manual_orientation_overrides.json`; pass that file through
-  `prepare_yolo_data.py --orientation-overrides` during a rebuild.
+  `prepare_yolo_data.py --orientation-overrides` during a rebuild to export
+  corrected PNG/YOLO labels directly. Derived HDF5 copies are fallback only
+  for tools that explicitly require HDF5.
 - Rebuilding an output dataset replaces that output directory. Do not point it
   at user source data or a broad directory.
 

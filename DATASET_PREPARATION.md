@@ -202,9 +202,11 @@ python manual_orientation_review_app.py \
 # Open http://127.0.0.1:8765 in a local browser.
 ```
 
-After visual review, rebuild with the approved overrides. A manual choice
-takes precedence only for its exact `<magnification>/<sample-id>` key; all
-other CZI records retain the automatic boundary-alignment check.
+After visual review, rebuild directly to YOLO with the approved overrides.
+This is the primary export path: it writes corrected PNGs and YOLO polygon
+labels, and does not require a corrected HDF5 copy. A manual choice takes
+precedence only for its exact `<magnification>/<sample-id>` key; all other CZI
+records retain the automatic boundary-alignment check.
 
 ```bash
 python prepare_yolo_data.py --input-dir data/raw --file-format raw \
@@ -213,7 +215,7 @@ python prepare_yolo_data.py --input-dir data/raw --file-format raw \
   --dataset-info data/dataset_info/reviewed.json
 ```
 
-If a downstream tool requires corrected HDF5 files, export derived copies in
+Only if a downstream tool requires corrected HDF5 files, export derived copies in
 the same HDF5 protocol. The exporter preserves the input hierarchy, names,
 attributes, dtype, and storage settings; it changes only the pixel orientation
 of image datasets. It refuses to overwrite a copy unless `--overwrite` is
