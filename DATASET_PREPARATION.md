@@ -213,6 +213,18 @@ python prepare_yolo_data.py --input-dir data/raw --file-format raw \
   --dataset-info data/dataset_info/reviewed.json
 ```
 
+If a downstream tool requires corrected HDF5 files, export derived copies in
+the same HDF5 protocol. The exporter preserves the input hierarchy, names,
+attributes, dtype, and storage settings; it changes only the pixel orientation
+of image datasets. It refuses to overwrite a copy unless `--overwrite` is
+given, and never writes inside `data/raw`.
+
+```bash
+python export_corrected_hdf5_masks.py \
+  --raw-root data/raw --overrides data/manual_orientation_overrides.json \
+  --output-root data/derived/manual_orientation_hdf5
+```
+
 The actual count may differ slightly from the stated percentage because splits
 use whole image frames. Check the final printed counts and the saved split
 metadata before training.
