@@ -87,16 +87,21 @@ This writes `data/raw/manifest.json`. Inspect records with a missing `annotation
 
 ## 5. Convert raw images to PNG and prepare a YOLO dataset
 
-Use the canonical `raw` format. The dataset class normalizes TIFF channels and writes PNG frames to `data/derived/png`; CZI files are opened with ImageJ/Fiji and converted there as well. Raw scientific files are not overwritten.
+Use `build_dataset.py` as the canonical CLI. The dataset class normalizes TIFF
+channels and writes PNG frames to `data/derived/png`; CZI files are opened with
+ImageJ/Fiji and converted there as well. Raw scientific files are not
+overwritten. The command writes a dataset-info JSON that is the durable input
+for training, evaluation, and provenance-preserving batch annotation.
 
 ```bash
-python prepare_yolo_data.py \
-  --input-dir data/raw \
-  --file-format raw \
-  --output-dir datasets/experiment_01
+python build_dataset.py --name experiment-01 \
+  --raw-root data/raw --source-format all --magnification all
 ```
 
 The command creates YOLO `train`, `val`, and `test` folders and a dataset YAML file. Records with an HDF5 annotation are converted to YOLO segmentation labels; unannotated records receive an empty label and start in the test split.
+See [DATASET_BUILDER_CLI.md](DATASET_BUILDER_CLI.md) for the complete option and
+workflow reference. `prepare_yolo_data.py --file-format raw` remains the lower
+level implementation used by this CLI.
 
 ### Split controls
 

@@ -63,7 +63,7 @@ image and mask into a 1024-pixel prepared PNG and YOLO segmentation labels,
 then saves the durable dataset-info JSON used by training and batch inference.
 
 ```bash
-python prepare_yolo_data.py --input-dir data/raw --file-format raw \
+python build_dataset.py --name iteration-003 --raw-root data/raw \
   --source-format all --magnification all \
   --val-split 0.15 --test-split 0.15 --random-seed 42 \
   --output-dir data/yolo_datasets/iteration_003 \

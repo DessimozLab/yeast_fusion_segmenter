@@ -113,29 +113,25 @@ dataset.write_manifest()
 png_records = dataset.materialize_pngs()
 ```
 
-Build reproducible datasets through the CLI. The dataset-info JSON is the
-durable contract passed to training and batch inference.
+Build reproducible datasets through `build_dataset.py`. The dataset-info JSON
+is the durable contract passed to training, evaluation, browser correction,
+and batch inference. It delegates to `prepare_yolo_data.py --file-format raw`,
+which remains the sole conversion implementation.
 
 ```bash
 # 40× CZI only
-python prepare_yolo_data.py --input-dir data/raw --file-format raw \
+python build_dataset.py --name 40x_only --raw-root data/raw \
   --magnification 40x --source-format czi \
-  --output-dir data/yolo_datasets/40x_only \
-  --dataset-info data/dataset_info/40x_only.json \
   --val-split 0.10 --test-split 0.10 --random-seed 42
 
 # All CZI images
-python prepare_yolo_data.py --input-dir data/raw --file-format raw \
+python build_dataset.py --name all_czi --raw-root data/raw \
   --magnification all --source-format czi \
-  --output-dir data/yolo_datasets/all_czi \
-  --dataset-info data/dataset_info/all_czi.json \
   --val-split 0.10 --test-split 0.10 --random-seed 42
 
 # All TIFF and CZI images
-python prepare_yolo_data.py --input-dir data/raw --file-format raw \
+python build_dataset.py --name all_images --raw-root data/raw \
   --magnification all --source-format all \
-  --output-dir data/yolo_datasets/all_images \
-  --dataset-info data/dataset_info/all_images.json \
   --val-split 0.10 --test-split 0.10 --random-seed 42
 ```
 

@@ -5,6 +5,17 @@ the preferred interface because it records the exact raw records, HDF5 masks,
 magnification/source-format filters, split seed, and YOLO YAML used for the
 run.
 
+Create that definition with the canonical builder; it writes
+`data/dataset_info/<name>.json` by default. See
+[DATASET_BUILDER_CLI.md](DATASET_BUILDER_CLI.md) for source-format filters,
+splits, named holdouts, and orientation overrides.
+
+```bash
+python build_dataset.py --name all-images-v2 --raw-root data/raw \
+  --source-format all --magnification all \
+  --val-split 0.1 --test-split 0.1 --random-seed 42
+```
+
 ```bash
 mamba activate yeast_fusion_segmenter
 
