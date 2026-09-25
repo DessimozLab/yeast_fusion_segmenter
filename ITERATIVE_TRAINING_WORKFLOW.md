@@ -106,6 +106,25 @@ and test fields are independent of training acquisitions.
 Only export derived HDF5 masks with `export_corrected_hdf5_masks.py` when a
 separate downstream application explicitly requires HDF5.
 
+### Correct individual prepared YOLO labels in the browser
+
+For hand correction of individual instances, use the prepared-label browser
+editor on a new, untrained iteration. It directly edits only the derived YOLO
+polygon labels, keeping raw CZI/TIFF/HDF5 files immutable.
+
+```bash
+python manual_yolo_annotation_app.py \
+  --dataset data/dataset_info/iteration_002.json --split train
+# Open http://127.0.0.1:8767 in a local browser.
+```
+
+Choose an image and one of the fixed seven classes, draw a polygon with at
+least three clicks, and finish it to add an instance. Use **Remove by click**
+to delete an instance, then save. The editor creates a one-time
+`.txt.manual-backup` and appends a UTC audit record to
+`manual_annotation_edits.jsonl` in the dataset directory. Refresh the contour
+overlays after editing and retain the audit log with this dataset version.
+
 ## 5. Train a fresh network iteration
 
 Start from the pretrained base model, never from the prior iteration's best

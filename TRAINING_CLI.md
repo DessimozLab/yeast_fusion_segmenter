@@ -103,6 +103,26 @@ python train_yolo.py --dataset data/dataset_info/all_images_czi_holdout.json \
   --output models/all_images_czi_holdout_yolov8s_quarantined_b4_retry.pt
 ```
 
+## Manually correct prepared YOLO labels
+
+Before training a new dataset iteration, inspect individual PNGs in the local
+browser editor. Select one of the fixed seven phenotype classes, draw a
+three-or-more-point polygon to add an instance, or choose **Remove by click**
+to delete an existing polygon. The tool edits only the selected prepared label
+file; raw CZI/TIFF/HDF5 sources remain immutable.
+
+```bash
+python manual_yolo_annotation_app.py \
+  --dataset data/dataset_info/iteration_003.json --split train
+# Open http://127.0.0.1:8767 in a local browser.
+```
+
+The initial edit preserves `<image>.txt.manual-backup`; every save is logged
+to `manual_annotation_edits.jsonl` under the prepared dataset. Re-render the
+overlay stack before training, and use a fresh dataset/model version after
+material corrections. Full raw-to-reviewed-dataset instructions are in
+[ANNOTATION_LIFECYCLE.md](ANNOTATION_LIFECYCLE.md).
+
 ## Visualize ground-truth contours
 
 Use `create_label_overlays.py` to render the exact prepared YOLO polygons used

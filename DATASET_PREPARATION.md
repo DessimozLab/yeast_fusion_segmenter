@@ -227,6 +227,25 @@ python export_corrected_hdf5_masks.py \
   --output-root data/derived/manual_orientation_hdf5
 ```
 
+### Manually edit a prepared YOLO label
+
+After building a new versioned dataset, use the local browser editor to inspect
+individual PNGs and directly correct their derived YOLO polygons. Select a
+fixed class, draw a polygon to add an instance, or select **Remove by click**
+to remove an incorrect polygon. Raw CZI/TIFF/HDF5 data are never changed.
+
+```bash
+python manual_yolo_annotation_app.py \
+  --dataset data/dataset_info/reviewed.json --split train
+# Open http://127.0.0.1:8767 in a local browser.
+```
+
+Each save is logged in `manual_annotation_edits.jsonl` and the original label
+receives a one-time `.manual-backup`. Regenerate contour overlays with
+`create_label_overlays.py` after edits. See
+[ANNOTATION_LIFECYCLE.md](ANNOTATION_LIFECYCLE.md) for the full raw-to-reviewed
+dataset-to-fresh-model workflow.
+
 The actual count may differ slightly from the stated percentage because splits
 use whole image frames. Check the final printed counts and the saved split
 metadata before training.

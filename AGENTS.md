@@ -69,6 +69,11 @@ instead of globbing raw files in training, annotation, or inference code.
   `prepare_yolo_data.py --orientation-overrides` during a rebuild to export
   corrected PNG/YOLO labels directly. Derived HDF5 copies are fallback only
   for tools that explicitly require HDF5.
+- Use `manual_yolo_annotation_app.py --dataset <dataset-info.json> --split
+  <train|val|test>` to review and correct individual *derived* YOLO polygons.
+  It supports selecting one of the fixed seven classes, adding polygons, and
+  removing a polygon by clicking inside it. It creates a one-time label backup
+  and an audit log; it must never be used to alter raw CZI/TIFF/HDF5 files.
 - Rebuilding an output dataset replaces that output directory. Do not point it
   at user source data or a broad directory.
 
