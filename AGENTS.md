@@ -63,6 +63,10 @@ instead of globbing raw files in training, annotation, or inference code.
   `p1-3c12-15` after visual orientation QC. Build it with
   `--exclude-samples p1-1g7-08,p1-3c12-15`; do not delete or modify raw files.
   Its validation/test source IDs are `p1-1g2-09` and `p1-1e3-13` respectively.
+- Use `manual_orientation_review_app.py` for a human-approved mask transform
+  when automatic CZI alignment is ambiguous. It records exact keys in
+  `data/manual_orientation_overrides.json`; pass that file through
+  `prepare_yolo_data.py --orientation-overrides` during a rebuild.
 - Rebuilding an output dataset replaces that output directory. Do not point it
   at user source data or a broad directory.
 

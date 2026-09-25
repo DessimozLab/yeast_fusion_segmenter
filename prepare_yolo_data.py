@@ -3,6 +3,7 @@
 import os
 import glob
 import argparse
+import json
 import h5py
 import numpy as np
 import matplotlib.pyplot as plt
@@ -47,6 +48,7 @@ CLASS_NAMES = (
 )
 CLASS_BIN_WIDTH = 1000
 _FRAME_SUFFIX_RE = re.compile(r'__f(?P<index>\d{4})$')
+ORIENTATION_TRANSFORMS = ('orig', 'flip_ud', 'flip_lr', 'flip_udlr')
 
 def parse_args():
     """Parse command line arguments for data preparation"""
@@ -67,6 +69,8 @@ def parse_args():
                         help='For --file-format raw, restrict the selected source image format')
     parser.add_argument('--exclude-samples', default='',
                         help='Comma-separated source sample IDs to quarantine from this dataset')
+    parser.add_argument('--orientation-overrides', default=None,
+                        help='Optional JSON of manually approved CZI mask orientations')
     parser.add_argument('--dataset-info', type=str, default=None,
                         help='Where to save the reproducible dataset-info JSON (raw input only)')
     parser.add_argument('--resume', action='store_true',
@@ -280,14 +284,39 @@ def mask_boundary_alignment_score(mask, rgb, edge_channel=1):
     return overlap, float(distance[contour_edges].mean())
 
 
+def apply_mask_orientation(mask, transform):
+    """Apply one validated orientation transform without modifying raw HDF5 data."""
+    if transform == 'orig':
+        return mask
+    if transform == 'flip_ud':
+        return np.flipud(mask)
+    if transform == 'flip_lr':
+        return np.fliplr(mask)
+    if transform == 'flip_udlr':
+        return np.fliplr(np.flipud(mask))
+    raise ValueError(f"Unknown mask orientation transform: {transform}")
+
+
+def load_orientation_overrides(path):
+    """Load manually reviewed ``<magnification>/<sample-id>`` orientations."""
+    if not path:
+        return {}
+    source = Path(path)
+    if not source.exists():
+        raise FileNotFoundError(f"Orientation override file not found: {source}")
+    payload = json.loads(source.read_text())
+    if payload.get('schema_version') != 1 or not isinstance(payload.get('mask_transforms'), dict):
+        raise ValueError(f"Invalid orientation override file: {source}")
+    overrides = payload['mask_transforms']
+    invalid = {key: value for key, value in overrides.items() if value not in ORIENTATION_TRANSFORMS}
+    if invalid:
+        raise ValueError(f"Invalid orientation transforms: {invalid}")
+    return overrides
+
+
 def align_czi_mask_orientation(mask, rgb, improvement_threshold=0.10):
     """Apply the notebook's per-CZI flip selection when it clearly improves alignment."""
-    candidates = {
-        "orig": mask,
-        "flip_ud": np.flipud(mask),
-        "flip_lr": np.fliplr(mask),
-        "flip_udlr": np.fliplr(np.flipud(mask)),
-    }
+    candidates = {name: apply_mask_orientation(mask, name) for name in ORIENTATION_TRANSFORMS}
     scored = {
         name: (*mask_boundary_alignment_score(candidate, rgb), candidate)
         for name, candidate in candidates.items()
@@ -708,6 +737,7 @@ def process_canonical_raw_files(args):
         args.input_dir, magnifications=magnifications, source_formats=source_formats,
         excluded_sample_ids=excluded_sample_ids,
     )
+    orientation_overrides = load_orientation_overrides(args.orientation_overrides)
     # A fresh dataset build must use the current conversion protocol rather
     # than silently reuse cached PNGs from an earlier protocol. ``--resume``
     # retains the cache explicitly for interrupted, unchanged builds.
@@ -746,11 +776,21 @@ def process_canonical_raw_files(args):
             else:
                 mask = crop_or_pad(mask, size=args.crop_size)
                 if record.source_format == 'czi':
-                    mask, orientation, scores = align_czi_mask_orientation(mask, rgb)
-                    logger.info(
-                        "CZI mask orientation for %s: %s (orig overlap %.3f; selected overlap %.3f)",
-                        record.sample_id, orientation, scores['orig'][0], scores[orientation][0],
-                    )
+                    override_key = f"{record.magnification}/{_FRAME_SUFFIX_RE.sub('', record.sample_id)}"
+                    if override_key in orientation_overrides:
+                        orientation = orientation_overrides[override_key]
+                        mask = apply_mask_orientation(mask, orientation)
+                        scores = {'manual': mask_boundary_alignment_score(mask, rgb)}
+                        logger.info("CZI mask orientation for %s: manual %s", record.sample_id, orientation)
+                    else:
+                        mask, orientation, scores = align_czi_mask_orientation(mask, rgb)
+                    if 'manual' in scores:
+                        logger.info("CZI mask orientation for %s: manual %s", record.sample_id, orientation)
+                    else:
+                        logger.info(
+                            "CZI mask orientation for %s: %s (orig overlap %.3f; selected overlap %.3f)",
+                            record.sample_id, orientation, scores['orig'][0], scores[orientation][0],
+                        )
                 mask_to_contour_file(split_mask(mask, crop=args.crop_size), output_label, verbose=args.verbose)
         else:
             open(output_label, 'w').close()
@@ -940,6 +980,7 @@ def main():
                 "excluded_sample_ids": list(raw_dataset.excluded_sample_ids),
                 "named_val_samples": list(val_samples),
                 "named_test_samples": list(test_samples),
+                "orientation_overrides": args.orientation_overrides,
             },
             annotation_classes={class_id: name for class_id, name in enumerate(CLASS_NAMES)},
         )

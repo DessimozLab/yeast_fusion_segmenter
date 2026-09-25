@@ -189,6 +189,30 @@ python prepare_yolo_data.py --input-dir data/raw --file-format raw \
   --output-dir datasets/quarantined_experiment
 ```
 
+### Manually approve an annotated-mask orientation
+
+Use the local browser reviewer when automatic CZI mask alignment is ambiguous.
+It serves only on `127.0.0.1`, shows `orig`, `flip_ud`, `flip_lr`, and
+`flip_udlr` contour overlays for every annotated record, and writes the chosen
+transform to JSON. It never edits a raw CZI or HDF5 file.
+
+```bash
+python manual_orientation_review_app.py \
+  --raw-root data/raw --overrides data/manual_orientation_overrides.json
+# Open http://127.0.0.1:8765 in a local browser.
+```
+
+After visual review, rebuild with the approved overrides. A manual choice
+takes precedence only for its exact `<magnification>/<sample-id>` key; all
+other CZI records retain the automatic boundary-alignment check.
+
+```bash
+python prepare_yolo_data.py --input-dir data/raw --file-format raw \
+  --orientation-overrides data/manual_orientation_overrides.json \
+  --output-dir data/yolo_datasets/reviewed \
+  --dataset-info data/dataset_info/reviewed.json
+```
+
 The actual count may differ slightly from the stated percentage because splits
 use whole image frames. Check the final printed counts and the saved split
 metadata before training.
