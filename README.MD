@@ -88,6 +88,11 @@ not a generalization claim: use the model only with the documented quarantine
 and collect additional independently annotated CZI fields before scientific
 use.
 
+For the complete repeatable process—annotating new images, reviewing mask
+orientation in the browser, exporting derived HDF5 copies, rebuilding a new
+dataset, and training a **fresh** network iteration—see
+[ITERATIVE_TRAINING_WORKFLOW.md](ITERATIVE_TRAINING_WORKFLOW.md).
+
 ## � License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

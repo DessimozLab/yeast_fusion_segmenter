@@ -195,6 +195,11 @@ Training writes Ultralytics artifacts under
 `--output`. Use a new output/run name for every run; the CLI intentionally
 does not reuse an existing run directory.
 
+For every materially changed dataset, train a fresh iteration from the
+pretrained base model with a new output name. Do not continue from a prior
+experiment checkpoint; document the dataset-info, overrides, exclusions, and
+evaluation in [ITERATIVE_TRAINING_WORKFLOW.md](ITERATIVE_TRAINING_WORKFLOW.md).
+
 To reproduce the final notebook model run, add `--notebook-protocol`. It uses
 `yolov8s-seg.pt`, 1,000 epochs, batch 20, eight workers, `nbs=32`, and the
 notebook's 180° rotation/flip settings with mosaic, mixup, and copy-paste
