@@ -1,0 +1,352 @@
+{
+  "schema_version": 2,
+  "name": "annotation-pilot-human-review",
+  "raw_root": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw",
+  "png_root": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/derived/png",
+  "magnifications": [
+    "40x",
+    "other"
+  ],
+  "source_formats": [
+    "czi",
+    "tiff"
+  ],
+  "excluded_sample_ids": [],
+  "yolo_data": "/mnt/data1/yeast_fusion_segmenter_datasets/data/yolo_datasets/annotation-pilot-human-review/dataset.yaml",
+  "split": {
+    "train": 1.0,
+    "val": 0.0,
+    "test": 0.0,
+    "random_seed": 42,
+    "unannotated_to_test": true,
+    "excluded_sample_ids": [],
+    "named_val_samples": [
+      "p1-1g2-09"
+    ],
+    "named_test_samples": [
+      "p1-1e3-13"
+    ],
+    "orientation_overrides": null
+  },
+  "annotation_classes": {
+    "0": "f",
+    "1": "h",
+    "2": "lmcf",
+    "3": "lmsgfp",
+    "4": "lsgfp",
+    "5": "dip",
+    "6": "d2"
+  },
+  "records": [
+    {
+      "sample_id": "p1-1e3-13",
+      "magnification": "40x",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/40x/images/czi/p1-1e3-13.czi"
+      },
+      "annotation_path": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/40x/annotations/p1-1e3-13__mask.h5",
+      "vertical_flip_for_conversion": true
+    },
+    {
+      "sample_id": "p1-1g2-09",
+      "magnification": "40x",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/40x/images/czi/p1-1g2-09.czi"
+      },
+      "annotation_path": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/40x/annotations/p1-1g2-09__mask.h5",
+      "vertical_flip_for_conversion": false
+    },
+    {
+      "sample_id": "p1-3b9-04",
+      "magnification": "40x",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/40x/images/czi/p1-3b9-04.czi"
+      },
+      "annotation_path": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/40x/annotations/p1-3b9-04__mask.h5",
+      "vertical_flip_for_conversion": true
+    },
+    {
+      "sample_id": "filtro-h-5-03",
+      "magnification": "other",
+      "source_format": "czi",
+      "sources": {
+        "czi": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/czi/filtro-h-5-03.czi"
+      },
+      "annotation_path": null,
+      "vertical_flip_for_conversion": false
+    },
+    {
+      "sample_id": "mk3-f012",
+      "magnification": "other",
+      "source_format": "tiff",
+      "sources": {
+        "gfp": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f012__gfp.tiff",
+        "rfp": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f012__rfp.tiff",
+        "bf": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f012__bf.tiff"
+      },
+      "annotation_path": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/annotations/mk3-f012__mask.h5",
+      "vertical_flip_for_conversion": false
+    },
+    {
+      "sample_id": "mk3-f013",
+      "magnification": "other",
+      "source_format": "tiff",
+      "sources": {
+        "bf": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f013__bf.tiff",
+        "gfp": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f013__gfp.tiff",
+        "rfp": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f013__rfp.tiff"
+      },
+      "annotation_path": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/annotations/mk3-f013__mask.h5",
+      "vertical_flip_for_conversion": false
+    },
+    {
+      "sample_id": "mk3-f014",
+      "magnification": "other",
+      "source_format": "tiff",
+      "sources": {
+        "rfp": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f014__rfp.tiff",
+        "gfp": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f014__gfp.tiff",
+        "bf": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f014__bf.tiff"
+      },
+      "annotation_path": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/annotations/mk3-f014__mask.h5",
+      "vertical_flip_for_conversion": false
+    },
+    {
+      "sample_id": "mk3-f015",
+      "magnification": "other",
+      "source_format": "tiff",
+      "sources": {
+        "gfp": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f015__gfp.tiff",
+        "bf": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f015__bf.tiff"
+      },
+      "annotation_path": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/annotations/mk3-f015__mask.h5",
+      "vertical_flip_for_conversion": false
+    }
+  ],
+  "purpose": "candidate_review",
+  "prepared_images": [
+    {
+      "image": "40x_p1-3b9-04.png",
+      "split": "train",
+      "role": "train",
+      "image_sha256": "5e41d9e2a644c0e9ebe8fb385aa2a323a38ae24da67c7b556aa9ba89cd9b3e98",
+      "label_sha256": "df3a1eb8b9d390a8a1dce27ab73de2913bccce03c215b621f246803e83c7d3c6",
+      "raw_identity": [
+        "40x",
+        "p1-3b9-04"
+      ],
+      "annotation_origin": "model_candidate",
+      "review_status": "pending",
+      "approval": null,
+      "candidate_source": {
+        "dataset_info": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/v1.json",
+        "model": "/home/dmoi/projects/yeast_fusion_segmenter/models/all_images_czi_holdout_yolov8s_quarantined_b4_retry.pt",
+        "model_sha256": "d05d631c766e1fdc3b76d0b034e04da2b36f42015a09ca8e08d89080133014a7",
+        "confidence": 0.25,
+        "imgsz": 1024,
+        "created_utc": "2026-10-11T10:55:49.298394+00:00"
+      }
+    },
+    {
+      "image": "other_mk3-f012.png",
+      "split": "train",
+      "role": "train",
+      "image_sha256": "1a6d462035d31f705e585cfa1f7399c935ee4e2622b57ab9790357b98d434247",
+      "label_sha256": "6fdc83c78fdb65c6fd5935bf84d0e787f6441472c3cdcdf404b941bd335907ef",
+      "raw_identity": [
+        "other",
+        "mk3-f012"
+      ],
+      "annotation_origin": "model_candidate",
+      "review_status": "pending",
+      "approval": null,
+      "candidate_source": {
+        "dataset_info": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/v1.json",
+        "model": "/home/dmoi/projects/yeast_fusion_segmenter/models/all_images_czi_holdout_yolov8s_quarantined_b4_retry.pt",
+        "model_sha256": "d05d631c766e1fdc3b76d0b034e04da2b36f42015a09ca8e08d89080133014a7",
+        "confidence": 0.25,
+        "imgsz": 1024,
+        "created_utc": "2026-10-11T10:55:49.298394+00:00"
+      }
+    },
+    {
+      "image": "other_mk3-f013.png",
+      "split": "train",
+      "role": "train",
+      "image_sha256": "5abdcbe2f2c3a13665f9522154afcaffde0d18bc3b1712469510e6826c0c9ae2",
+      "label_sha256": "317bfae3adb3432d752573fd4ccc90630404da6c6d790762cf1e825a140b251f",
+      "raw_identity": [
+        "other",
+        "mk3-f013"
+      ],
+      "annotation_origin": "model_candidate",
+      "review_status": "pending",
+      "approval": null,
+      "candidate_source": {
+        "dataset_info": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/v1.json",
+        "model": "/home/dmoi/projects/yeast_fusion_segmenter/models/all_images_czi_holdout_yolov8s_quarantined_b4_retry.pt",
+        "model_sha256": "d05d631c766e1fdc3b76d0b034e04da2b36f42015a09ca8e08d89080133014a7",
+        "confidence": 0.25,
+        "imgsz": 1024,
+        "created_utc": "2026-10-11T10:55:49.298394+00:00"
+      }
+    },
+    {
+      "image": "other_mk3-f014.png",
+      "split": "train",
+      "role": "train",
+      "image_sha256": "7d4f32a4d666ef803ed8309d87ebbfdf464b0585c56e650148500b53736bfdf2",
+      "label_sha256": "b0f808d86ba90e31ba4d45da889652e08df3877ba4ab078ac7cbcd9f4bbeedf3",
+      "raw_identity": [
+        "other",
+        "mk3-f014"
+      ],
+      "annotation_origin": "model_candidate",
+      "review_status": "pending",
+      "approval": null,
+      "candidate_source": {
+        "dataset_info": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/v1.json",
+        "model": "/home/dmoi/projects/yeast_fusion_segmenter/models/all_images_czi_holdout_yolov8s_quarantined_b4_retry.pt",
+        "model_sha256": "d05d631c766e1fdc3b76d0b034e04da2b36f42015a09ca8e08d89080133014a7",
+        "confidence": 0.25,
+        "imgsz": 1024,
+        "created_utc": "2026-10-11T10:55:49.298394+00:00"
+      }
+    },
+    {
+      "image": "other_mk3-f015.png",
+      "split": "train",
+      "role": "train",
+      "image_sha256": "e4eae9185095ce191dc217b049c969715c473feec2b884c86fa8fd9a94daef2d",
+      "label_sha256": "eb76e2ae4572a07d125860760d08555c40dcd148d648e232a0c60a9b79803ff5",
+      "raw_identity": [
+        "other",
+        "mk3-f015"
+      ],
+      "annotation_origin": "model_candidate",
+      "review_status": "pending",
+      "approval": null,
+      "candidate_source": {
+        "dataset_info": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/v1.json",
+        "model": "/home/dmoi/projects/yeast_fusion_segmenter/models/all_images_czi_holdout_yolov8s_quarantined_b4_retry.pt",
+        "model_sha256": "d05d631c766e1fdc3b76d0b034e04da2b36f42015a09ca8e08d89080133014a7",
+        "confidence": 0.25,
+        "imgsz": 1024,
+        "created_utc": "2026-10-11T10:55:49.298394+00:00"
+      }
+    },
+    {
+      "image": "40x_p1-1g2-09.png",
+      "split": "val",
+      "role": "val",
+      "image_sha256": "dd5f2b22e4c092ed18423de8729151bf8e5175cbc885005f9101a7349be13d85",
+      "label_sha256": "aa867208d00e3b78b754f2c9ada8c0be7b5f7d493de918916c083ffc097c1f7f",
+      "raw_identity": [
+        "40x",
+        "p1-1g2-09"
+      ],
+      "annotation_origin": "model_candidate",
+      "review_status": "pending",
+      "approval": null,
+      "candidate_source": {
+        "dataset_info": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/v1.json",
+        "model": "/home/dmoi/projects/yeast_fusion_segmenter/models/all_images_czi_holdout_yolov8s_quarantined_b4_retry.pt",
+        "model_sha256": "d05d631c766e1fdc3b76d0b034e04da2b36f42015a09ca8e08d89080133014a7",
+        "confidence": 0.25,
+        "imgsz": 1024,
+        "created_utc": "2026-10-11T10:55:49.298394+00:00"
+      }
+    },
+    {
+      "image": "40x_p1-1e3-13.png",
+      "split": "test",
+      "role": "test",
+      "image_sha256": "162dbd6619d0cae352b20a4e97610a18eb7c15eebc20ed392508762c1342f873",
+      "label_sha256": "0222636b5010a3fd55eb3b36340067f7746f3281e9a078ede6d15e493d0f3393",
+      "raw_identity": [
+        "40x",
+        "p1-1e3-13"
+      ],
+      "annotation_origin": "model_candidate",
+      "review_status": "pending",
+      "approval": null,
+      "candidate_source": {
+        "dataset_info": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/v1.json",
+        "model": "/home/dmoi/projects/yeast_fusion_segmenter/models/all_images_czi_holdout_yolov8s_quarantined_b4_retry.pt",
+        "model_sha256": "d05d631c766e1fdc3b76d0b034e04da2b36f42015a09ca8e08d89080133014a7",
+        "confidence": 0.25,
+        "imgsz": 1024,
+        "created_utc": "2026-10-11T10:55:49.298394+00:00"
+      }
+    },
+    {
+      "image": "other_filtro-h-5-03.png",
+      "split": "test",
+      "role": "pool",
+      "image_sha256": "208b8c34ae840b2080b08f1bfa67f84be4e9e0dc5f2c3e062521a1575bce7afd",
+      "label_sha256": "5ccfb6f66d852f419a86585433ff6315cdc0610a2455e37e794524e4727dadfa",
+      "raw_identity": [
+        "other",
+        "filtro-h-5-03"
+      ],
+      "annotation_origin": "model_candidate",
+      "review_status": "pending",
+      "approval": null,
+      "candidate_source": {
+        "dataset_info": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/v1.json",
+        "model": "/home/dmoi/projects/yeast_fusion_segmenter/models/all_images_czi_holdout_yolov8s_quarantined_b4_retry.pt",
+        "model_sha256": "d05d631c766e1fdc3b76d0b034e04da2b36f42015a09ca8e08d89080133014a7",
+        "confidence": 0.25,
+        "imgsz": 1024,
+        "created_utc": "2026-10-11T10:55:49.298394+00:00"
+      }
+    }
+  ],
+  "actual_split_counts": {
+    "train": 5,
+    "val": 1,
+    "test": 2
+  },
+  "actual_role_counts": {
+    "train": 5,
+    "val": 1,
+    "test": 1,
+    "pool": 1
+  },
+  "dataset_info": "/home/dmoi/projects/yeast_fusion_segmenter/data/dataset_info/annotation-pilot-human-review.json",
+  "raw_sha256": {
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/40x/annotations/p1-1e3-13__mask.h5": "527b9ba46385b345ce6fc5e4f148f062b77a60d23c02e719b0f776ad30e90e39",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/40x/annotations/p1-1g2-09__mask.h5": "b2ac4fe2c07d9e2d79f1ad4b7b06ee951ebb4075b9f8bd65ce5db0a416fdb3b3",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/40x/annotations/p1-3b9-04__mask.h5": "415b0d48256d6b54cccd79bbd3d14ea0d7114aca34d3739d0155f47006d33784",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/40x/images/czi/p1-1e3-13.czi": "8fa44dd62e5d45f6daba637f80b0b1f0cd26e6a6d31637d07e8c16e7c43a8bee",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/40x/images/czi/p1-1g2-09.czi": "b5dbbef74e64dc536f1408be940cf47027280c767994ced9fe9fc891149d2ed9",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/40x/images/czi/p1-3b9-04.czi": "f596c0cfa22462b2249918dfb0ae18ed3fd34b39b1c7a7001257abfce16d97eb",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/annotations/mk3-f012__mask.h5": "9b387c08e27779bcf0b4222a1bbf149438ec3a5ae63dc690fade21c6fc63e700",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/annotations/mk3-f013__mask.h5": "ce334101263c4121a94a4384c7226f6588e18752ccc4f135918e6a5e3bfc4ad4",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/annotations/mk3-f014__mask.h5": "a713205a3135751ed36c30d4b7e6ebd506acf4f6a972de8c0e2b604b174c085f",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/annotations/mk3-f015__mask.h5": "4486ef6b72b6c801536915cc79c6c24371905d5f8bcbd29aea523a2c3ec0bc58",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/czi/filtro-h-5-03.czi": "b48e5cc600e95024f90dc52732fabb94885907cf4a16bc0103929d976993eb26",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f012__bf.tiff": "c6487c46ba75e33e77086ba8d248cb9327547a41d6809c95b460554263708e92",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f012__gfp.tiff": "6329dfec6139c9464500301f665750f5b34a12a6cc70bc72cf387fd9d342e3fd",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f012__rfp.tiff": "ae547bc042bdf03ece59637b1cd131fddd37c918080bc097fa58e5530d2abcb9",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f013__bf.tiff": "661c6845b64e6a01463e1dfecef641b02c62afa9916b34ee5e90e9cb3f0ac2f7",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f013__gfp.tiff": "7d350413606475d1618529310d874a2224d5b6254049ba1b45f953349edb2ed0",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f013__rfp.tiff": "40474d6b8a0efad2d5ded96a8eb092b5e64ffb1708d8121c15d024250d0c5adb",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f014__bf.tiff": "9f26cdd23cffccfaba4d77a520b5afa2b86b23f107517b30fcf3c6b76d748413",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f014__gfp.tiff": "07a61d92d67a84b06207c1f8a8bacbdebd92ff62de1b53b7df82fdb627ade572",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f014__rfp.tiff": "c244309b0c23ff282201e5344b8b0b472d17579557c80fe897416974c5b8ae64",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f015__bf.tiff": "2ed2d94f293c6311c4c70ebdb969341397653323c3a7b365d93f7b2b37223454",
+    "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/raw/other/images/tiff/mk3-f015__gfp.tiff": "086e24bef120ff30d21f36380f35da5aef57b8fe61e6d9394ba3a7776047c026"
+  },
+  "candidate_source": {
+    "dataset_info": "/mnt/data1/yeast_fusion_segmenter_datasets/data/derived/annotation_loop_verified_20261011/v1.json",
+    "model": "/home/dmoi/projects/yeast_fusion_segmenter/models/all_images_czi_holdout_yolov8s_quarantined_b4_retry.pt",
+    "model_sha256": "d05d631c766e1fdc3b76d0b034e04da2b36f42015a09ca8e08d89080133014a7",
+    "confidence": 0.25,
+    "imgsz": 1024,
+    "created_utc": "2026-10-11T10:55:49.298394+00:00"
+  }
+}

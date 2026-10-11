@@ -1,5 +1,12 @@
 # Seven-class model performance
 
+[Documentation index](README.MD#documentation) ·
+[Training/evaluation CLI](TRAINING_CLI.md) ·
+[Historical 40× comparison](MODEL_COMPARISON_40X.md) ·
+[Current verification](ANNOTATION_LOOP_TEST_REPORT.md) ·
+[Matched human-review pilot](ANNOTATION_PILOT.md) ·
+[Limitations](ANNOTATION_CYCLE_GAPS.md)
+
 This report records the reproducible seven-class dataset rebuild and baseline
 training on 2026-09-22. CZI preparation includes the notebook's per-file
 mask-orientation alignment check. The class mapping exactly follows

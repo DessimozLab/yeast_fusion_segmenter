@@ -1,5 +1,10 @@
 # Biological annotation rubric — draft, not yet approved
 
+[Documentation index](README.MD#documentation) ·
+[Browser review lifecycle](ANNOTATION_LIFECYCLE.md) ·
+[Next: pilot](ANNOTATION_PILOT.md) ·
+[Open gaps](ANNOTATION_CYCLE_GAPS.md)
+
 **Status: awaiting laboratory approval.** Software tests and an
 `automated-smoke-test-*` reviewer are not biological approval. Do not begin
 the scientific reviewed-data training comparison until this rubric and the

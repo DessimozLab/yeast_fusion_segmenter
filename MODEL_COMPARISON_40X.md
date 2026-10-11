@@ -1,5 +1,14 @@
 # Corrected-model comparison on the 40× dataset
 
+[Documentation index](README.MD#documentation) ·
+[Other model protocols/results](MODEL_PERFORMANCE.md) ·
+[Training and inference CLI](TRAINING_CLI.md) ·
+[Current verification](ANNOTATION_LOOP_TEST_REPORT.md) ·
+[Limitations](ANNOTATION_CYCLE_GAPS.md)
+
+This is a historical checkpoint comparison, not a report of the current
+human-review pilot or a substitute for the latest conversion/QC evidence.
+
 This comparison uses the seven prepared 40× CZI PNGs after the notebook's
 mask-orientation alignment repair. It compares the corrected 50-epoch
 checkpoints, not the earlier `*_7class_50e.pt` checkpoints prepared before

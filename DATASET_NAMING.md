@@ -1,5 +1,9 @@
 # Raw image dataset convention
 
+[Documentation index](README.MD#documentation) ·
+[Next: preparation](DATASET_PREPARATION.md) ·
+[Dataset builder](DATASET_BUILDER_CLI.md)
+
 **File names are part of the dataset API. They must follow this convention exactly; otherwise dataset discovery, conversion, training, and annotation will fail.** Do not rely on alphabetical file ordering to pair images, channels, or masks.
 
 ## Layout

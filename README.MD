@@ -29,6 +29,35 @@ Yeast fusion experiments are crucial for studying cellular processes, mating typ
 - **Visualization Tools**: Integrated plotting and analysis capabilities
 - **Export Options**: Results exported in CSV format with comprehensive statistics
 
+## Documentation
+
+Start with [dataset naming](DATASET_NAMING.md) and
+[preparation](DATASET_PREPARATION.md), then follow the
+[annotation lifecycle](ANNOTATION_LIFECYCLE.md) from training through review
+and fresh retraining. Every guide below links back here and to related steps.
+
+| Topic | Guide |
+| --- | --- |
+| Required filenames, raw layout and fixed classes | [Dataset naming](DATASET_NAMING.md) |
+| TIFF/CZI conversion, masks, orientation and splits | [Dataset preparation](DATASET_PREPARATION.md) |
+| Dataset-info JSON creation and builder examples | [Dataset builder CLI](DATASET_BUILDER_CLI.md) |
+| Data-disk storage, local symlinks and checkout portability | [Storage layout](STORAGE_LAYOUT.md) |
+| Training, augmentation, evaluation and inference commands | [Training CLI](TRAINING_CLI.md) |
+| Complete annotation → browser QC → retraining cycle | [Annotation lifecycle](ANNOTATION_LIFECYCLE.md) |
+| Adding acquisitions and preserving corrected labels | [Iterative training workflow](ITERATIVE_TRAINING_WORKFLOW.md) |
+| Biological annotation rules awaiting lab approval | [Review rubric](ANNOTATION_REVIEW_RUBRIC.md) |
+| Prepared human-review pilot and matched training protocol | [Annotation pilot](ANNOTATION_PILOT.md) |
+| Current safeguards, unresolved issues and limitations | [Annotation cycle gaps](ANNOTATION_CYCLE_GAPS.md) |
+| Verified software loop and historical smoke-test evidence | [Annotation loop test report](ANNOTATION_LOOP_TEST_REPORT.md) |
+| Training protocols, class support and recorded model results | [Model performance](MODEL_PERFORMANCE.md) |
+| Historical 40× model comparison | [40× comparison](MODEL_COMPARISON_40X.md) |
+| Regression tests and opt-in Fiji/CUDA/browser verification | [Testing guide](tests/README.md) |
+| Repository-specific instructions for coding agents | [Agent guide](AGENTS.md) |
+
+The model reports include historical experiments, not interchangeable current
+benchmarks. Check their dataset/protocol dates and the
+[gap register](ANNOTATION_CYCLE_GAPS.md) before interpreting a result.
+
 ## 📋 Requirements
 
 - Python 3.9+

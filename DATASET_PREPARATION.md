@@ -1,5 +1,14 @@
 # Preparing a microscopy dataset
 
+[Documentation index](README.MD#documentation) ·
+[Naming contract](DATASET_NAMING.md) ·
+[Dataset builder](DATASET_BUILDER_CLI.md) ·
+[Next: training](TRAINING_CLI.md)
+
+For data-disk paths and local directory symlinks, see
+[STORAGE_LAYOUT.md](STORAGE_LAYOUT.md). These absolute links are not installed
+by a Git checkout; other users must supply their own raw data and rebuild.
+
 This guide is the supported route from raw microscopy files to YOLO training or annotation. **The naming and layout rules in [DATASET_NAMING.md](DATASET_NAMING.md) are mandatory. Dataset discovery intentionally fails on malformed TIFF/CZI names rather than risking incorrect image/mask pairing.**
 
 ## 1. Activate the project environment

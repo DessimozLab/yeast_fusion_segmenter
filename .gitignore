@@ -195,3 +195,26 @@ Thumbs.db
 # Checkpoints and temporary training files
 checkpoints/
 lightning_logs/
+
+# Local browser automation state, not package source
+.playwright-cli/
+
+# Heavy dataset roots may be directories OR machine-local absolute symlinks.
+# Bare patterns also match symlinks; tracked historical metadata is preserved.
+/Images_mk3
+/augmented
+/data/derived
+/data/raw
+/data/yolo_datasets
+/datasets
+/datasets_corrected
+/datasets_czi_fix_preview
+/images_384_CNN
+/images_CNN
+/images_CNN_clean
+/new40x
+/new_images
+/new_images_png
+/yeaz
+/zoomed
+/zoomed_png

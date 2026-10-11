@@ -1,5 +1,11 @@
 # Training from a prepared dataset
 
+[Documentation index](README.MD#documentation) ·
+[Build a dataset](DATASET_BUILDER_CLI.md) ·
+[Next: annotation and review](ANNOTATION_LIFECYCLE.md) ·
+[Model results](MODEL_PERFORMANCE.md) ·
+[Matched pilot](ANNOTATION_PILOT.md)
+
 Use the `--dataset` argument to train from a saved dataset definition. It is
 the preferred interface because it records the exact raw records, HDF5 masks,
 magnification/source-format filters, split seed, and YOLO YAML used for the

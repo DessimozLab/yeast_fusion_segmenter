@@ -1,5 +1,12 @@
 # Training, annotation, manual QC and retraining
 
+[Documentation index](README.MD#documentation) ·
+[Preparation](DATASET_PREPARATION.md) ·
+[Training CLI](TRAINING_CLI.md) ·
+[Review rubric](ANNOTATION_REVIEW_RUBRIC.md) ·
+[Pilot](ANNOTATION_PILOT.md) ·
+[Tests](tests/README.md)
+
 This is the supported loop: build a versioned dataset, train a fresh model,
 export its polygons into an isolated review dataset, correct and approve them,
 compile a new training dataset, evaluate a fresh model, and annotate again.

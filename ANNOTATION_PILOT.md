@@ -1,5 +1,11 @@
 # Human-reviewed annotation pilot
 
+[Documentation index](README.MD#documentation) ·
+[Prerequisite: approved rubric](ANNOTATION_REVIEW_RUBRIC.md) ·
+[Annotation lifecycle](ANNOTATION_LIFECYCLE.md) ·
+[Verification evidence](ANNOTATION_LOOP_TEST_REPORT.md) ·
+[Open gaps](ANNOTATION_CYCLE_GAPS.md)
+
 **Status: awaiting approved biological rubric and genuine human field review.**
 Do not use the automatically approved smoke-test review dataset for this pilot.
 The selected pilot is an isolated eight-acquisition cohort: four annotated

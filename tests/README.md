@@ -1,5 +1,47 @@
 # Tests for Yeast Fusion Segmenter
 
+[Documentation index](../README.MD#documentation) ·
+[Annotation lifecycle](../ANNOTATION_LIFECYCLE.md) ·
+[Verification report](../ANNOTATION_LOOP_TEST_REPORT.md) ·
+[Remaining gaps](../ANNOTATION_CYCLE_GAPS.md)
+
+## Supported verification entry points
+
+Activate the `yeast_fusion_segmenter` mamba environment and run from the
+repository root:
+
+```bash
+python tests/run_tests.py
+python -m unittest tests.test_documentation_links -v
+```
+
+The consolidated runner discovers the annotation, loader, split, HTTP-review,
+comparison and function-style conversion regressions as well as prediction
+tests. HTTP tests need permission to bind a localhost socket. The documentation
+suite verifies local Markdown targets and heading anchors, direct README access
+to every guide, and navigation back to the documentation index.
+
+Opt-in real TIFF/CZI, CUDA 0 and Chromium verification requires Fiji/pyimagej,
+the standard pretrained checkpoint and an installed Playwright CLI or wrapper:
+
+```bash
+python tests/run_annotation_cycle_smoke.py \
+  --output-dir /mnt/data1/yeast_fusion_segmenter_datasets/data/derived/loop-new-version \
+  --browser-cli /path/to/playwright-cli
+```
+
+Choose a new output directory for each run; optionally pass `--browser-config`
+for a local Chromium launch configuration. The runner copies real raw fields,
+performs two fresh one-epoch training runs, tests browser edits, restores real
+original labels, compiles/evaluates/reannotates and compares the models. These
+are mechanical tests, **not human biological approvals or scientific training**.
+Follow the [pilot guide](../ANNOTATION_PILOT.md) for genuine manual review and
+the matched 100-epoch comparison.
+
+`archive_annotation_cycle_smoke.py` is a legacy archive helper only. It refuses
+version-2 contracts: moving/rebasing an already hashed dataset invalidates
+experiment manifest hashes. Write new runs directly onto the data disk instead.
+
 This directory contains comprehensive tests for the Yeast Fusion Segmenter prediction pipeline.
 
 ## Test Files
@@ -126,8 +168,8 @@ When tests pass successfully:
 ======================================================================
 TEST SUMMARY
 ======================================================================
-Tests run: 15
-Successes: 15
+Tests run: <number discovered>
+Successes: <number passed>
 Failures: 0
 Errors: 0
 Skipped: 0

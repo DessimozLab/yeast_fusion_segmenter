@@ -1,5 +1,11 @@
 # Iterative annotation and fresh-model training workflow
 
+[Documentation index](README.MD#documentation) ·
+[Canonical lifecycle](ANNOTATION_LIFECYCLE.md) ·
+[Dataset builder](DATASET_BUILDER_CLI.md) ·
+[Review rubric](ANNOTATION_REVIEW_RUBRIC.md) ·
+[Model results](MODEL_PERFORMANCE.md)
+
 For the tested complete prediction → browser approval → reviewed-dataset
 compilation → fresh retraining loop, follow
 [ANNOTATION_LIFECYCLE.md](ANNOTATION_LIFECYCLE.md). Use

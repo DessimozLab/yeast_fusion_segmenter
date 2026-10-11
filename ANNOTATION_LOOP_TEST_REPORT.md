@@ -1,5 +1,15 @@
 # Annotation loop verification — 2026-10-11
 
+[Documentation index](README.MD#documentation) ·
+[Reproduce tests](tests/README.md) ·
+[Supported lifecycle](ANNOTATION_LIFECYCLE.md) ·
+[Human-reviewed pilot](ANNOTATION_PILOT.md) ·
+[Remaining gaps](ANNOTATION_CYCLE_GAPS.md)
+
+Artifact paths and machine-local storage links are explained in
+[STORAGE_LAYOUT.md](STORAGE_LAYOUT.md). All guides are reachable through the
+README [documentation index](README.MD#documentation).
+
 ## Superseding verification: corrected CZI geometry and hardened review cycle
 
 The current complete mechanical run is archived at

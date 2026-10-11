@@ -1,5 +1,11 @@
 # Annotation cycle gap register
 
+[Documentation index](README.MD#documentation) ·
+[Supported lifecycle](ANNOTATION_LIFECYCLE.md) ·
+[Review rubric](ANNOTATION_REVIEW_RUBRIC.md) ·
+[Pilot](ANNOTATION_PILOT.md) ·
+[Verification evidence](ANNOTATION_LOOP_TEST_REPORT.md)
+
 This register distinguishes software verification from biological evidence.
 An executable workflow is not evidence of accurate masks or generalization.
 Last updated: 2026-10-11.

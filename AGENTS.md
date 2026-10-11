@@ -1,5 +1,11 @@
 # Guide for coding agents
 
+[Documentation index](README.MD#documentation) ·
+[Data contract](DATASET_NAMING.md) ·
+[Preparation](DATASET_PREPARATION.md) ·
+[Annotation lifecycle](ANNOTATION_LIFECYCLE.md) ·
+[Testing](tests/README.md)
+
 Read [ANNOTATION_CYCLE_GAPS.md](ANNOTATION_CYCLE_GAPS.md) and
 [ANNOTATION_PILOT.md](ANNOTATION_PILOT.md) before continuing the annotation
 pilot. Its biological rubric is still draft: do not invent lab sign-off or

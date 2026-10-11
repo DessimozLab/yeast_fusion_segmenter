@@ -1,5 +1,10 @@
 # Dataset builder CLI
 
+[Documentation index](README.MD#documentation) ·
+[Preparation and splits](DATASET_PREPARATION.md) ·
+[Next: training/evaluation](TRAINING_CLI.md) ·
+[Annotation lifecycle](ANNOTATION_LIFECYCLE.md)
+
 `build_dataset.py` is the canonical command for creating a versioned YOLO
 dataset from the strict `data/raw` CZI/TIFF/HDF5 layout. It always invokes the
 shared `MicroscopyImageDataset` and the notebook-compatible seven-class
