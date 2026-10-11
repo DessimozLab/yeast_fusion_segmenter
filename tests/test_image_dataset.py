@@ -3,6 +3,7 @@
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import h5py
 import numpy as np
@@ -102,6 +103,35 @@ class TestMicroscopyImageDataset(unittest.TestCase):
             handle.create_dataset("mask", data=np.zeros((8, 8), dtype=np.uint16))
         with self.assertRaisesRegex(ValueError, "Annotation has no matching image"):
             MicroscopyImageDataset(self.root)
+
+    def test_fresh_and_cached_czi_preserve_source_format_and_crop(self):
+        from prepare_yolo_data import center_crop_or_pad
+        czi=self.root/'other/images/czi'; czi.mkdir()
+        (czi/'czi-field.czi').write_bytes(b'fixture')
+        dataset=MicroscopyImageDataset(self.root,source_formats=('czi',))
+        rgb=np.arange(12*14*3,dtype=np.uint8).reshape(12,14,3)
+        with patch.object(MicroscopyImageDataset,'_load_czi',return_value=[rgb]):
+            fresh=dataset.materialize_pngs(overwrite=True)[0]
+            cached=dataset.materialize_pngs()[0]
+        self.assertEqual(fresh.source_format,'czi')
+        self.assertEqual(cached.source_format,'czi')
+        self.assertTrue(np.array_equal(center_crop_or_pad(np.array(Image.open(fresh.sources['png'])),8),rgb[2:10,3:11]))
+
+    def test_malformed_mask_name_is_not_silently_ignored(self):
+        (self.root/'other/annotations/Bad_mask.h5').write_bytes(b'fixture')
+        with self.assertRaisesRegex(ValueError,'Invalid HDF5 filename'):
+            MicroscopyImageDataset(self.root)
+
+    def test_tiff_channel_frame_mismatch_fails_instead_of_truncating(self):
+        image=Image.fromarray(np.zeros((8,8),dtype=np.uint8))
+        image.save(self.root/'other/images/tiff/fusion-a-001__bf.tiff',save_all=True,append_images=[image])
+        with self.assertRaisesRegex(ValueError,'frame counts differ'):
+            MicroscopyImageDataset(self.root).materialize_pngs()
+
+    def test_tiff_channel_dimension_mismatch_fails(self):
+        Image.fromarray(np.zeros((4,4),dtype=np.uint8)).save(self.root/'other/images/tiff/fusion-a-001__gfp.tiff')
+        with self.assertRaisesRegex(ValueError,'dimensions differ'):
+            MicroscopyImageDataset(self.root).materialize_pngs()
 
 
 if __name__ == "__main__":

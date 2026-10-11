@@ -18,6 +18,13 @@ from prepare_yolo_data import (
 )
 
 
+def load_tests(loader, tests, pattern):
+    import unittest
+    tests.addTests(unittest.FunctionTestCase(fn) for name,fn in globals().items()
+                   if name.startswith('test_') and callable(fn))
+    return tests
+
+
 def test_notebook_bins_preserve_all_seven_phenotypes():
     mask = np.zeros((14, 14), dtype=np.uint16)
     for class_id in range(len(CLASS_NAMES)):
@@ -74,6 +81,25 @@ def test_materialized_tiff_frame_uses_matching_hdf5_frame():
         mask = load_annotation_mask(h5_path, 'sample__f0001')
 
     assert np.array_equal(mask, np.full((2, 2), 3001, dtype=np.uint16))
+
+
+def test_hdf5_tenth_frame_does_not_shift_t2_selection():
+    with tempfile.TemporaryDirectory() as directory:
+        p=Path(directory)/'sample__mask.h5'
+        with h5py.File(p,'w') as h:
+            g=h.create_group('FOV0')
+            for i in range(12):g.create_dataset(f'T{i}',data=np.full((2,2),i,dtype=np.uint16))
+        assert np.all(load_annotation_mask(p,'sample__f0002')==2)
+
+
+def test_ambiguous_hdf5_fov_pairing_fails():
+    with tempfile.TemporaryDirectory() as directory:
+        p=Path(directory)/'sample__mask.h5'
+        with h5py.File(p,'w') as h:
+            for key in ('FOV0','FOV1'):h.create_group(key).create_dataset('T0',data=np.ones((2,2),dtype=np.uint16))
+        try:load_annotation_mask(p,'sample')
+        except ValueError:pass
+        else:raise AssertionError('Multiple FOV0/T0 candidates must not silently select a mask')
 
 
 def test_czi_orientation_check_applies_clear_vertical_mask_flip():

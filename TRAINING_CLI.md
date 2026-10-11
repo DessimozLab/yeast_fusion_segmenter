@@ -34,6 +34,14 @@ does not preserve the raw-data provenance held by a dataset-info JSON.
 
 ## Common options
 
+Version-2 datasets enforce inventories, hashes and valid human approvals.
+`--data` cannot bypass the adjacent candidate-review contract. Evaluation always
+filters to nonempty labels, including when `--annotated-only` is omitted.
+Use `--seed 42` and `--run-dir data/derived/<experiment>/training` to make
+protocols/artifact placement explicit. Each run saves `protocol_metrics.json`
+with dataset/checkpoint hashes, effective settings, versions and per-class
+box/mask metrics. An existing `--output` checkpoint cannot be overwritten.
+
 ```bash
 CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
   --dataset data/dataset_info/all_images.json \
@@ -124,7 +132,7 @@ file; raw CZI/TIFF/HDF5 sources remain immutable.
 
 ```bash
 python manual_yolo_annotation_app.py \
-  --dataset data/dataset_info/iteration_003.json --split train
+  --dataset data/dataset_info/cycle-v1-review.json --split train
 # Open http://127.0.0.1:8767 in a local browser.
 ```
 
@@ -159,9 +167,11 @@ python create_label_overlays.py \
 ## Train or evaluate only annotated images
 
 `--annotated-only` creates a filtered YOLO YAML under the prepared dataset and
-keeps only image files whose corresponding YOLO label is non-empty. Those
-labels are generated from the HDF5 path paired in the dataset object, so this
-excludes inference-only images with no annotation.
+keeps only image files whose corresponding YOLO label is non-empty. Labels
+come from paired HDF5 masks or explicitly approved YOLO reviews compiled with
+`annotation_cycle.py compile`. Unlabelled pool images remain inference-only.
+Datasets marked `purpose: candidate_review` are rejected for training/evaluation.
+Use [ANNOTATION_LIFECYCLE.md](ANNOTATION_LIFECYCLE.md) for the tested review loop.
 
 ```bash
 # Fine-tune a pretrained model using annotated images only.

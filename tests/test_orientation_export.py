@@ -7,6 +7,13 @@ import numpy as np
 from export_corrected_hdf5_masks import export_mask
 
 
+def load_tests(loader, tests, pattern):
+    import unittest
+    tests.addTests(unittest.FunctionTestCase(fn) for name,fn in globals().items()
+                   if name.startswith('test_') and callable(fn))
+    return tests
+
+
 def test_export_preserves_hdf5_layout_and_flips_pixels():
     with tempfile.TemporaryDirectory() as directory:
         source = Path(directory) / 'source.h5'

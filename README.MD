@@ -93,6 +93,27 @@ orientation in the browser, exporting derived HDF5 copies, rebuilding a new
 dataset, and training a **fresh** network iteration—see
 [ITERATIVE_TRAINING_WORKFLOW.md](ITERATIVE_TRAINING_WORKFLOW.md).
 
+The tested end-to-end annotation loop is documented in
+[ANNOTATION_LIFECYCLE.md](ANNOTATION_LIFECYCLE.md): `annotation_cycle.py export`
+writes editable model polygons, the browser supports drawing/removal/class
+changes and explicit reviewer approval, and `annotation_cycle.py compile`
+preserves approved labels in a new training dataset with frozen holdouts.
+See [ANNOTATION_LOOP_TEST_REPORT.md](ANNOTATION_LOOP_TEST_REPORT.md) for the
+real TIFF/CZI conversion, CUDA 0 training/retraining, browser and reannotation
+test results. Direct YOLO labels are primary; HDF5 is a fallback.
+
+The current safeguards and remaining scientific limitations are tracked in
+[ANNOTATION_CYCLE_GAPS.md](ANNOTATION_CYCLE_GAPS.md). Corrected fresh CZI
+conversion preserves its source format and uses the center crop; older
+39-contour smoke artifacts used the wrong TIFF crop. Version-2 manifests enforce
+hashes, split roles and review lineage. Compiled datasets and labelled holdouts
+are read-only in the browser.
+
+The [human-review pilot](ANNOTATION_PILOT.md) is prepared but **awaits lab
+approval of the [annotation rubric](ANNOTATION_REVIEW_RUBRIC.md) and whole-field
+human review** before the matched 100-epoch retraining comparison. Automated
+browser approvals and one-epoch smoke runs are not biological evidence.
+
 ## � License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

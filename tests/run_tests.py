@@ -37,8 +37,11 @@ def run_all_tests(verbose=1, integration_only=False, format_only=False):
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
     
-    # Load test modules
-    if not integration_only:
+    # Discover every suite, including function-style conversion regressions.
+    if not integration_only and not format_only:
+        suite = loader.discover(str(Path(__file__).parent), pattern='test_*.py',
+                                top_level_dir=str(Path(__file__).parent.parent))
+    if format_only:
         try:
             from test_prediction_outputs import TestPredictionOutputFormat, TestRealOutputValidation
             suite.addTests(loader.loadTestsFromTestCase(TestPredictionOutputFormat))
@@ -47,7 +50,7 @@ def run_all_tests(verbose=1, integration_only=False, format_only=False):
         except ImportError as e:
             print(f"✗ Failed to load format tests: {e}")
     
-    if not format_only:
+    if integration_only:
         try:
             from test_integration import (TestBatchPredictIntegration, 
                                         TestImageProcessingFunctions,

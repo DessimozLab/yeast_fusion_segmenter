@@ -237,7 +237,7 @@ def zoom_img(img, zoom_factor, target_size=1024, base_filepath=None):
     return crops, png_paths, coordinates
 
 
-def predict_and_collect(model, imgfile, outcsv, crop=1024, crop_id=None):
+def predict_and_collect(model, imgfile, outcsv, crop=1024, crop_id=None, confidence=0.5):
     """
     Run YOLO prediction on an image and collect statistical results.
     
@@ -258,12 +258,12 @@ def predict_and_collect(model, imgfile, outcsv, crop=1024, crop_id=None):
                          min, max, skewness), or None if no detections
     
     Note:
-        - Only detections with confidence > 0.5 are included
+        - Detections must meet the selected confidence threshold (default 0.5)
         - Statistics are computed from pixels within the segmentation mask
-        - Channel order is assumed to be BF (0), RFP (1), GFP (2)
+        - Prepared PNG channel order is BF (0), GFP (1), RFP (2)
     """
     # Run YOLO model inference on the image
-    results = model(imgfile, imgsz=crop, visualize=False)
+    results = model(imgfile, imgsz=crop, visualize=False, conf=confidence)
     
     # Extract detection information from results
     classes = results[0].names  # Class names dictionary
@@ -285,7 +285,7 @@ def predict_and_collect(model, imgfile, outcsv, crop=1024, crop_id=None):
         c = int(results[0].boxes.cls[i])
         
         # Only process detections above confidence threshold
-        if proba[i] > 0.5:
+        if proba[i] >= confidence:
             # Extract bounding box coordinates
             x1, y1, x2, y2 = xywh[i]
             c = int(c)
@@ -308,11 +308,14 @@ def predict_and_collect(model, imgfile, outcsv, crop=1024, crop_id=None):
                 mask = masks[i].xy[0]  # Shape: (N, 2) array of (x, y) coordinates
                 mask = mask.astype(int)
                 
-                # Extract pixel values for each channel using mask coordinates
-                # mask[:, 1] are y-coordinates, mask[:, 0] are x-coordinates
-                bf = img[mask[:, 1], mask[:, 0], 0].ravel()   # Brightfield channel
-                rfp = img[mask[:, 1], mask[:, 0], 1].ravel()  # RFP channel
-                gfp = img[mask[:, 1], mask[:, 0], 2].ravel()  # GFP channel
+                # Rasterize the whole instance, rather than measuring only its
+                # contour vertices. Prepared images follow BF/GFP/RFP order.
+                selected = np.zeros(img.shape[:2], dtype=np.uint8)
+                cv2.fillPoly(selected, [mask], 1)
+                selected = selected.astype(bool)
+                bf = img[..., 0][selected]
+                gfp = img[..., 1][selected]
+                rfp = img[..., 2][selected]
                 
                 # Calculate statistical descriptors for each channel
                 bf_stats = describe(bf)
@@ -405,6 +408,8 @@ def dataset_prediction_files(dataset_info_path, split='all', annotated_only=Fals
     dataset_root = Path(config.get('path', yolo_yaml.parent))
     if not dataset_root.is_absolute():
         dataset_root = (yolo_yaml.parent / dataset_root).resolve()
+    from annotation_cycle import validate_contract
+    validate_contract(info, dataset_root, allow_review=info.get('purpose') == 'candidate_review')
 
     selected_splits = ('train', 'val', 'test') if split == 'all' else (split,)
     record_lookup = {
@@ -498,6 +503,7 @@ Note:
     parser.add_argument('--format', choices=['png', 'tif', 'czi'], help='Image format')
     parser.add_argument('--output_csv', help='Output CSV file')
     parser.add_argument('--crop', type=int, default=1024, help='Crop size (default: 1024)')
+    parser.add_argument('--confidence',type=float,default=0.5,help='Detection confidence threshold (default: 0.5)')
     parser.add_argument('--zoom', action='store_true', help='Use zoomed prediction with overlapping crops')
     parser.add_argument('--zoom_factor', type=float, default=40/60, help='Zoom factor (default: 0.667)')
     args = parser.parse_args()
@@ -533,14 +539,20 @@ Note:
         files = [(Path(path), None) for path in sorted(glob.glob(os.path.join(args.input_dir, pattern)))]
         per_image_dir = None
     all_dfs = []
+    prediction_manifest = []
     
     for image_path, metadata in tqdm.tqdm(files):
+        before_count=len(all_dfs)
         imgfile = str(image_path)
         print(f"Processing {imgfile}...")
         # Load image as array and get PNG path (for CZI)
         # Dataset objects reference already materialized, model-ready PNGs.
         image_format = 'png' if args.dataset else args.format
-        arr, png_path = process_image(imgfile, image_format, crop=args.crop)
+        if args.dataset:
+            arr=np.asarray(Image.open(imgfile).convert('RGB'))
+            png_path=imgfile
+        else:
+            arr, png_path = process_image(imgfile, image_format, crop=args.crop)
         
         if args.zoom:
             # Zoomed prediction with multiple crops
@@ -552,7 +564,7 @@ Note:
                 outcsv = (per_image_dir / f'{image_path.stem}_crop_{crop_idx}.csv'
                           if per_image_dir else Path(crop_png_path).with_suffix('.csv'))
                 df = predict_and_collect(model, crop_png_path, str(outcsv),
-                                       crop=args.crop, crop_id=crop_idx)
+                                       crop=args.crop, crop_id=crop_idx, confidence=args.confidence)
                 if df is not None:
                     # Add coordinate information
                     df['crop_x1'] = coord[0]
@@ -572,7 +584,7 @@ Note:
                 outcsv = (per_image_dir / f'{image_path.stem}.csv'
                           if per_image_dir else Path(pred_path).with_suffix('.csv'))
                 df = predict_and_collect(model, pred_path, str(outcsv),
-                                       crop=args.crop, crop_id=0)
+                                       crop=args.crop, crop_id=0, confidence=args.confidence)
                 if df is not None:
                     all_dfs.append(append_metadata(df, metadata))
             else:
@@ -582,15 +594,23 @@ Note:
                 outcsv = (per_image_dir / f'{image_path.stem}.csv'
                           if per_image_dir else Path(temp_path).with_suffix('.csv'))
                 df = predict_and_collect(model, temp_path, str(outcsv),
-                                       crop=args.crop, crop_id=0)
+                                       crop=args.crop, crop_id=0, confidence=args.confidence)
                 if df is not None:
                     all_dfs.append(append_metadata(df, metadata))
                 os.remove(temp_path)
     
+        prediction_manifest.append(dict(metadata or {}, image=str(image_path),
+            detections=sum(len(df) for df in all_dfs[before_count:])))
+
+    pd.DataFrame(prediction_manifest).to_csv(Path(args.output_csv).with_suffix('.manifest.csv'),index=False)
     if all_dfs:
         pd.concat(all_dfs).to_csv(args.output_csv, index=False)
         print(f'Wrote results to {args.output_csv}')
     else:
+        columns=['file','crop_id','class','proba','x1','y1','x2','y2']
+        columns += [f'{channel}_{stat}' for channel in ('bf','rfp','gfp') for stat in ('mean','std','min','max','skew')]
+        columns += list(files[0][1] or {}) if files else []
+        pd.DataFrame(columns=columns).to_csv(args.output_csv,index=False)
         print('No predictions made.')
 
 if __name__ == '__main__':

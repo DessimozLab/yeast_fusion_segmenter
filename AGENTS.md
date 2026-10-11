@@ -1,5 +1,25 @@
 # Guide for coding agents
 
+Read [ANNOTATION_CYCLE_GAPS.md](ANNOTATION_CYCLE_GAPS.md) and
+[ANNOTATION_PILOT.md](ANNOTATION_PILOT.md) before continuing the annotation
+pilot. Its biological rubric is still draft: do not invent lab sign-off or
+replace human approval with an automated browser test.
+
+New dataset contracts are schema version 2. Keep per-image acquisition identity,
+split role (train/val/test/pool), image/label/raw hashes, annotation origin and
+review/teacher lineage. Legacy manifests need explicit acknowledged migration
+before export/compile, not silent hash refreshing. Candidate datasets and their
+YAML must never train or evaluate as ground truth. Compiled datasets and labelled
+holdouts are read-only in the browser; only isolated candidate train/pool copies
+can be edited. Review POST requests require expected image and label hashes.
+
+Fresh PNG records must preserve `record.source_format`: changing CZI to TIFF
+selects the wrong crop and recreates the 39-versus-54 contour bug. Select HDF5
+frames by exact T<n> names, not lexical dataset iteration. Keep the quarantine
+and frozen holdouts unchanged. The supported test entry point is
+`python tests/run_tests.py`; the opt-in real GPU/Fiji/browser runner is
+`python tests/run_annotation_cycle_smoke.py --help`.
+
 This repository segments yeast fusion microscopy images with YOLOv8 instance
 segmentation. Preserve the notebook-compatible, seven-class data contract.
 Read `DATASET_NAMING.md`, `DATASET_PREPARATION.md`, and `TRAINING_CLI.md`
@@ -76,6 +96,15 @@ instead of globbing raw files in training, annotation, or inference code.
   and an audit log; it must never be used to alter raw CZI/TIFF/HDF5 files.
 - Rebuilding an output dataset replaces that output directory. Do not point it
   at user source data or a broad directory.
+- For the review/retraining loop, use `annotation_cycle.py export` to produce
+  `purpose: candidate_review` datasets; never train on predictions directly.
+  The browser's Save and approve action records reviewer/image/label hashes.
+  `annotation_cycle.py compile` imports only approved non-empty labels, rejects
+  stale approvals and heldout acquisition promotion, and preserves raw HDF5
+  provenance. New manually approved YOLO labels do not require a fabricated HDF5
+  file. Keep the compiled version: a rebuild from raw masks loses corrections.
+- Fractional splits operate on whole acquisitions, not independent TIFF frames.
+  Run `annotation_cycle.py qc` and contour overlays before each fresh iteration.
 
 ### Fixed annotation classes
 

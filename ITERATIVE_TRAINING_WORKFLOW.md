@@ -1,5 +1,18 @@
 # Iterative annotation and fresh-model training workflow
 
+For the tested complete prediction → browser approval → reviewed-dataset
+compilation → fresh retraining loop, follow
+[ANNOTATION_LIFECYCLE.md](ANNOTATION_LIFECYCLE.md). Use
+`annotation_cycle.py export` for editable candidate polygons and
+`annotation_cycle.py compile` to preserve approved corrections. Rebuilding
+from raw HDF5 alone will discard those corrections.
+
+Compiled datasets are immutable in the browser: export an isolated review copy
+before editing. Version-2 contracts enforce image/label hashes, explicit
+holdout/pool roles and review lineage. Current unfinished biological work and
+the approved-budget pilot are in [ANNOTATION_CYCLE_GAPS.md](ANNOTATION_CYCLE_GAPS.md)
+and [ANNOTATION_PILOT.md](ANNOTATION_PILOT.md).
+
 Use this workflow when adding microscopy fields, correcting their annotations,
 and training the next yeast-fusion segmentation model. It preserves the
 notebook-compatible seven-class contract and keeps raw scientific files
@@ -30,9 +43,9 @@ same orientation as the converted PNG. Preserve all seven classes: `f`, `h`,
 ## 2. Annotate new images
 
 Use the current model only to create candidate annotations for human review;
-model predictions are not biological ground truth. Run inference on a raw
-directory or a single image, then inspect the result before creating an HDF5
-annotation using the laboratory's annotation process.
+model predictions are not biological ground truth. Export prepared PNG
+predictions with `annotation_cycle.py export`, then inspect/correct and approve
+them in the browser. Use HDF5 only when a separate laboratory tool requires it.
 
 ```bash
 python annotate_images.py \
@@ -42,8 +55,8 @@ python annotate_images.py \
 ```
 
 For prepared data, use `batch_predict.py --dataset ...` to retain source and
-HDF5 provenance. Predictions are useful as an annotation aid only: add a
-reviewed HDF5 mask before including an image in supervised training.
+HDF5 provenance. Predictions are useful as an annotation aid only: compile
+explicitly approved YOLO labels before including a new field in supervision.
 
 ## 3. Review and manually correct ambiguous mask orientation
 
@@ -129,7 +142,8 @@ overlays after editing and retain the audit log with this dataset version.
 
 Start from the pretrained base model, never from the prior iteration's best
 checkpoint. Give the new model a distinct output name. `--annotated-only`
-ensures only HDF5-backed, non-empty labels are used for supervision.
+ensures only non-empty imported HDF5 or approved compiled YOLO labels are used
+for supervision. Candidate review datasets are rejected.
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 PYTORCH_ALLOC_CONF=expandable_segments:True \

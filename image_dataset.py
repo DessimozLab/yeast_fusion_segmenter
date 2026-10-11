@@ -22,12 +22,11 @@ CHANNELS = ("bf", "gfp", "rfp")
 # Fiji presents the known 40x CZI series inverted vertically.  The exception
 # was acquired with the corrected orientation already applied at the scope.
 _VERTICAL_FLIP_40X_EXCEPTION = "p1-1g2-09"
-_CZI_RE = re.compile(r"^(?P<id>[a-z0-9][a-z0-9-]*)\.czi$", re.IGNORECASE)
+_CZI_RE = re.compile(r"^(?P<id>[a-z0-9]+(?:-[a-z0-9]+)*)\.czi$")
 _TIFF_RE = re.compile(
-    r"^(?P<id>[a-z0-9][a-z0-9-]*)__?(?P<channel>bf|gfp|rfp)\.tiff?$",
-    re.IGNORECASE,
+    r"^(?P<id>[a-z0-9]+(?:-[a-z0-9]+)*)__(?P<channel>bf|gfp|rfp)\.tiff$",
 )
-_MASK_RE = re.compile(r"^(?P<id>[a-z0-9][a-z0-9-]*)__mask\.h(?:df)?5$", re.IGNORECASE)
+_MASK_RE = re.compile(r"^(?P<id>[a-z0-9]+(?:-[a-z0-9]+)*)__mask\.(?:h5|hdf5)$")
 
 
 @dataclass(frozen=True)
@@ -185,6 +184,8 @@ class MicroscopyImageDataset:
                 if sample_id in masks:
                     raise ValueError(f"Duplicate annotation for {sample_id}: {path} and {masks[sample_id]}")
                 masks[sample_id] = path
+            elif path.suffix.lower() in ('.h5', '.hdf5'):
+                raise ValueError(f'Invalid HDF5 filename: {path}')
         return masks
 
     def _czi_records(self, base: Path, magnification: str, masks: dict[str, Path]) -> list[ImageRecord]:
@@ -263,7 +264,16 @@ class MicroscopyImageDataset:
             "annotation_classes": annotation_classes or {},
             "records": [record.metadata() for record in self.records],
         }
-        output.write_text(json.dumps(payload, indent=2) + "\n")
+        if data_path and data_path.exists():
+            from annotation_cycle import write_info
+            import yaml
+            config = yaml.safe_load(data_path.read_text())
+            root = Path(config.get('path', data_path.parent))
+            if not root.is_absolute():
+                root = data_path.parent / root
+            write_info(payload, config, root.resolve(), output, name)
+        else:
+            output.write_text(json.dumps(payload, indent=2) + "\n")
         return output
 
     @staticmethod
@@ -273,7 +283,7 @@ class MicroscopyImageDataset:
         payload = json.loads(source.read_text())
         required = {"schema_version", "name", "magnifications", "records", "yolo_data"}
         missing = required.difference(payload)
-        if payload.get("schema_version") != 1 or missing:
+        if payload.get("schema_version") not in (1, 2) or missing:
             raise ValueError(f"Invalid dataset info file {source}: missing {sorted(missing)}")
         return payload
 
@@ -325,7 +335,7 @@ class MicroscopyImageDataset:
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 if overwrite or not _is_valid_png(destination):
                     Image.fromarray(image).save(destination)
-                converted.append(ImageRecord(record.sample_id + suffix, record.magnification, "tiff", {"png": destination}, record.annotation_path))
+                converted.append(ImageRecord(record.sample_id + suffix, record.magnification, record.source_format, {"png": destination}, record.annotation_path))
         return converted
 
     @staticmethod
@@ -334,7 +344,13 @@ class MicroscopyImageDataset:
         for channel, path in record.sources.items():
             with Image.open(path) as image:
                 channel_frames[channel] = [_to_uint8(np.asarray(frame)) for frame in ImageSequence.Iterator(image)]
-        count = min(len(frames) for frames in channel_frames.values())
+        counts = {len(frames) for frames in channel_frames.values()}
+        if len(counts) != 1:
+            raise ValueError(f'TIFF channel frame counts differ for {record.sample_id}')
+        count = counts.pop()
+        for index in range(count):
+            if len({frames[index].shape[:2] for frames in channel_frames.values()}) != 1:
+                raise ValueError(f'TIFF channel dimensions differ for {record.sample_id}, frame {index}')
         frames = []
         for index in range(count):
             bf = channel_frames["bf"][index]

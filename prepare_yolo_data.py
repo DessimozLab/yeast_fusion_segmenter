@@ -346,17 +346,14 @@ def load_annotation_mask(annotation_path, materialized_sample_id):
     match = _FRAME_SUFFIX_RE.search(materialized_sample_id)
     frame_index = int(match['index']) if match else 0
     with h5py.File(annotation_path, 'r') as mask_file:
-        frames = [
-            np.asarray(mask_file[group][frame], dtype=np.uint16)
-            for group in mask_file.keys()
-            for frame in mask_file[group]
-        ]
-    if frame_index >= len(frames):
-        raise ValueError(
-            f"Annotation {annotation_path} has {len(frames)} frames but "
-            f"{materialized_sample_id} requires frame {frame_index}"
-        )
-    return frames[frame_index]
+        # Select T<n> by its exact key, never HDF5's lexical iteration order
+        # (T10 precedes T2). Multiple FOVs cannot be silently paired to one PNG.
+        candidates=[]
+        mask_file.visititems(lambda name,obj: candidates.append(name)
+                             if isinstance(obj,h5py.Dataset) and name.rsplit('/',1)[-1]==f'T{frame_index}' else None)
+        if len(candidates)!=1:
+            raise ValueError(f'Annotation {annotation_path} requires one exact T{frame_index} frame; found {candidates}')
+        return np.asarray(mask_file[candidates[0]],dtype=np.uint16)
 
 def random_rotation(image, masks, angle_range):
     """Apply random rotation to image and masks"""
@@ -765,11 +762,13 @@ def process_canonical_raw_files(args):
         # three-class labels.
         with Image.open(record.sources['png']) as source_image:
             rgb = np.asarray(source_image.convert('RGB'))
+        mask = load_annotation_mask(record.annotation_path, record.sample_id) if record.annotation_path else None
+        if mask is not None and mask.shape != rgb.shape[:2]:
+            raise ValueError(f'Image/mask dimensions differ for {record.sample_id}: {rgb.shape[:2]} versus {mask.shape}')
         crop_or_pad = center_crop_or_pad if record.source_format == 'czi' else top_left_crop_or_pad
         rgb = crop_or_pad(rgb, size=args.crop_size)
         Image.fromarray(rgb).save(output_image)
         if record.annotation_path:
-            mask = load_annotation_mask(record.annotation_path, record.sample_id)
             if not mask.any():
                 logger.warning("Empty annotation frame for %s", record.annotation_path)
                 open(output_label, 'w').close()
@@ -865,11 +864,15 @@ def split_dataset(output_dir, val_split=0.1, test_split=0.1, val_samples=(), tes
         if source_sample_id(filename) not in val_samples | test_samples
     ]
 
-    # Shuffle only records not deliberately reserved as target-domain holdouts.
-    random.shuffle(remaining_files)
+    # Fractional splits must also keep all frames of an acquisition together.
+    # Earlier splitting by PNG leaked sibling TIFF frames into holdouts.
+    def acquisition(filename):
+        return _FRAME_SUFFIX_RE.sub('', os.path.splitext(filename)[0])
+    remaining_groups = sorted({acquisition(filename) for filename in remaining_files})
+    random.shuffle(remaining_groups)
     
     # Calculate split points
-    total = len(remaining_files)
+    total = len(remaining_groups)
     # A fractional split should not silently disappear for a small microscopy
     # collection. Reserve one image for each requested hold-out split whenever
     # at least one training image can still remain.
@@ -888,8 +891,11 @@ def split_dataset(output_dir, val_split=0.1, test_split=0.1, val_samples=(), tes
             test_count = 0
     
     # Split the files
-    val_files.extend(remaining_files[:val_count])
-    test_files.extend(remaining_files[val_count:val_count + test_count])
+    val_groups = set(remaining_groups[:val_count])
+    test_groups = set(remaining_groups[val_count:val_count + test_count])
+    # Include empty-mask siblings too; no frame may cross its source holdout.
+    val_files = [filename for filename in image_files if source_sample_id(filename) in val_samples or acquisition(filename) in val_groups]
+    test_files = [filename for filename in image_files if source_sample_id(filename) in test_samples or acquisition(filename) in test_groups]
     
     # Move validation files
     for f in val_files:

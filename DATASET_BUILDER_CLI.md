@@ -37,6 +37,13 @@ source formats, exclusions, exact split policy, class map, PNG provenance, and
 the absolute `dataset.yaml` path. It is the dataset contract; do not hand-edit
 it or substitute a YAML file when provenance matters.
 
+New prepared manifests are version 2, with image/label/raw hashes, exact split
+roles and annotation origins; `dataset-contract.json` is written alongside the
+YAML. Unannotated pool images can occupy `test` physically without being
+supervised test examples. The browser edits only isolated candidate review
+copies, not these frozen prepared datasets. See
+[ANNOTATION_LIFECYCLE.md](ANNOTATION_LIFECYCLE.md) for migration and correction.
+
 ## Common build variants
 
 ```bash
@@ -65,7 +72,7 @@ name for a new iteration. `--resume` is only for an interrupted build;
 ## Reuse the dataset-info JSON
 
 ```bash
-# Train only on non-empty, HDF5-backed labels.
+# Train only on non-empty legacy HDF5 or compiled human-reviewed labels.
 CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
   --dataset data/dataset_info/iteration-003.json --annotated-only \
   --notebook-protocol --output models/iteration-003_yolov8s.pt

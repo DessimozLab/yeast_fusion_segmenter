@@ -4,6 +4,11 @@ This guide is the supported route from raw microscopy files to YOLO training or 
 
 ## 1. Activate the project environment
 
+New prepared datasets use version-2 hash/role contracts. Follow
+[ANNOTATION_LIFECYCLE.md](ANNOTATION_LIFECYCLE.md#version-2-contracts-and-legacy-migration)
+for migration, isolated browser editing and explicit review approval. Compiled
+datasets and biological holdouts are read-only; model candidates are not ground truth.
+
 CZI conversion uses Fiji through `pyimagej`, so run preparation and annotation in the project mamba environment:
 
 ```bash
@@ -107,7 +112,8 @@ level implementation used by this CLI.
 
 The builder makes a deterministic split of *annotated* images using
 `--random-seed` (default `42`). `--val-split` and `--test-split` are fractions
-of annotated images; the remainder is train. They must sum to less than one.
+of annotated acquisitions; the remainder is train. All stack frames stay
+together. They must sum to less than one.
 Unannotated records are always inference-only and remain in `test`, regardless
 of those fractions. The selected fractions and seed are stored in
 `dataset-info.json`.
@@ -175,7 +181,8 @@ holdouts.
 ```bash
 python prepare_yolo_data.py --input-dir data/raw --file-format raw \
   --magnification all --source-format all \
-  --val-samples p1-3c12-15 --test-samples p1-1e3-13 \
+  --exclude-samples p1-1g7-08,p1-3c12-15 \
+  --val-samples p1-1g2-09 --test-samples p1-1e3-13 \
   --val-split 0 --test-split 0 \
   --output-dir data/yolo_datasets/all_images_czi_holdout \
   --dataset-info data/dataset_info/all_images_czi_holdout.json
@@ -234,6 +241,12 @@ python export_corrected_hdf5_masks.py \
 
 ### Manually edit a prepared YOLO label
 
+For model-assisted labelling, export an isolated review dataset with
+`annotation_cycle.py export`. Saving a draft is distinct from approving a
+complete image: **Save and approve reviewed image** records a reviewer and
+image/label hashes. `annotation_cycle.py compile` imports approved labels into
+a new training version and preserves existing held-out acquisitions.
+
 After building a new versioned dataset, use the local browser editor to inspect
 individual PNGs and directly correct their derived YOLO polygons. Select a
 fixed class, draw a polygon to add an instance, or select **Remove by click**
@@ -241,7 +254,7 @@ to remove an incorrect polygon. Raw CZI/TIFF/HDF5 data are never changed.
 
 ```bash
 python manual_yolo_annotation_app.py \
-  --dataset data/dataset_info/reviewed.json --split train
+  --dataset data/dataset_info/cycle-v1-review.json --split train
 # Open http://127.0.0.1:8767 in a local browser.
 ```
 
@@ -252,7 +265,7 @@ receives a one-time `.manual-backup`. Regenerate contour overlays with
 dataset-to-fresh-model workflow.
 
 The actual count may differ slightly from the stated percentage because splits
-use whole image frames. Check the final printed counts and the saved split
+use whole acquisitions. Check the final printed counts and the saved split
 metadata before training.
 
 To make the two maintained training datasets, use:

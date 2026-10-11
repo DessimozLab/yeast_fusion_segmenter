@@ -51,6 +51,8 @@ def parse_args():
                         help='Use the final segment_retrain(1).ipynb YOLOv8s training protocol')
     parser.add_argument('--zoom-augmentation', action='store_true',
                         help='Use stronger random scale/translation so training views include zoomed crops')
+    parser.add_argument('--seed', type=int, default=42, help='Reproducible training/evaluation seed')
+    parser.add_argument('--run-dir', help='Optional artifact project directory (each checkpoint uses a fresh run)')
     
     return parser.parse_args()
 
@@ -160,9 +162,9 @@ def validate_dataset(data_yaml):
 def annotated_only_yaml(data_yaml: str) -> str:
     """Create a YOLO YAML whose splits contain only non-empty label files.
 
-    Dataset preparation pairs each generated label with the HDF5 path stored in
-    the dataset-info record.  A non-empty YOLO label is therefore the usable
-    model-facing representation of an associated annotation.
+    Labels can originate from paired HDF5 masks or explicitly approved browser
+    reviews compiled with annotation_cycle.py. Candidate review datasets are
+    rejected by resolve_data_path before applying this filter.
     """
     data_path = Path(data_yaml).resolve()
     config = yaml.safe_load(data_path.read_text())
@@ -192,17 +194,37 @@ def resolve_data_path(args) -> str:
     if args.dataset:
         from image_dataset import MicroscopyImageDataset
         dataset_info = MicroscopyImageDataset.load_dataset_info(args.dataset)
+        if dataset_info.get('purpose') == 'candidate_review':
+            raise ValueError('Candidate predictions are not ground truth. Approve reviews and compile a training dataset first.')
+        from annotation_cycle import load_prepared, validate_contract
+        info, root, _ = load_prepared(args.dataset)
+        for warning in validate_contract(info, root):
+            logger.warning(warning)
         data_path = dataset_info['yolo_data']
         if not data_path:
             raise ValueError(f"Dataset info has no prepared YOLO data path: {args.dataset}")
         logger.info("Using dataset '%s' from %s", dataset_info['name'], args.dataset)
-    if args.annotated_only:
+    else:
+        from annotation_cycle import validate_contract
+        config = yaml.safe_load(Path(data_path).read_text())
+        root = Path(config.get('path', Path(data_path).resolve().parent))
+        if not root.is_absolute():
+            root = Path(data_path).resolve().parent / root
+        marker = root / 'dataset-contract.json'
+        if marker.exists():
+            import json
+            validate_contract(json.loads(marker.read_text()), root)
+        if config.get('purpose') == 'candidate_review':
+            raise ValueError('Candidate predictions are not ground truth')
+    if args.annotated_only or getattr(args,'evaluate',False):
         data_path = annotated_only_yaml(data_path)
         logger.info("Using annotated-only dataset YAML: %s", data_path)
     return data_path
 
 def train_model(args):
     """Main function to train the YOLO model"""
+    if Path(args.output).exists():
+        raise ValueError('Output checkpoint already exists; choose a fresh iteration name')
     # Validate model path
     if not os.path.exists(args.model) and not args.model.startswith('yolov8'):
         raise FileNotFoundError(f"Model not found: {args.model}")
@@ -251,12 +273,13 @@ def train_model(args):
         batch=args.batch_size,
         device=args.device,
         workers=args.workers,
-        project='yolo_training',
-        name=os.path.splitext(args.output)[0],
+        project=str(Path(args.run_dir).resolve()) if args.run_dir else 'yolo_training',
+        name=Path(args.output).stem if args.run_dir else os.path.splitext(args.output)[0],
         # Never reuse a prior run directory: an interrupted run can leave a
         # partial results.csv and make Ultralytics' final plotting fail.
         exist_ok=False,
         pretrained=True,
+        seed=args.seed,
         **hyp
     )
     
@@ -270,6 +293,7 @@ def train_model(args):
         import shutil
         os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
         shutil.copy2(best_path, output_path)
+    write_run_report(args, results, model.trainer.save_dir, model.trainer.args)
     
     return results
 
@@ -281,12 +305,66 @@ def evaluate_model(args):
     data_path = resolve_data_path(args)
     validate_dataset(data_path)
     model = YOLO(args.model)
+    from annotation_cycle import CLASSES
+    if model.task != 'segment' or tuple(model.names[i] for i in range(len(model.names))) != CLASSES:
+        raise ValueError('Evaluation requires the fixed seven-class segmentation checkpoint')
+    from ultralytics.models.yolo.segment import SegmentationValidator
+    captured = {}
+    class ReportingValidator(SegmentationValidator):
+        def __init__(self, *positional, **keywords):
+            super().__init__(*positional, **keywords)
+            captured['validator'] = self
     logger.info("Evaluating %s on %s (%s split)", args.model, data_path, args.eval_split)
-    return model.val(
+    results = model.val(
+        validator=ReportingValidator,
         data=data_path, split=args.eval_split, imgsz=args.img_size,
-        batch=args.batch_size or 8, device=args.device, workers=args.workers or 4,
-        project='yolo_evaluation', name=Path(args.model).stem, exist_ok=False,
+        batch=args.batch_size if args.batch_size is not None else 8, device=args.device,
+        workers=args.workers if args.workers is not None else 4, seed=args.seed,
+        project=str(Path(args.run_dir).resolve()) if args.run_dir else 'yolo_evaluation', name=Path(args.model).stem, exist_ok=False,
     )
+    validator = captured['validator']
+    write_run_report(args, results, validator.save_dir, validator.args)
+    return results
+
+
+def write_run_report(args, results, save_dir, effective_args):
+    """Bind metrics to checkpoint, dataset contract and effective run settings."""
+    import json
+    import platform
+    import ultralytics
+    import torch
+    from annotation_cycle import digest, atomic_text
+    checkpoint = Path(args.model if args.evaluate else args.output)
+    source = Path(args.dataset or args.data)
+    report = {'mode': 'evaluation' if args.evaluate else 'training',
+              'checkpoint': str(checkpoint.resolve()), 'checkpoint_sha256': digest(checkpoint),
+              'dataset': str(source.resolve()), 'dataset_manifest_sha256': digest(source),
+              'eval_split': args.eval_split if args.evaluate else 'val',
+              'metrics': results.results_dict,
+              'effective_arguments': vars(effective_args),
+              'versions': {'python': platform.python_version(), 'torch': torch.__version__,
+                           'ultralytics': ultralytics.__version__}}
+    if not args.evaluate and Path(args.model).is_file():
+        report['initial_checkpoint_sha256']=digest(args.model)
+    if hasattr(results, 'box') and hasattr(results, 'seg'):
+        from annotation_cycle import CLASSES
+        indices={int(class_id):index for index,class_id in enumerate(results.box.ap_class_index)}
+        rows=[]
+        for class_id,name in enumerate(CLASSES):
+            support=int(results.nt_per_class[class_id]) if class_id<len(results.nt_per_class) else 0
+            row={'class_id':class_id,'class':name,'labelled_instances':support,'box':None,'mask':None}
+            if class_id in indices:
+                values=results.class_result(indices[class_id])
+                keys=('precision','recall','mAP50','mAP50_95')
+                row['box']=dict(zip(keys,map(float,values[:4])))
+                row['mask']=dict(zip(keys,map(float,values[4:8])))
+            rows.append(row)
+        report['per_class_metrics']=rows
+    if args.dataset:
+        from image_dataset import MicroscopyImageDataset
+        info = MicroscopyImageDataset.load_dataset_info(args.dataset)
+        report['split_inventory'] = info.get('prepared_images', [])
+    atomic_text(Path(save_dir) / 'protocol_metrics.json', json.dumps(report, indent=2, default=str)+'\n')
 
 if __name__ == "__main__":
     args = parse_args()
