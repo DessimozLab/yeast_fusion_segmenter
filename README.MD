@@ -42,7 +42,7 @@ and fresh retraining. Every guide below links back here and to related steps.
 | TIFF/CZI conversion, masks, orientation and splits | [Dataset preparation](DATASET_PREPARATION.md) |
 | Dataset-info JSON creation and builder examples | [Dataset builder CLI](DATASET_BUILDER_CLI.md) |
 | Data-disk storage, local symlinks and checkout portability | [Storage layout](STORAGE_LAYOUT.md) |
-| Training, augmentation, evaluation and inference commands | [Training CLI](TRAINING_CLI.md) |
+| Training, convergence, CV, dropout sweeps, evaluation and inference | [Training CLI](TRAINING_CLI.md) |
 | Complete annotation → browser QC → retraining cycle | [Annotation lifecycle](ANNOTATION_LIFECYCLE.md) |
 | Adding acquisitions and preserving corrected labels | [Iterative training workflow](ITERATIVE_TRAINING_WORKFLOW.md) |
 | Biological annotation rules awaiting lab approval | [Review rubric](ANNOTATION_REVIEW_RUBRIC.md) |
@@ -57,6 +57,41 @@ and fresh retraining. Every guide below links back here and to related steps.
 The model reports include historical experiments, not interchangeable current
 benchmarks. Check their dataset/protocol dates and the
 [gap register](ANNOTATION_CYCLE_GAPS.md) before interpreting a result.
+
+### Run cross-validation or a separate dropout analysis
+
+Activate `mamba activate yeast_fusion_segmenter` and use a validated version-2
+training/compiled dataset, not a candidate-review manifest. These are separate
+analyses; do not combine the two flags. All runs train fresh, use predefined
+seeds (base 42), and reduce LR on validation-loss plateaus until convergence
+or a clearly reported 1000-epoch safety cap.
+
+```bash
+# 10 acquisition-grouped CV runs; frozen holdouts never enter training.
+CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
+  --dataset data/dataset_info/all-images-v2.json --cross-validate \
+  --model yolov8s-seg.pt --batch-size 4 --device 0 --seed 42 \
+  --cv-output data/derived/cv-all-images-v1
+
+# Separate fixed-split dropout sweep: 5 rates × 3 paired-seed repeats.
+CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
+  --dataset data/dataset_info/all-images-v2.json --dropout-sweep \
+  --dropout-rates 0 0.1 0.2 0.3 0.5 --dropout-runs 3 \
+  --model yolov8s-seg.pt --batch-size 4 --device 0 --seed 42 \
+  --sweep-output data/derived/dropout-all-images-v1
+```
+
+Replace the example JSON with your prepared dataset. Output directories must
+be new. Keep the existing compiled corrections, quarantine and frozen holdouts;
+do not rebuild from raw just to run an analysis. Each analysis writes validation/test metrics, Markdown/JSON/CSV reports,
+and plots with **between-run standard-deviation error bars**, not confidence
+intervals. CV resplits only original training acquisitions; dropout sweeps keep
+all splits fixed and apply real segmentation-backbone feature dropout, not the
+classification-only Ultralytics option. Select settings using validation, not
+test scores. See [convergence controls](TRAINING_CLI.md#seeded-training-to-convergence),
+[CV details](TRAINING_CLI.md#cross-validation-analysis),
+[dropout details](TRAINING_CLI.md#separate-dropout-sweep-analysis), and
+[software checks](tests/README.md#training-analysis-checks).
 
 ## 📋 Requirements
 

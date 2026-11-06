@@ -57,19 +57,170 @@ CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
 ```
 
 - `--model`: pretrained segmentation checkpoint to fine-tune.
-- `--epochs`, `--batch-size`, `--img-size`: training budget and input size.
+- `--epochs`: maximum epoch safety cap (default 1000), not a convergence claim.
+- `--batch-size`, `--img-size`: training batch and input size.
 - `--device 0`: use CUDA GPU 0; use `--device cpu` only when CUDA is absent.
 - `--output`: durable copy of the run’s best checkpoint. Training logs and
   artifacts remain in `runs/segment/`.
 - `--hyp`: optional YAML override for augmentation and optimizer settings.
 
-## Reproduce the final notebook training protocol
+## Seeded training to convergence
+
+All training uses `--seed 42` by default and `deterministic=True`. Each run
+starts fresh; do not continue an earlier experiment checkpoint for these analyses.
+Determinism is bounded by the hardware and software versions recorded in
+`protocol_metrics.json`, not a guarantee of bitwise equality across systems.
+
+The trainer monitors the **sum of all validation loss components**, including
+box, segmentation, classification and DFL loss, after warmup. It uses PyTorch
+[ReduceLROnPlateau](https://docs.pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.ReduceLROnPlateau.html):
+
+- `--lr-patience 10`: reduce LR after more than 10 epochs without a relative
+  loss improvement of `1e-4`.
+- `--lr-factor 0.5`: multiply LR by 0.5 at a plateau.
+- `--min-lr 0.000001`: learning-rate floor.
+- `--convergence-patience 40`: stop after 40 epochs without significant loss
+  improvement **while at the floor**. An improvement resets this wait.
+- `--epochs 1000`: safety cap. `convergence.json` distinguishes `converged`
+  from `epoch_cap_reached`; never describe a capped run as converged.
+
+The old fixed LR decay and mAP early stopper are replaced. AdamW is now the
+explicit default optimizer so Ultralytics' automatic optimizer cannot override
+the requested initial LR. A versioned `--hyp` can select another explicit
+optimizer, but not `auto`, a different seed/stopping policy, or classification
+`dropout`. The legacy `lrf` value is recorded but no longer controls fixed decay;
+the LR floor comes from `--min-lr`. Warmup retains Ultralytics' minimum 100 batches, so it can last more
+than three epochs on tiny datasets. Its LR ramp is not a validation plateau.
+The usual `best.pt` remains the checkpoint with the best **validation fitness**,
+not necessarily minimum loss. Neither test loss nor test AP controls training.
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
+  --dataset data/dataset_info/all-images-v2.json --annotated-only \
+  --model yolov8s-seg.pt --seed 42 --device 0 --batch-size 4 \
+  --epochs 1000 --lr-patience 10 --lr-factor 0.5 \
+  --min-lr 0.000001 --convergence-patience 40 \
+  --run-dir data/derived/convergence-v1/training \
+  --output models/convergence-v1.pt
+```
+
+Currently use one device (`--device 0`, or `cpu` for a software smoke test).
+Multi-GPU/DDP is rejected rather than running unsynchronized loss schedulers.
+Long experiment runs are not launched merely by running the regression suite.
+
+## Cross-validation analysis
+
+`--cross-validate` defaults to **10 repeated grouped holdout runs**, not ten
+folds. This permits CV on datasets with fewer than ten independent acquisitions.
+It requires a version-2 training/compiled `--dataset`, at least two annotated
+training acquisitions, and a nonempty labelled frozen test set. Use the explicit
+[legacy migration](ANNOTATION_LIFECYCLE.md#version-2-contracts-and-legacy-migration)
+if necessary; candidate predictions are rejected.
+
+For run index `i=0..9`, both split and training seeds are predefined as
+`--seed + i` (42–51 by default). Reserve `--cv-val-fraction 0.2` of the
+**original training acquisitions** for validation, rounded up, with at least
+one acquisition left for training. Sibling stack frames, including empty ones,
+stay together. Only nonempty labels contribute to supervised training/evaluation.
+There is no phenotype stratification; inspect class support in each run.
+
+The original validation acquisitions are excluded from CV entirely. Frozen
+test acquisitions stay test in every run, and inference-only pool images never
+become ground truth. The command copies only derived PNG/YOLO files into fresh
+version-2 datasets, preserving raw identities/hashes, approvals and teacher
+lineage; it never rebuilds raw masks or changes the source split.
+
+```bash
+# Default: 10 runs, seed schedule 42–51; run on CUDA 0.
+CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
+  --dataset data/dataset_info/all-images-v2.json --cross-validate \
+  --model yolov8s-seg.pt --seed 42 --device 0 --batch-size 4 \
+  --cv-output data/derived/cv-all-images-v1
+
+# A different prepared dataset and explicit repeat count/fraction.
+CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
+  --dataset data/dataset_info/all-czi-v2.json --cross-validate \
+  --cv-runs 10 --cv-val-fraction 0.25 --seed 42 \
+  --device 0 --batch-size 4 --cv-output data/derived/cv-czi-v1
+```
+
+The output directory must not exist. `--cv-output` controls all analysis
+artifacts; ordinary `--run-dir`/`--output` are not per-run destinations in
+analysis mode. The default root is `data/derived/cross_validation/<output-stem>/`,
+following this machine's existing data-disk symlink when installed.
+
+Outputs: `plan.json` records seeds, acquisition membership and original holdout
+hashes; each `run-XX/` contains dataset JSON/contract, a fresh `checkpoint.pt`,
+`training/checkpoint/convergence.json`, training protocol metrics, and independent
+`evaluation/{val,test}/checkpoint/protocol_metrics.json`. `completed_runs.json`
+retains finished runs if a later one fails; reruns require a new output directory.
+`report.md`, `summary.json`, `metrics.csv`, `metrics_error_bars.png` and
+`per_class_error_bars.png` summarize aggregate and per-class results.
+
+Error bars are **sample standard deviation between runs**, not confidence
+intervals. Repeated splits overlap, and test measurements reuse the same fields;
+ten runs are not ten independent biological samples. Missing-class AP is null,
+not invented as zero. Do not choose a model or tune hyperparameters on test AP.
+
+## Separate dropout-sweep analysis
+
+`--dropout-sweep` is independent of CV and cannot be combined with
+`--cross-validate` or `--evaluate`. It keeps the supplied training, validation
+and test splits fixed, requires a validated version-2 dataset with nonempty
+labels in all three splits, and initializes every run from the same stock
+`yolov8[nslmx]-seg.pt` base. All convergence controls above apply.
+
+The standard Ultralytics [`dropout` option is classification-only](https://docs.ultralytics.com/modes/train/).
+This analysis instead inserts **channel-wise `torch.nn.Dropout2d` after the
+YOLOv8 backbone's final SPPF output activation**. It is active only in training;
+validation/test/inference use ordinary deterministic evaluation, not Monte Carlo
+dropout. The checkpoint contains standard PyTorch modules, so existing
+annotation/evaluation commands can load it without custom hooks or classes.
+This tests one documented dropout location, not every possible architecture.
+
+```bash
+# Default rates 0, 0.1, 0.2, 0.3, 0.5; three repeats each = 15 fresh runs.
+CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
+  --dataset data/dataset_info/all-images-v2.json --dropout-sweep \
+  --model yolov8s-seg.pt --seed 42 --device 0 --batch-size 4 \
+  --sweep-output data/derived/dropout-all-images-v1
+
+# Explicit rates and five paired repeats each = 20 fresh runs.
+CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
+  --dataset data/dataset_info/all-images-v2.json --dropout-sweep \
+  --dropout-rates 0 0.1 0.25 0.5 --dropout-runs 5 \
+  --model yolov8s-seg.pt --seed 42 --device 0 --batch-size 4 \
+  --sweep-output data/derived/dropout-all-images-v2
+```
+
+Rates must be unique probabilities in `[0,1)` and include zero. At least two
+rates and two repeats are required. Repeat `i` uses seed `42+i` at **every**
+rate, yielding paired comparisons on unchanged acquisitions. Output roots must
+be new; default is `data/derived/dropout_analysis/<output-stem>/`. A sweep writes
+`plan.json`, per-rate/per-run checkpoints, loss histories and val/test protocol
+metrics, plus `report.md`, `summary.json`, `metrics.csv` and
+`dropout_effect.png`. Tables include mean ± sample SD and mean ± SD of the
+paired difference from zero dropout; per-rate reports include per-class metrics.
+**Select a rate using validation only.** Comparing many test scores does not
+make the test set a tuning set or establish a generalization improvement.
+
+After choosing a rate, train a fresh final iteration using, for example,
+`--feature-dropout 0.2` with the ordinary training command and a new output name.
+To evaluate or annotate its checkpoint, use the existing CLI unchanged.
+
+For an opt-in end-to-end CPU **software** check (two short CV runs and four
+dropout runs on synthetic images, no biological review), see
+[the testing guide](tests/README.md#training-analysis-checks).
+
+## Notebook architecture and augmentation preset
 
 `segment_retrain(1).ipynb` trained `yolov8s-seg.pt` at 1024 px for 1,000
 epochs with batch size 20, eight workers, `nbs=32`, 180° rotations, 0.5
 vertical/horizontal flips, and **no** mosaic, mixup, or copy-paste. Use
 `--notebook-protocol` to select those settings; explicit CLI values override
-the protocol defaults for a shorter test run.
+the protocol defaults for a shorter test run. The current seeded, loss-plateau
+optimizer/stopping policy above supersedes the historical fixed-epoch schedule;
+this is no longer an exact reproduction of its optimizer trajectory.
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python train_yolo.py \

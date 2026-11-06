@@ -58,5 +58,14 @@ class TestComparison(unittest.TestCase):
         report['checkpoint_sha256']='different';p.write_text(json.dumps(report))
         with self.assertRaisesRegex(ValueError,'reported trained checkpoint'):compare(args)
 
+    def test_unmatched_convergence_or_dropout_rejected(self):
+        args=self.comparison_args()
+        path=Path(args.reviewed_training_report)
+        original=json.loads(path.read_text())
+        for field,value in (('convergence',{'settings':{'patience':5}}),('feature_dropout',{'rate':.2})):
+            path.write_text(json.dumps(dict(original,**{field:value})))
+            with self.assertRaisesRegex(ValueError,'Protocol differs:'):
+                compare(args)
+
 
 if __name__=='__main__':unittest.main()

@@ -152,6 +152,8 @@ datasets/
 augmented/
 validation/
 runs/
+cross_validation/
+dropout_analysis/
 manual_test/
 zoomed/
 zoomed_png/

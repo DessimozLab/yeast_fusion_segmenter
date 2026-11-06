@@ -248,7 +248,32 @@ python batch_predict.py --config batch_predict_config.yaml --crop 512 --zoom
 python annotate_images.py --config annotate_images_config.yaml --confidence 0.7
 ```
 
-## Contributing
+## Training analysis checks
+
+`python tests/run_tests.py` includes grouped CV split/contract/approval checks,
+validation-loss plateau reduction and convergence checks, dropout training/eval
+and checkpoint serialization checks, paired-delta arithmetic, and report plots.
+These do not launch a scientific training run. See
+[the training CLI](../TRAINING_CLI.md#cross-validation-analysis) and
+[separate dropout sweep](../TRAINING_CLI.md#separate-dropout-sweep-analysis).
+
+Opt in to real CLI orchestration on a tiny **synthetic** fixture:
+
+```bash
+mamba activate yeast_fusion_segmenter
+YFS_RUN_TRAINING_SMOKE=1 python -m unittest \
+  tests.test_training_analysis_smoke.TestTrainingAnalysisSmoke
+```
+
+This runs two short CPU CV runs and two dropout rates × two repeats, with two
+epochs per run at 64px, then checks validation/test reports and plots. It
+requires the local `yolov8n-seg.pt` pretrained base (or its normal download).
+It uses temporary files and is neither a convergence benchmark nor evidence
+of biological accuracy, human approval or CUDA performance. It is skipped in
+the ordinary suite. Full scientific analysis examples are in the README and
+training guide; CUDA 0 must be available before launching them.
+
+## Contributing changes
 
 When adding new features to prediction scripts:
 1. Update test cases to cover new functionality

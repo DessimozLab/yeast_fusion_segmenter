@@ -6,12 +6,13 @@ import argparse
 from ultralytics import YOLO
 import logging
 from pathlib import Path
+from ultralytics.models.yolo.segment import SegmentationTrainer
 
 logging.basicConfig(level=logging.INFO, 
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('YOLOTrainer')
 
-def parse_args():
+def parse_args(argv=None):
     """Parse command line arguments for YOLO model training"""
     parser = argparse.ArgumentParser(description='Train YOLO model on custom dataset')
     
@@ -38,7 +39,7 @@ def parse_args():
     
     # Training arguments
     parser.add_argument('--epochs', type=int, default=None,
-                        help='Number of training epochs (100 normally; 1000 with --notebook-protocol)')
+                        help='Safety cap on training epochs (default: 1000; convergence may stop earlier)')
     parser.add_argument('--batch-size', type=int, default=None,
                         help='Training batch size (8 normally; 20 with --notebook-protocol)')
     parser.add_argument('--device', type=str, default='0', 
@@ -48,13 +49,118 @@ def parse_args():
     parser.add_argument('--hyp', type=str, default=None, 
                         help='Path to hyperparameter file (default: None)')
     parser.add_argument('--notebook-protocol', action='store_true',
-                        help='Use the final segment_retrain(1).ipynb YOLOv8s training protocol')
+                        help='Use the notebook YOLOv8s architecture/augmentation preset with current convergence controls')
     parser.add_argument('--zoom-augmentation', action='store_true',
                         help='Use stronger random scale/translation so training views include zoomed crops')
     parser.add_argument('--seed', type=int, default=42, help='Reproducible training/evaluation seed')
     parser.add_argument('--run-dir', help='Optional artifact project directory (each checkpoint uses a fresh run)')
+    parser.add_argument('--lr-patience', type=int, default=10, help='Bad validation epochs before reducing LR')
+    parser.add_argument('--lr-factor', type=float, default=0.5, help='Plateau LR reduction factor')
+    parser.add_argument('--min-lr', type=float, default=1e-6, help='Learning-rate floor')
+    parser.add_argument('--convergence-patience', type=int, default=40,
+                        help='Bad validation epochs at the LR floor before stopping')
+    parser.add_argument('--cross-validate', action='store_true', help='Repeated acquisition-grouped holdout CV')
+    parser.add_argument('--cv-runs', type=int, default=10, help='Number of CV training runs (default: 10)')
+    parser.add_argument('--cv-val-fraction', type=float, default=0.2,
+                        help='Fraction of training acquisitions reserved per CV run (default: 0.2)')
+    parser.add_argument('--cv-output', default=None, help='New directory for CV datasets, models and reports')
+    parser.add_argument('--dropout-sweep', action='store_true', help='Separate matched-seed dropout analysis (no CV)')
+    parser.add_argument('--dropout-rates', nargs='+', type=float, default=[0.0,0.1,0.2,0.3,0.5],
+                        help='Dropout probabilities to compare; must include the 0 baseline')
+    parser.add_argument('--dropout-runs', type=int, default=3, help='Matched-seed repeats per dropout rate (default: 3)')
+    parser.add_argument('--sweep-output', help='New directory for dropout analysis artifacts')
+    parser.add_argument('--feature-dropout', type=float, default=0.0,
+                        help='Training-only Dropout2d after backbone SPPF (default: 0, disabled)')
     
-    return parser.parse_args()
+    args = parser.parse_args(argv)
+    if (args.lr_patience < 0 or args.convergence_patience < 1 or not 0 < args.lr_factor < 1
+            or not 0 < args.min_lr or args.seed < 0 or (args.epochs is not None and args.epochs < 1)):
+        parser.error('Invalid convergence settings, seed or epoch cap')
+    if args.cv_runs < 2 or not 0 < args.cv_val_fraction < 1:
+        parser.error('CV requires at least two runs and a validation fraction strictly between 0 and 1')
+    if args.cross_validate and (args.evaluate or not args.dataset):
+        parser.error('--cross-validate requires --dataset and cannot be combined with --evaluate')
+    if args.dropout_sweep and (args.cross_validate or args.evaluate or not args.dataset):
+        parser.error('--dropout-sweep requires --dataset and is separate from CV/evaluation')
+    if (not 0 <= args.feature_dropout < 1 or args.dropout_runs < 2 or
+            len(set(args.dropout_rates)) != len(args.dropout_rates) or
+            len(args.dropout_rates) < 2 or 0 not in args.dropout_rates or
+            any(not 0 <= rate < 1 for rate in args.dropout_rates)):
+        parser.error('Dropout rates must be unique, in [0, 1), include 0, and have at least two rates/repeats')
+    return args
+
+
+class LossPlateau:
+    """Reduce LR on validation loss, then wait at the floor before declaring convergence."""
+    def __init__(self, optimizer, *, patience, factor, min_lr, stop_patience):
+        import torch
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, mode='min', factor=factor, patience=patience, min_lr=min_lr,
+            threshold=1e-4, threshold_mode='rel', eps=0)
+        self.optimizer, self.min_lr, self.stop_patience = optimizer, min_lr, stop_patience
+        self.best, self.bad_epochs, self.floor_epochs = float('inf'), 0, 0
+        self.converged = False
+        self.history = []
+
+    def step(self, epoch, metrics):
+        import math
+        losses = {key: float(value) for key, value in metrics.items() if key.startswith('val/') and key.endswith('_loss')}
+        if not losses or not all(math.isfinite(value) for value in losses.values()):
+            raise ValueError('Convergence requires finite validation losses every epoch')
+        loss = sum(losses.values())
+        before = [group['lr'] for group in self.optimizer.param_groups]
+        if loss < self.best * (1 - 1e-4):
+            self.best, self.bad_epochs, self.floor_epochs = loss, 0, 0
+        else:
+            self.bad_epochs += 1
+            if all(lr <= self.min_lr * (1 + 1e-6) for lr in before):
+                self.floor_epochs += 1
+        self.scheduler.step(loss)
+        rates = [group['lr'] for group in self.optimizer.param_groups]
+        self.converged = self.floor_epochs >= self.stop_patience
+        self.history.append({'epoch': epoch, 'validation_loss': loss, 'components': losses,
+                             'learning_rates': rates, 'reduced': rates != before,
+                             'floor_epochs': self.floor_epochs})
+        return self.converged
+
+
+class ConvergingSegmentationTrainer(SegmentationTrainer):
+    """Keep Ultralytics warmup/checkpoints, replacing its fixed LR decay and mAP stopper."""
+    def __init__(self, *args, convergence_settings, feature_dropout=0.0, **kwargs):
+        self.convergence_settings = convergence_settings
+        self.feature_dropout = feature_dropout
+        super().__init__(*args, **kwargs)
+
+    def get_model(self, cfg=None, weights=None, verbose=True):
+        model = super().get_model(cfg=cfg, weights=weights, verbose=verbose)
+        if self.feature_dropout:
+            from dropout_analysis import add_feature_dropout
+            add_feature_dropout(model, self.feature_dropout)
+        return model
+
+    def _setup_scheduler(self):
+        import torch
+        self.lf = lambda epoch: 1.0
+        self.scheduler = torch.optim.lr_scheduler.LambdaLR(self.optimizer, lr_lambda=self.lf)
+        self.loss_plateau = LossPlateau(self.optimizer, **self.convergence_settings)
+
+    def validate(self):
+        import json
+        from annotation_cycle import atomic_text
+        metrics, fitness = super().validate()
+        batches = len(self.train_loader)
+        warmup_steps = max(round(self.args.warmup_epochs * batches), 100) if self.args.warmup_epochs > 0 else -1
+        if (self.epoch + 1) * batches - 1 > warmup_steps:
+            self.stop |= self.loss_plateau.step(self.epoch + 1, metrics)
+            # Constant LambdaLR must retain the rates just chosen by the loss scheduler.
+            self.scheduler.base_lrs = [group['lr'] for group in self.optimizer.param_groups]
+        atomic_text(Path(self.save_dir) / 'convergence.json', json.dumps({
+            'monitor': 'sum of val/*_loss', 'settings': self.convergence_settings,
+            'converged': self.loss_plateau.converged,
+            'status': 'converged' if self.loss_plateau.converged else
+                      'epoch_cap_reached' if self.epoch + 1 >= self.epochs else 'running',
+            'epochs_completed': self.epoch + 1, 'history': self.loss_plateau.history}, indent=2) + '\n')
+        return metrics, fitness
 
 def notebook_hyperparameters():
     """Return the final YOLO hyperparameters used by the retraining notebook."""
@@ -225,6 +331,8 @@ def train_model(args):
     """Main function to train the YOLO model"""
     if Path(args.output).exists():
         raise ValueError('Output checkpoint already exists; choose a fresh iteration name')
+    if ',' in args.device:
+        raise ValueError('Loss-controlled convergence currently supports one device; use --device 0')
     # Validate model path
     if not os.path.exists(args.model) and not args.model.startswith('yolov8'):
         raise FileNotFoundError(f"Model not found: {args.model}")
@@ -256,10 +364,26 @@ def train_model(args):
         if args.workers is None:
             args.workers = 8
     else:
-        args.epochs = 100 if args.epochs is None else args.epochs
+        args.epochs = 1000 if args.epochs is None else args.epochs
         args.batch_size = 8 if args.batch_size is None else args.batch_size
         args.workers = 4 if args.workers is None else args.workers
     
+    settings = {'patience': args.lr_patience, 'factor': args.lr_factor,
+                'min_lr': args.min_lr, 'stop_patience': args.convergence_patience}
+    if hyp.get('lr0', 0.001) < args.min_lr:
+        raise ValueError('--min-lr must not exceed the initial learning rate')
+    forbidden = {'seed', 'deterministic', 'patience', 'val', 'resume', 'time', 'trainer',
+                 'epochs', 'device', 'data', 'save', 'fraction', 'single_cls', 'classes', 'cos_lr', 'dropout'} & hyp.keys()
+    if forbidden:
+        raise ValueError('Use CLI controls, not --hyp, for: ' + ', '.join(sorted(forbidden)))
+    # Auto optimizer overrides lr0, defeating a reproducible plateau protocol.
+    hyp.setdefault('optimizer', 'AdamW')
+    if hyp['optimizer'] == 'auto':
+        raise ValueError('Select an explicit optimizer in --hyp, not auto')
+    from functools import partial
+    trainer = partial(ConvergingSegmentationTrainer, convergence_settings=settings,
+                      feature_dropout=args.feature_dropout)
+
     # Initialize the model
     logger.info(f"Loading model: {args.model}")
     model = YOLO(args.model)
@@ -267,6 +391,7 @@ def train_model(args):
     # Training settings
     logger.info(f"Starting training for {args.epochs} epochs")
     results = model.train(
+        trainer=trainer,
         data=data_path,
         epochs=args.epochs,
         imgsz=args.img_size,
@@ -280,6 +405,9 @@ def train_model(args):
         exist_ok=False,
         pretrained=True,
         seed=args.seed,
+        deterministic=True,
+        patience=0,
+        val=True,
         **hyp
     )
     
@@ -320,6 +448,7 @@ def evaluate_model(args):
         data=data_path, split=args.eval_split, imgsz=args.img_size,
         batch=args.batch_size if args.batch_size is not None else 8, device=args.device,
         workers=args.workers if args.workers is not None else 4, seed=args.seed,
+        deterministic=True,
         project=str(Path(args.run_dir).resolve()) if args.run_dir else 'yolo_evaluation', name=Path(args.model).stem, exist_ok=False,
     )
     validator = captured['validator']
@@ -344,8 +473,16 @@ def write_run_report(args, results, save_dir, effective_args):
               'effective_arguments': vars(effective_args),
               'versions': {'python': platform.python_version(), 'torch': torch.__version__,
                            'ultralytics': ultralytics.__version__}}
+    convergence_path = Path(save_dir) / 'convergence.json'
+    if not args.evaluate and convergence_path.exists():
+        report['convergence'] = json.loads(convergence_path.read_text())
+        if not report['convergence']['converged']:
+            logger.warning('Epoch safety cap reached without convergence; see %s', convergence_path)
     if not args.evaluate and Path(args.model).is_file():
         report['initial_checkpoint_sha256']=digest(args.model)
+    if not args.evaluate:
+        report['feature_dropout'] = {'rate':args.feature_dropout, 'type':'Dropout2d',
+                                     'location':'backbone SPPF output', 'active_during_evaluation':False}
     if hasattr(results, 'box') and hasattr(results, 'seg'):
         from annotation_cycle import CLASSES
         indices={int(class_id):index for index,class_id in enumerate(results.box.ap_class_index)}
@@ -366,12 +503,22 @@ def write_run_report(args, results, save_dir, effective_args):
         report['split_inventory'] = info.get('prepared_images', [])
     atomic_text(Path(save_dir) / 'protocol_metrics.json', json.dumps(report, indent=2, default=str)+'\n')
 
-if __name__ == "__main__":
-    args = parse_args()
-    if args.evaluate:
+def main(argv=None):
+    args = parse_args(argv)
+    if args.dropout_sweep:
+        from dropout_analysis import dropout_sweep
+        dropout_sweep(args)
+    elif args.cross_validate:
+        from cross_validation import cross_validate
+        cross_validate(args)
+    elif args.evaluate:
         evaluate_model(args)
         logger.info("Evaluation completed successfully")
     else:
         train_model(args)
         logger.info("Training completed successfully")
         print(f"Trained model saved to: {args.output}")
+
+
+if __name__ == "__main__":
+    main()

@@ -213,13 +213,83 @@ standard YOLO dataset.
 
 ## Training and augmentation
 
-The default CLI uses `yolov8n-seg.pt`, 100 epochs, 1024px images, batch 8,
+The default CLI uses `yolov8n-seg.pt`, a 1000-epoch safety cap, 1024px images, batch 8,
 device `0`, and four workers. Default training augmentation/hyperparameters in
 `train_yolo.py` are: HSV H/S/V 0.01/0.01/0.01; rotation ±180°; translate 0.1;
 scale 0.1; shear 0.1; vertical/horizontal flips 0.5/0.5; mosaic 0.2; mixup
 0.0; perspective 0.0. Optimizer-related defaults are `lr0=0.001`,
 `lrf=0.0001`, momentum 0.5, weight decay 0.0001, and 3 warmup epochs.
 Override them only with a versioned `--hyp` YAML and document the change.
+
+All current training uses seed 42 by default, `deterministic=True`, an explicit
+AdamW optimizer and validation-loss `ReduceLROnPlateau`, not fixed linear/cosine
+decay or mAP early stopping. After warmup (minimum 100 batches), monitor the sum
+of `val/*_loss`; relative improvement threshold is `1e-4`. Defaults:
+`--lr-patience 10 --lr-factor 0.5 --min-lr 1e-6 --convergence-patience 40`.
+Convergence requires 40 non-improving epochs at the LR floor; significant
+improvement resets the wait. `--epochs` is a safety cap, not proof of convergence.
+Read `convergence.json` and the training report before claiming convergence.
+`best.pt` still uses validation fitness. Never use test metrics to control
+stopping, scheduling or hyperparameter selection. Only single-device training
+is supported by this loss controller; use CUDA 0. Do not silently fall back to CPU
+for a scientific run if CUDA is unavailable. CPU is appropriate for smoke checks.
+
+### Agent-run CV and dropout analyses
+
+Read [the analysis CLI instructions](TRAINING_CLI.md#cross-validation-analysis)
+before running. Check the environment, validated version-2 contract, class
+support, acquisition counts, GPU availability and disk capacity first. Legacy
+datasets require explicit acknowledged migration; candidate-review datasets
+are never training/evaluation ground truth. Each experiment needs a new output
+directory and fresh stock `yolov8[nslmx]-seg.pt` initialization. Budget the total
+number of runs before launching; report the exact command and artifact paths.
+
+```bash
+mamba activate yeast_fusion_segmenter
+# Replace the JSON path with the intended version-2 dataset.
+CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
+  --dataset data/dataset_info/all-images-v2.json --cross-validate \
+  --cv-runs 10 --cv-val-fraction 0.2 --seed 42 --device 0 \
+  --model yolov8s-seg.pt --batch-size 4 \
+  --cv-output data/derived/cv-all-images-v1
+
+# Separate analysis: fixed splits, 5 rates × 3 matched-seed repeats.
+CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
+  --dataset data/dataset_info/all-images-v2.json --dropout-sweep \
+  --dropout-rates 0 0.1 0.2 0.3 0.5 --dropout-runs 3 \
+  --seed 42 --device 0 --model yolov8s-seg.pt --batch-size 4 \
+  --sweep-output data/derived/dropout-all-images-v1
+```
+
+- CV means repeated grouped holdout, not 10-fold CV. Default 10 runs use
+  seeds 42–51 for splits and training. Only original annotated training
+  acquisitions may be resplit. All sibling frames stay together, frozen
+  original validation acquisitions are excluded, and test/pool roles stay
+  frozen. No raw conversion or source mutation is needed. At least two
+  annotated training acquisitions and a labelled test set are required.
+- Dropout analysis is separate from CV: never combine the flags. Default
+  seeds 42–44 are reused for every rate, with fixed source splits. Require
+  nonempty labelled train/val/test sets. `Dropout2d` is placed after the
+  backbone SPPF output activation; Ultralytics' plain `dropout` parameter is
+  classification-only and must not be used for this segmentation analysis.
+  Dropout is off for evaluation/inference; no MC-dropout claims. Saved modules
+  are standard PyTorch and load through existing annotation/evaluation CLIs.
+- Both analyses write `plan.json`, fresh checkpoints, convergence histories,
+  val/test protocol reports and top-level Markdown/JSON/CSV/PNG summaries.
+  Dropout reports include paired metric changes versus rate 0. Error bars
+  are sample SD, not confidence intervals. Repeats do not add independent
+  biological samples. Missing-class metrics remain null, never fake zeros.
+- Use validation only to choose dropout settings; test is not a tuning set.
+  Report capped runs explicitly, missing phenotypes, small heldout support,
+  seeds, software versions, fixed holdouts and checkpoint/dataset hashes.
+  Keep compiled human-reviewed labels and teacher lineage intact.
+
+Run `python tests/run_tests.py` after changes. Opt-in real CPU orchestration:
+`YFS_RUN_TRAINING_SMOKE=1 python -m unittest tests.test_training_analysis_smoke.TestTrainingAnalysisSmoke`.
+This uses synthetic images, checks software paths only and is not biological
+approval or evidence of model performance. See
+[tests](tests/README.md#training-analysis-checks). CUDA convergence experiments
+are separate, potentially long jobs; never claim they ran based on this check.
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python train_yolo.py \
@@ -242,6 +312,8 @@ To reproduce the final notebook model run, add `--notebook-protocol`. It uses
 `yolov8s-seg.pt`, 1,000 epochs, batch 20, eight workers, `nbs=32`, and the
 notebook's 180° rotation/flip settings with mosaic, mixup, and copy-paste
 disabled. Explicit CLI values override those defaults for a short test.
+This is now an architecture/augmentation preset: the current seeded AdamW and
+loss-plateau convergence policy replaces the historical optimizer trajectory.
 
 ### Dataset-size limitation
 

@@ -28,7 +28,7 @@ def compare(args):
         if evaluation['split_inventory']!=info['prepared_images']:raise ValueError('Evaluation inventory differs')
         if train['effective_arguments'].get('resume'):raise ValueError('Pilot requires fresh training, not resumed runs')
         if Path(train['effective_arguments']['model']).name!='yolov8s-seg.pt':raise ValueError('Pilot must initialize independently from yolov8s-seg.pt')
-    keys=('epochs','imgsz','batch','seed','nbs','optimizer','lr0','lrf','momentum','weight_decay',
+    keys=('epochs','imgsz','batch','seed','deterministic','nbs','optimizer','lr0','lrf','momentum','weight_decay',
           'hsv_h','hsv_s','hsv_v','degrees','translate','scale','shear','flipud','fliplr','mosaic','mixup','copy_paste')
     mismatches=[key for key in keys if training[0]['effective_arguments'].get(key)!=training[1]['effective_arguments'].get(key)]
     mismatches += ['evaluation '+key for key in ('imgsz','batch','conf','iou','max_det','split')
@@ -36,6 +36,10 @@ def compare(args):
     if training[0]['versions']!=training[1]['versions']:mismatches.append('software versions')
     if training[0].get('initial_checkpoint_sha256')!=training[1].get('initial_checkpoint_sha256'):
         mismatches.append('pretrained initialization hash')
+    if training[0].get('convergence',{}).get('settings')!=training[1].get('convergence',{}).get('settings'):
+        mismatches.append('convergence settings')
+    if training[0].get('feature_dropout')!=training[1].get('feature_dropout'):
+        mismatches.append('feature dropout')
     if mismatches:raise ValueError('Protocol differs: '+', '.join(mismatches))
     metric_keys=('metrics/precision(B)','metrics/recall(B)','metrics/mAP50(B)','metrics/mAP50-95(B)',
                  'metrics/precision(M)','metrics/recall(M)','metrics/mAP50(M)','metrics/mAP50-95(M)')
